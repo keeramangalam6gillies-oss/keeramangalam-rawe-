@@ -4,19 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Keeramangalam RAWE 2026 | Rural Agricultural Work Experience</title>
+<title>Keeramangalam RAWE 2026 | AEX 401</title>
 
-<meta name="description" content="Explore Keeramangalam RAWE 2026, AEX 401 Rural Agricultural Work Experience Programme, agricultural activities, institutional visits, demonstrations and rural development in Pudukkottai district, Tamil Nadu.">
+<meta name="description" content="Keeramangalam RAWE 2026 - AEX 401 Rural Agricultural Work Experience Programme. Explore agricultural activities, farmer interactions, institutional visits and rural development.">
 
 <style>
 :root {
     --green: #176b38;
-    --dark-green: #104d2b;
-    --light-green: #eaf5e9;
+    --dark: #104524;
+    --light: #edf7ed;
     --gold: #f2c14e;
     --white: #ffffff;
     --text: #26352a;
-    --muted: #637267;
 }
 
 * {
@@ -27,32 +26,31 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, sans-serif;
+    background: #f8fbf7;
     color: var(--text);
-    background: #f7faf6;
     line-height: 1.7;
 }
 
 a {
     text-decoration: none;
-    color: inherit;
 }
 
 /* HEADER */
 
 header {
     background: white;
-    padding: 12px 5%;
+    padding: 12px 4%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    border-bottom: 3px solid var(--green);
+    gap: 15px;
+    border-bottom: 4px solid var(--green);
 }
 
 .logo {
-    width: 85px;
-    height: 85px;
+    width: 75px;
+    height: 75px;
     object-fit: contain;
 }
 
@@ -62,22 +60,768 @@ header {
 }
 
 .header-title h1 {
-    color: var(--dark-green);
-    font-size: clamp(20px, 3vw, 32px);
+    color: var(--dark);
+    font-size: clamp(19px, 3vw, 32px);
     line-height: 1.3;
 }
 
 .header-title p {
-    color: var(--muted);
-    font-size: 14px;
+    font-size: 13px;
+    color: #555;
 }
 
 /* ANNOUNCEMENT */
 
 .announcement {
-    background: var(--dark-green);
+    background: var(--dark);
     color: white;
     overflow: hidden;
     white-space: nowrap;
     padding: 10px 0;
-    font-weight: bold
+    font-weight: bold;
+}
+
+.announcement span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: announcement 25s linear infinite;
+}
+
+@keyframes announcement {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .announcement span {
+        animation: none;
+        padding-left: 10px;
+    }
+}
+
+/* NAVIGATION */
+
+nav {
+    background: var(--green);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 8px;
+}
+
+nav a {
+    color: white;
+    padding: 9px 12px;
+    font-size: 13px;
+    border-radius: 5px;
+}
+
+nav a:hover {
+    background: var(--gold);
+    color: var(--dark);
+}
+
+/* HERO */
+
+.hero {
+    min-height: 470px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 45px 20px;
+    color: white;
+    background:
+    linear-gradient(rgba(5,45,20,.72),rgba(5,45,20,.72)),
+    url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=85");
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-content {
+    max-width: 850px;
+}
+
+.hero h2 {
+    font-size: clamp(30px, 6vw, 52px);
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+.button {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--dark);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: bold;
+}
+
+/* SECTIONS */
+
+section {
+    padding: 60px 7%;
+    scroll-margin-top: 70px;
+}
+
+.light-section {
+    background: var(--light);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.section-title h2 {
+    color: var(--dark);
+    font-size: 29px;
+}
+
+.section-title p {
+    color: #647568;
+}
+
+.section-title:after {
+    content: "";
+    display: block;
+    width: 75px;
+    height: 4px;
+    background: var(--gold);
+    margin: 12px auto;
+    border-radius: 5px;
+}
+
+/* CONTENT BOX */
+
+.content-box {
+    max-width: 1000px;
+    margin: auto;
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+}
+
+.content-box h3 {
+    color: var(--green);
+    margin-bottom: 10px;
+}
+
+.content-box ul {
+    padding-left: 22px;
+}
+
+/* CARDS */
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+}
+
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    border-bottom: 4px solid var(--green);
+    box-shadow: 0 4px 15px rgba(0,0,0,.07);
+    transition: .3s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 9px 22px rgba(0,0,0,.12);
+}
+
+.card-icon {
+    font-size: 34px;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    color: var(--green);
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.card p {
+    color: #59675d;
+    font-size: 14px;
+}
+
+/* SEARCH */
+
+.search-box {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    padding: 13px 18px;
+    border: 1px solid #cbd8ca;
+    border-radius: 25px;
+    font-size: 15px;
+}
+
+/* GALLERY */
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.gallery-item {
+    min-height: 160px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#d9edcf,#a9d5a2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--dark);
+    padding: 20px;
+    font-weight: bold;
+}
+
+/* FOOTER */
+
+footer {
+    background: #103c24;
+    color: white;
+    text-align: center;
+    padding: 35px 15px;
+}
+
+footer p {
+    font-size: 14px;
+    margin: 5px;
+}
+
+.back-top {
+    position: fixed;
+    bottom: 20px;
+    right: 18px;
+    background: var(--green);
+    color: white;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+}
+
+/* MOBILE DESIGN */
+
+@media(max-width: 600px) {
+    header {
+        padding: 10px 6px;
+        gap: 6px;
+    }
+
+    .logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .header-title h1 {
+        font-size: 16px;
+    }
+
+    .header-title p {
+        font-size: 10px;
+    }
+
+    nav a {
+        font-size: 11px;
+        padding: 7px 8px;
+    }
+
+    .hero {
+        min-height: 370px;
+    }
+
+    section {
+        padding: 42px 5%;
+    }
+
+    .section-title h2 {
+        font-size: 24px;
+    }
+
+    .content-box {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+    <img src="college-logo.png" alt="College Logo" class="logo">
+
+    <div class="header-title">
+        <h1>KEERAMANGALAM RAWE</h1>
+        <p>Rural Agricultural Work Experience Programme</p>
+        <p><strong>Academic Year 2026 | AEX 401 (0+20)</strong></p>
+        <p>Keeramangalam, Pudukkottai District, Tamil Nadu</p>
+    </div>
+
+    <img src="tnau-logo.png" alt="TNAU Logo" class="logo">
+    <img src="rawe-logo.png" alt="RAWE Logo" class="logo">
+</header>
+
+<!-- MOVING ANNOUNCEMENT -->
+
+<div class="announcement">
+    <span>
+        🌱 WELCOME TO KEERAMANGALAM RAWE 2026 |
+        AEX 401 RURAL AGRICULTURAL WORK EXPERIENCE |
+        FARMER INTERACTION | FIELD ACTIVITIES |
+        INSTITUTIONAL VISITS | AGRICULTURAL DEMONSTRATIONS 🌾
+    </span>
+</div>
+
+<!-- NAVIGATION -->
+
+<nav>
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#village">Village</a>
+    <a href="#activities">Activities</a>
+    <a href="#attachments">Attachments</a>
+    <a href="#visits">Institutional Visits</a>
+    <a href="#training">Training</a>
+    <a href="#demonstrations">Demonstrations</a>
+    <a href="#reports">Reports</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#downloads">Downloads</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<!-- HOME -->
+
+<div class="hero" id="home">
+    <div class="hero-content">
+        <h2>Learning Agriculture Through Experience</h2>
+        <p>
+            Connecting agricultural knowledge with farmers,
+            rural institutions and village communities.
+        </p>
+        <a href="#about" class="button">Explore RAWE Programme</a>
+    </div>
+</div>
+
+<!-- ABOUT -->
+
+<section id="about">
+    <div class="section-title">
+        <h2>About RAWE</h2>
+        <p>Rural Agricultural Work Experience Programme</p>
+    </div>
+
+    <div class="content-box">
+        <p>
+            The Rural Agricultural Work Experience (RAWE) Programme
+            provides agricultural students with practical exposure
+            to farming systems, rural institutions, agricultural
+            technologies and village development activities.
+        </p>
+        <br>
+        <p>
+            Through AEX 401, students interact with farmers,
+            observe agricultural practices, participate in field
+            activities and understand the functioning of rural
+            institutions.
+        </p>
+        <br>
+        <p>
+            This website presents the field activities,
+            demonstrations, institutional visits, training
+            programmes and rural development experiences
+            conducted at Keeramangalam.
+        </p>
+    </div>
+</section>
+
+<!-- VILLAGE PROFILE -->
+
+<section id="village" class="light-section">
+    <div class="section-title">
+        <h2>Keeramangalam Village Profile</h2>
+        <p>Agricultural and rural environment</p>
+    </div>
+
+    <div class="content-box">
+        <h3>Keeramangalam</h3>
+        <p>
+            Keeramangalam is located in Pudukkottai district,
+            Tamil Nadu. Agriculture is an important activity
+            in the surrounding rural areas.
+        </p>
+        <br>
+
+        <h3>Major Agricultural Activities</h3>
+        <ul>
+            <li>Coconut cultivation</li>
+            <li>Paddy cultivation</li>
+            <li>Flower cultivation</li>
+            <li>Black gram cultivation</li>
+            <li>Vegetable cultivation</li>
+        </ul>
+        <br>
+
+        <h3>Village Study Activities</h3>
+        <ul>
+            <li>Participatory Rural Appraisal (PRA)</li>
+            <li>Social mapping</li>
+            <li>Resource mapping</li>
+            <li>Village timeline preparation</li>
+            <li>Seasonal calendar preparation</li>
+            <li>Problem tree analysis</li>
+        </ul>
+    </div>
+</section>
+
+<!-- FIELD ACTIVITIES -->
+
+<section id="activities">
+    <div class="section-title">
+        <h2>RAWE Field Activities</h2>
+        <p>Practical learning and village-level agricultural exposure</p>
+    </div>
+
+    <input
+        type="text"
+        id="activitySearch"
+        class="search-box"
+        placeholder="Search field activities..."
+        aria-label="Search field activities"
+    >
+
+    <div class="card-grid" id="activityGrid">
+
+        <div class="card">
+            <div class="card-icon">🌾</div>
+            <h3>Farmer Interaction</h3>
+            <p>Interaction with farmers to understand cropping patterns,
+            cultivation practices and field-level problems.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🗺️</div>
+            <h3>PRA Activities</h3>
+            <p>Resource mapping, social mapping, timeline and
+            seasonal calendar preparation.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🥥</div>
+            <h3>Coconut Cultivation</h3>
+            <p>Observation of coconut cultivation, crop management
+            and pest and disease problems.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🌼</div>
+            <h3>Flower Cultivation</h3>
+            <p>Observation of flower crops and their cultivation
+            and management practices.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🌱</div>
+            <h3>Crop Management</h3>
+            <p>Understanding crop production practices and
+            farmers' field-level challenges.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🤝</div>
+            <h3>Community Participation</h3>
+            <p>Participation in village awareness and
+            agricultural extension activities.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- ATTACHMENTS -->
+
+<section id="attachments" class="light-section">
+    <div class="section-title">
+        <h2>Institutional and Industrial Attachments</h2>
+        <p>Exposure to agricultural institutions and rural enterprises</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <div class="card-icon">🏭</div>
+            <h3>Agro-Industries Attachment</h3>
+            <p>Exposure to agro-based industries, processing
+            activities and agricultural value addition.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🤝</div>
+            <h3>NGO Attachment – SELVA TRUST</h3>
+            <p>Exposure to agricultural support, women's empowerment,
+            training programmes, awareness activities,
+            self-help groups and rural development.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🌾</div>
+            <h3>FPO Attachment</h3>
+            <p>Understanding Farmer Producer Organisation activities,
+            farmer participation and collective marketing.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏢</div>
+            <h3>Agriculture Department</h3>
+            <p>Exposure to the functions of ADA, AO, AAO and VAO,
+            agricultural schemes and extension services.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏦</div>
+            <h3>Cooperative Institutions</h3>
+            <p>Understanding cooperative banking,
+            agricultural credit and farmer support services.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🛒</div>
+            <h3>Agricultural Marketing</h3>
+            <p>Exposure to Uzhavar Sandhai, agricultural marketing
+            and farmer-to-consumer sales.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🧪</div>
+            <h3>Soil Testing Laboratory</h3>
+            <p>Learning soil sample collection, soil analysis
+            and soil health management.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🚜</div>
+            <h3>Custom Hiring Centre</h3>
+            <p>Understanding agricultural machinery services
+            and equipment availability for farmers.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🥛</div>
+            <h3>Dairy and Milk Cooperative</h3>
+            <p>Exposure to milk collection, quality assessment,
+            processing and cooperative management.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h3>Agro-Based Enterprises</h3>
+            <p>Visits to rice mills, oil mills, sugar mills
+            and other agricultural enterprises.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">☀️</div>
+            <h3>Renewable Energy</h3>
+            <p>Exposure to solar energy applications
+            and renewable energy in agriculture.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏥</div>
+            <h3>Rural Institutions</h3>
+            <p>Understanding rural public services,
+            health facilities and local administration.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- INSTITUTIONAL VISITS -->
+
+<section id="visits">
+    <div class="section-title">
+        <h2>Institutional Visits</h2>
+        <p>Learning from research, training and public institutions</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <div class="card-icon">🔬</div>
+            <h3>KVK – Vamban</h3>
+            <p>Exposure to agricultural technologies,
+            farmer training, demonstrations and extension activities.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🌱</div>
+            <h3>Agricultural Research Institutions</h3>
+            <p>Understanding agricultural research,
+            crop improvement and technology development.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏥</div>
+            <h3>Primary Health Centre</h3>
+            <p>Learning about rural healthcare services,
+            health awareness and community welfare.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏛️</div>
+            <h3>Town Panchayat</h3>
+            <p>Understanding local administration,
+            public services and village development activities.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">📚</div>
+            <h3>Agricultural Training Centres</h3>
+            <p>Exposure to farmer training, agricultural
+            demonstrations and knowledge transfer.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- TRAINING -->
+
+<section id="training" class="light-section">
+    <div class="section-title">
+        <h2>Training and Extension Activities</h2>
+        <p>Knowledge sharing and practical skill development</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <h3>Organic Input Preparation</h3>
+            <p>Practical exposure to traditional and organic
+            agricultural input preparation.</p>
+        </div>
+
+        <div class="card">
+            <h3>Fish Amino Acid</h3>
+            <p>Training on preparation, fermentation
+            and agricultural use of fish amino acid.</p>
+        </div>
+
+        <div class="card">
+            <h3>Kunapajalam Preparation</h3>
+            <p>Learning the preparation of Kunapajalam
+            using locally available materials.</p>
+        </div>
+
+        <div class="card">
+            <h3>Mushroom Cultivation</h3>
+            <p>Practical exposure to oyster mushroom
+            cultivation and its benefits.</p>
+        </div>
+
+        <div class="card">
+            <h3>Kitchen Garden</h3>
+            <p>Awareness about household vegetable
+            production and nutritional security.</p>
+        </div>
+
+        <div class="card">
+            <h3>School Awareness Programme</h3>
+            <p>Activities related to health, hygiene,
+            nutrition and environmental awareness.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- DEMONSTRATIONS -->
+
+<section id="demonstrations">
+    <div class="section-title">
+        <h2>Agricultural Demonstrations</h2>
+        <p>Practical demonstrations of agricultural technologies</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <h3>Air Layering in Jasmine</h3>
+            <p>Demonstration of vegetative propagation
+            through air layering in jasmine.</p>
+        </div>
+
+        <div class="card">
+            <h3>Boron Efficiency in Coconut</h3>
+            <p>Demonstration involving Calotropis
+            for improving boron-use efficiency in coconut.</p>
+        </div>
+
+        <div class="card">
+            <h3>Maida Solution</h3>
+            <p>Preparation and demonstration of
+            maida solution for agricultural use.</p>
+        </div>
+
+        <div class="card">
+            <h3>Egg Amino Acid</h3>
+            <p>Preparation and application awareness
+            of egg amino acid solution.</p>
+        </div>
+
+        <div class="card">
+            <h3>Herbal Garden</h3>
+            <p>Identification and observation of
+            medicinal and herbal plants.</p>
+        </div>
+
+        <div class="card">
+            <h3>Soil Health Awareness</h3>
+            <p>Awareness about soil sampling,
+            soil testing and nutrient management.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- REPORTS -->
+
+<section id="reports" class="light-section">
+    <div class="section-title">
+        <h2>Reports and Publications</h2>
+        <p>Documentation of RAWE field experiences</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <h3>Daily Field Visit Reports</h3>
+            <p>Daily documentation of field activities,
+            observations and learning experiences.</p>
+        </div>
+
+        <div class="card">
+            <h3>Farmer Interaction Reports</h3>
+            <p>Documentation of individual farmer profiles,
+            crop details and cultivation problems.</p>
+        </div>
+
+      
