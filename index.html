@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Keeramangalam RAWE 2026 - AEX 401 Rural Agricultural Work Experience Programme. Explore agricultural activities, farmer interactions, institutional visits and rural development.">
+
+<meta name="description" content="Keeramangalam RAWE 2026 - AEX 401 Rural Agricultural Work Experience Programme.">
 <meta name="theme-color" content="#104524">
 
 <title>Keeramangalam RAWE 2026 | AEX 401</title>
@@ -159,6 +160,8 @@ nav a:focus {
     padding: 12px 24px;
     border-radius: 30px;
     font-weight: bold;
+    border: none;
+    cursor: pointer;
 }
 
 /* SECTIONS */
@@ -196,7 +199,7 @@ section {
     border-radius: 5px;
 }
 
-/* CONTENT BOX */
+/* CONTENT */
 
 .content-box {
     max-width: 1000px;
@@ -254,6 +257,21 @@ section {
     font-size: 14px;
 }
 
+.card button {
+    margin-top: 16px;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.card button:hover {
+    background: var(--dark);
+}
+
 /* SEARCH */
 
 .search-box {
@@ -265,6 +283,92 @@ section {
     border: 1px solid #cbd8ca;
     border-radius: 25px;
     font-size: 15px;
+}
+
+/* PRA GALLERY */
+
+#praGallery {
+    display: none;
+    background: #f5faf5;
+}
+
+.pra-heading {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.pra-heading h2 {
+    color: var(--dark);
+    font-size: 28px;
+}
+
+.pra-heading p {
+    color: var(--muted);
+}
+
+.pra-back {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.pra-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 17px;
+}
+
+.pra-photo-grid img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+    transition: transform .3s;
+}
+
+.pra-photo-grid img:hover {
+    transform: scale(1.03);
+}
+
+/* PHOTO VIEWER */
+
+.photo-viewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.92);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.photo-viewer img {
+    max-width: 95%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.photo-viewer button {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 25px;
+    cursor: pointer;
 }
 
 /* GALLERY */
@@ -321,6 +425,8 @@ footer p {
     margin: 5px;
 }
 
+/* BACK TO TOP */
+
 .back-top {
     position: fixed;
     bottom: 20px;
@@ -335,9 +441,10 @@ footer p {
     align-items: center;
     font-size: 22px;
     box-shadow: 0 3px 10px #0003;
+    z-index: 99;
 }
 
-/* MOBILE DESIGN */
+/* MOBILE */
 
 @media(max-width: 600px) {
     header {
@@ -381,6 +488,15 @@ footer p {
 
     .card-grid {
         grid-template-columns: 1fr;
+    }
+
+    .pra-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .pra-photo-grid img {
+        height: 150px;
     }
 }
 
@@ -549,43 +665,61 @@ footer p {
         <div class="card">
             <div class="card-icon">🌾</div>
             <h3>Farmer Interaction</h3>
-            <p>Interaction with farmers to understand cropping patterns,
-            cultivation practices and field-level problems.</p>
+            <p>
+                Interaction with farmers to understand cropping patterns,
+                cultivation practices and field-level problems.
+            </p>
         </div>
+
+        <!-- PRA CARD -->
 
         <div class="card">
             <div class="card-icon">🗺️</div>
             <h3>PRA Activities</h3>
-            <p>Resource mapping, social mapping, timeline and
-            seasonal calendar preparation.</p>
+            <p>
+                Resource mapping, social mapping, timeline and
+                seasonal calendar preparation.
+            </p>
+
+            <button type="button" onclick="openPRAGallery()">
+                View 14 PRA Photos 📷
+            </button>
         </div>
 
         <div class="card">
             <div class="card-icon">🥥</div>
             <h3>Coconut Cultivation</h3>
-            <p>Observation of coconut cultivation, crop management
-            and pest and disease problems.</p>
+            <p>
+                Observation of coconut cultivation, crop management
+                and pest and disease problems.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🌼</div>
             <h3>Flower Cultivation</h3>
-            <p>Observation of flower crops and their cultivation
-            and management practices.</p>
+            <p>
+                Observation of flower crops and their cultivation
+                and management practices.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🌱</div>
             <h3>Crop Management</h3>
-            <p>Understanding crop production practices and
-            farmers' field-level challenges.</p>
+            <p>
+                Understanding crop production practices and
+                farmers' field-level challenges.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🤝</div>
             <h3>Community Participation</h3>
-            <p>Participation in village awareness and
-            agricultural extension activities.</p>
+            <p>
+                Participation in village awareness and
+                agricultural extension activities.
+            </p>
         </div>
 
     </div>
@@ -595,9 +729,86 @@ footer p {
     </p>
 </section>
 
+<!-- PRA PHOTO GALLERY -->
+
+<section id="praGallery">
+
+    <button class="pra-back" type="button" onclick="closePRAGallery()">
+        ← Back to RAWE Activities
+    </button>
+
+    <div class="pra-heading">
+        <h2>PRA Activities – Photo Gallery</h2>
+        <p>
+            Participatory Rural Appraisal – Keeramangalam
+        </p>
+        <p>14 Field Photographs</p>
+    </div>
+
+    <div class="pra-photo-grid">
+
+        <img src="IMG-20261104-WA0004.jpg"
+             alt="PRA Photo 1" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0005.jpg"
+             alt="PRA Photo 2" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0010.jpg"
+             alt="PRA Photo 3" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0011.jpg"
+             alt="PRA Photo 4" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0013.jpg"
+             alt="PRA Photo 5" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0014.jpg"
+             alt="PRA Photo 6" onclick="viewPhoto(this.src)">
+
+        <img src="IMG-20261104-WA0015.jpg"
+             alt="PRA Photo 7" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140237.jpg"
+             alt="PRA Photo 8" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140316.jpg"
+             alt="PRA Photo 9" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140354.jpg"
+             alt="PRA Photo 10" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140429.jpg"
+             alt="PRA Photo 11" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140446.jpg"
+             alt="PRA Photo 12" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140517.jpg"
+             alt="PRA Photo 13" onclick="viewPhoto(this.src)">
+
+        <img src="IMG_20261104_140605.jpg"
+             alt="PRA Photo 14" onclick="viewPhoto(this.src)">
+
+    </div>
+
+</section>
+
+<!-- PHOTO VIEWER -->
+
+<div class="photo-viewer" id="photoViewer"
+     onclick="closePhotoViewer(event)">
+
+    <button type="button" aria-label="Close photo"
+            onclick="hidePhotoViewer()">×</button>
+
+    <img id="largePhoto" src="" alt="Enlarged PRA photograph">
+
+</div>
+
 <!-- INSTITUTIONAL AND INDUSTRIAL ATTACHMENTS -->
 
 <section id="attachments" class="light-section">
+
     <div class="section-title">
         <h2>Institutional and Industrial Attachments</h2>
         <p>Exposure to agricultural institutions and rural enterprises</p>
@@ -608,72 +819,93 @@ footer p {
         <div class="card">
             <div class="card-icon">🏭</div>
             <h3>Agro-Industries Attachment</h3>
-            <p>Exposure to agro-based industries, processing
-            activities and agricultural value addition.</p>
+            <p>
+                Exposure to agro-based industries, processing
+                activities and agricultural value addition.
+            </p>
         </div>
+
+        <!-- NGO ATTACHMENT UNDER ATTACHMENTS -->
 
         <div class="card">
             <div class="card-icon">🤝</div>
             <h3>NGO Attachment – SELVA TRUST</h3>
-            <p>Exposure to agricultural support, women's empowerment,
-            training programmes, awareness activities,
-            self-help groups and rural development.</p>
+            <p>
+                Exposure to agricultural support, women's empowerment,
+                training programmes, awareness activities,
+                organic input preparation and rural development.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🌾</div>
             <h3>FPO Attachment</h3>
-            <p>Understanding Farmer Producer Organisation activities,
-            farmer participation and collective marketing.</p>
+            <p>
+                Understanding Farmer Producer Organisation activities,
+                farmer participation and collective marketing.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🏢</div>
             <h3>Agriculture Department</h3>
-            <p>Exposure to the functions of ADA, AO, AAO and VAO,
-            agricultural schemes and extension services.</p>
+            <p>
+                Exposure to the functions of ADA, AO, AAO and VAO,
+                agricultural schemes and extension services.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🏦</div>
             <h3>Cooperative Institutions</h3>
-            <p>Understanding cooperative banking,
-            agricultural credit and farmer support services.</p>
+            <p>
+                Understanding cooperative banking,
+                agricultural credit and farmer support services.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🛒</div>
             <h3>Agricultural Marketing</h3>
-            <p>Exposure to Uzhavar Sandhai, agricultural marketing
-            and farmer-to-consumer sales.</p>
+            <p>
+                Exposure to Uzhavar Sandhai, agricultural marketing
+                and farmer-to-consumer sales.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🧪</div>
             <h3>Soil Testing Laboratory</h3>
-            <p>Learning soil sample collection, soil analysis
-            and soil health management.</p>
+            <p>
+                Learning soil sample collection, soil analysis
+                and soil health management.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🚜</div>
             <h3>Custom Hiring Centre</h3>
-            <p>Understanding agricultural machinery services
-            and equipment availability for farmers.</p>
+            <p>
+                Understanding agricultural machinery services
+                and equipment availability for farmers.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">🥛</div>
             <h3>Dairy and Milk Cooperative</h3>
-            <p>Exposure to milk collection, quality assessment,
-            processing and cooperative management.</p>
+            <p>
+                Exposure to milk collection, quality assessment,
+                processing and cooperative management.
+            </p>
         </div>
 
         <div class="card">
             <div class="card-icon">⚙️</div>
             <h3>Agro-Based Enterprises</h3>
-            <p>Visits to rice mills, oil mills, sugar mills
-            and other agricultural enterprises.</p>
+            <p>
+                Visits to rice mills, oil mills, sugar mill             and other agricultural enterprises.
+            </p>
         </div>
 
         <div class="card">
@@ -693,9 +925,11 @@ footer p {
     </div>
 </section>
 
+
 <!-- INSTITUTIONAL VISITS -->
 
 <section id="visits">
+
     <div class="section-title">
         <h2>Institutional Visits</h2>
         <p>Learning from research, training and public institutions</p>
@@ -734,16 +968,18 @@ footer p {
         <div class="card">
             <div class="card-icon">📚</div>
             <h3>Agricultural Training Centres</h3>
-            <p>Exposure to farmer training, agricultural
-            demonstrations and knowledge transfer.</p>
+            <p>Exposure to farmer training, demonstrations
+            and agricultural knowledge transfer.</p>
         </div>
 
     </div>
 </section>
 
+
 <!-- TRAINING -->
 
 <section id="training" class="light-section">
+
     <div class="section-title">
         <h2>Training and Extension Activities</h2>
         <p>Knowledge sharing and practical skill development</p>
@@ -759,14 +995,14 @@ footer p {
 
         <div class="card">
             <h3>Fish Amino Acid</h3>
-            <p>Training on preparation, fermentation
-            and agricultural use of fish amino acid.</p>
+            <p>Preparation, fermentation and agricultural
+            use of fish amino acid.</p>
         </div>
 
         <div class="card">
             <h3>Kunapajalam Preparation</h3>
-            <p>Learning the preparation of Kunapajalam
-            using locally available materials.</p>
+            <p>Training on preparation using locally
+            available materials.</p>
         </div>
 
         <div class="card">
@@ -790,9 +1026,11 @@ footer p {
     </div>
 </section>
 
-<!-- DEMONSTRATIONS -->
+
+<!-- AGRICULTURAL DEMONSTRATIONS -->
 
 <section id="demonstrations">
+
     <div class="section-title">
         <h2>Agricultural Demonstrations</h2>
         <p>Practical demonstrations of agricultural technologies</p>
@@ -808,8 +1046,8 @@ footer p {
 
         <div class="card">
             <h3>Boron Efficiency in Coconut</h3>
-            <p>Demonstration involving Calotropis
-            for improving boron-use efficiency in coconut.</p>
+            <p>Demonstration using Calotropis
+            to improve boron-use efficiency in coconut.</p>
         </div>
 
         <div class="card">
@@ -832,191 +1070,282 @@ footer p {
 
         <div class="card">
             <h3>Soil Health Awareness</h3>
-            <p>Awarenes
-                <div class="card">
-            <h3>Soil Health Awareness</h3>
-            <p>Awareness about soil sampling,
-            soil testing and nutrient management.</p>
+            <p>Soil health management and agricultural
+            awareness activities.</p>
         </div>
 
     </div>
 </section>
 
-<!-- REPORTS -->
 
-<section id="reports" class="light-section">
+<!-- PRA PHOTO GALLERY -->
+
+<section id="pra-gallery" class="light-section">
+
     <div class="section-title">
-        <h2>Reports and Publications</h2>
-        <p>Documentation of RAWE field experiences</p>
-    </div>
-
-    <div class="card-grid">
-
-        <div class="card">
-            <h3>Daily Field Visit Reports</h3>
-            <p>Daily documentation of field activities,
-            observations and learning experiences.</p>
-        </div>
-
-        <div class="card">
-            <h3>Farmer Interaction Reports</h3>
-            <p>Individual farmer profiles, crop details
-            and cultivation problems.</p>
-        </div>
-
-        <div class="card">
-            <h3>Institutional Visit Reports</h3>
-            <p>Documentation of institutional functions,
-            services and learning outcomes.</p>
-        </div>
-
-        <div class="card">
-            <h3>Demonstration Reports</h3>
-            <p>Agricultural demonstrations, methods
-            and observations.</p>
-        </div>
-
-        <div class="card">
-            <h3>PRA Reports</h3>
-            <p>Village maps, seasonal calendar,
-            timeline and problem analysis.</p>
-        </div>
-
-    </div>
-</section>
-
-<!-- PHOTO GALLERY -->
-
-<section id="gallery">
-    <div class="section-title">
-        <h2>Photo Gallery</h2>
-        <p>Moments from RAWE field activities</p>
-    </div>
-
-    <div class="gallery-grid">
-
-        <div class="gallery-item">
-            Farmer Interaction
-        </div>
-
-        <div class="gallery-item">
-            Village PRA Activities
-        </div>
-
-        <div class="gallery-item">
-            Institutional Visits
-        </div>
-
-        <div class="gallery-item">
-            SELVA TRUST Training
-        </div>
-
-        <div class="gallery-item">
-            Agricultural Demonstrations
-        </div>
-
-        <div class="gallery-item">
-            KVK – Vamban Visit
-        </div>
-
-    </div>
-</section>
-
-<!-- DOWNLOADS -->
-
-<section id="downloads" class="light-section">
-    <div class="section-title">
-        <h2>Downloads</h2>
-        <p>RAWE documents and learning materials</p>
-    </div>
-
-    <div class="card-grid">
-
-        <div class="card">
-            <h3>RAWE Field Reports</h3>
-            <p>Field visit reports and programme documentation.</p>
-        </div>
-
-        <div class="card">
-            <h3>Village PRA Documents</h3>
-            <p>Village maps, seasonal calendar and PRA materials.</p>
-        </div>
-
-        <div class="card">
-            <h3>Agricultural Leaflets</h3>
-            <p>Extension leaflets and agricultural awareness materials.</p>
-        </div>
-
-    </div>
-</section>
-
-<!-- CONTACT -->
-
-<section id="contact">
-    <div class="section-title">
-        <h2>Contact</h2>
-        <p>Keeramangalam RAWE 2026</p>
+        <h2>Participatory Rural Appraisal (PRA)</h2>
+        <p>Keeramangalam Village – PRA Field Activities</p>
     </div>
 
     <div class="content-box">
-        <h3>AEX 401 – Rural Agricultural Work Experience</h3>
-        <p>Keeramangalam, Pudukkottai District, Tamil Nadu.</p>
-        <p>Academic Year: 2026</p>
+
+        <h3>PRA Activities</h3>
+
+        <p>
+            Participatory Rural Appraisal activities were conducted
+            to understand village resources, social infrastructure,
+            agricultural conditions and community needs.
+        </p>
+
+        <br>
+
+        <div class="gallery-grid" id="praPhotoGrid"></div>
+
     </div>
+
+</section>
+
+
+<!-- REPORTS -->
+
+<section id="reports">
+
+    <div class="section-title">
+        <h2>RAWE Reports</h2>
+        <p>Field observations and academic documentation</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <div class="card-icon">📘</div>
+            <h3>Village Profile Report</h3>
+            <p>Village resources, agricultural activities
+            and rural infrastructure.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🌾</div>
+            <h3>Farmer Visit Reports</h3>
+            <p>Individual farmer details, crops,
+            cultivation practices and field problems.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">🏢</div>
+            <h3>Institutional Visit Reports</h3>
+            <p>Observations from agricultural and
+            rural institutions.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">📝</div>
+            <h3>Demonstration Reports</h3>
+            <p>Details of agricultural demonstrations
+            and practical learning.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- GENERAL PHOTO GALLERY -->
+
+<section id="gallery" class="light-section">
+
+    <div class="section-title">
+        <h2>RAWE Photo Gallery</h2>
+        <p>Memorable moments from field activities</p>
+    </div>
+
+    <div class="content-box">
+
+        <p>
+            This gallery presents photographs of farmer interactions,
+            agricultural activities, training programmes,
+            demonstrations and institutional visits.
+        </p>
+
+        <br>
+
+        <a href="#pra-gallery" class="button">
+            View PRA Photographs
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- DOWNLOADS -->
+
+<section id="downloads">
+
+    <div class="section-title">
+        <h2>Downloads and Attachments</h2>
+        <p>RAWE academic materials and documents</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <div class="card-icon">📄</div>
+            <h3>RAWE Report</h3>
+            <p>Academic fieldwork documentation.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon">📷</div>
+            <h3>Photo Documentation</h3>
+            <p>Photographic records of RAWE activities.</p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section id="contact" class="light-section">
+
+    <div class="section-title">
+        <h2>Programme Information</h2>
+    </div>
+
+    <div class="content-box" style="text-align:center">
+
+        <h3>KEERAMANGALAM RAWE 2026</h3>
+
+        <p>
+            AEX 401 – Rural Agricultural Work Experience Programme (0+20)
+        </p>
+
+        <p>Academic Year: 2026</p>
+
+        <p>
+            Keeramangalam, Pudukkottai District,
+            Tamil Nadu
+        </p>
+
+    </div>
+
 </section>
 
 </main>
 
+
 <!-- FOOTER -->
 
 <footer>
-    <p><strong>KEERAMANGALAM RAWE 2026</strong></p>
-    <p>AEX 401 – Rural Agricultural Work Experience Programme (0+20)</p>
+
+    <h2>KEERAMANGALAM RAWE 2026</h2>
+
+    <p>Rural Agricultural Work Experience Programme</p>
+
+    <p>AEX 401 (0+20) | Academic Year 2026</p>
+
     <p>Keeramangalam, Pudukkottai District, Tamil Nadu</p>
-    <p>Learning Agriculture Through Experience 🌱</p>
+
+    <br>
+
+    <p>© 2026 Keeramangalam RAWE | All Rights Reserved</p>
+
 </footer>
 
-<a class="back-top" href="#home" aria-label="Back to top">↑</a>
 
-<!-- SEARCH SCRIPT -->
+<!-- BACK TO TOP -->
+
+<a href="#home" class="back-top" aria-label="Back to top">
+    ↑
+</a>
+
+
+<!-- PRA PHOTO JAVASCRIPT -->
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
 
-    const searchInput = document.getElementById('activitySearch');
-    const activityGrid = document.getElementById('activityGrid');
-    const noResults = document.getElementById('noResults');
+const praPhotos = [
+    "IMG-20261104-WA0004.jpg",
+    "IMG-20261104-WA0005.jpg",
+    "IMG-20261104-WA0010.jpg",
+    "IMG-20261104-WA0011.jpg",
+    "IMG-20261104-WA0013.jpg",
+    "IMG-20261104-WA0014.jpg",
+    "IMG-20261104-WA0015.jpg",
+    "IMG-20261104_140237.jpg",
+    "IMG-20261104_140316.jpg",
+    "IMG-20261104_140354.jpg",
+    "IMG-20261104_140429.jpg",
+    "IMG-20261104_140446.jpg",
+    "IMG-20261104_140517.jpg",
+    "IMG-20261104_140605.jpg"
+];
 
-    if (!searchInput || !activityGrid) return;
+const praGrid = document.getElementById("praPhotoGrid");
 
-    const cards = activityGrid.querySelectorAll('.card');
+praPhotos.forEach((photo, index) => {
 
-    searchInput.addEventListener('input', function () {
+    const item = document.createElement("div");
 
-        const query = searchInput.value.trim().toLowerCase();
-        let visibleCount = 0;
+    item.className = "card";
 
-        cards.forEach(function (card) {
+    const image = document.createElement("img");
 
-            const matches = card.textContent
-                .toLowerCase()
-                .includes(query);
+    image.src = photo;
+    image.alt = "PRA Activity " + (index + 1);
+    image.loading = "lazy";
 
-            card.style.display = matches ? '' : 'none';
+    image.style.width = "100%";
+    image.style.height = "190px";
+    image.style.objectFit = "cover";
+    image.style.borderRadius = "8px";
+    image.style.cursor = "pointer";
 
-            if (matches) visibleCount++;
+    image.onclick = function () {
+        window.open(photo, "_blank");
+    };
 
-        });
+    const title = document.createElement("h3");
 
-        if (noResults) {
-            noResults.style.display =
-                visibleCount > 0 ? 'none' : 'block';
-        }
+    title.textContent = "PRA Activity " + (index + 1);
+
+    item.appendChild(image);
+    item.appendChild(title);
+
+    praGrid.appendChild(item);
+
+});
+
+
+// ACTIVITY SEARCH
+
+document.getElementById("activitySearch").addEventListener("input",
+function () {
+
+    const search = this.value.toLowerCase();
+
+    const cards = document.querySelectorAll("#activityGrid .card");
+
+    let count = 0;
+
+    cards.forEach(card => {
+
+        const visible = card.innerText.toLowerCase().includes(search);
+
+        card.style.display = visible ? "" : "none";
+
+        if (visible) count++;
 
     });
 
+    document.getElementById("noResults").style.display =
+        count === 0 ? "block" : "none";
+
 });
+
 </script>
 
 </body>
-    </html>
+</html>
