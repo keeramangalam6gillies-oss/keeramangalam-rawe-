@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Keeramangalam RAWE 2026 - AEX 401 Rural Agricultural Work Experience Programme. Explore agricultural activities, farmer interactions, institutional visits and rural development.">
+<meta name="theme-color" content="#104524">
 
 <title>Keeramangalam RAWE 2026 | AEX 401</title>
-
-<meta name="description" content="Keeramangalam RAWE 2026 - AEX 401 Rural Agricultural Work Experience Programme. Explore agricultural activities, farmer interactions, institutional visits and rural development.">
 
 <style>
 :root {
@@ -16,6 +16,7 @@
     --gold: #f2c14e;
     --white: #ffffff;
     --text: #26352a;
+    --muted: #59675d;
 }
 
 * {
@@ -26,7 +27,7 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: #f8fbf7;
     color: var(--text);
     line-height: 1.7;
@@ -52,6 +53,7 @@ header {
     width: 75px;
     height: 75px;
     object-fit: contain;
+    flex-shrink: 0;
 }
 
 .header-title {
@@ -92,13 +94,6 @@ header {
     to { transform: translateX(-100%); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .announcement span {
-        animation: none;
-        padding-left: 10px;
-    }
-}
-
 /* NAVIGATION */
 
 nav {
@@ -119,7 +114,8 @@ nav a {
     border-radius: 5px;
 }
 
-nav a:hover {
+nav a:hover,
+nav a:focus {
     background: var(--gold);
     color: var(--dark);
 }
@@ -135,8 +131,8 @@ nav a:hover {
     padding: 45px 20px;
     color: white;
     background:
-    linear-gradient(rgba(5,45,20,.72),rgba(5,45,20,.72)),
-    url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=85");
+        linear-gradient(rgba(5,45,20,.76),rgba(5,45,20,.76)),
+        url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=85");
     background-size: cover;
     background-position: center;
 }
@@ -148,6 +144,7 @@ nav a:hover {
 .hero h2 {
     font-size: clamp(30px, 6vw, 52px);
     margin-bottom: 15px;
+    line-height: 1.2;
 }
 
 .hero p {
@@ -168,7 +165,7 @@ nav a:hover {
 
 section {
     padding: 60px 7%;
-    scroll-margin-top: 70px;
+    scroll-margin-top: 75px;
 }
 
 .light-section {
@@ -233,11 +230,11 @@ section {
     border-radius: 12px;
     border-bottom: 4px solid var(--green);
     box-shadow: 0 4px 15px rgba(0,0,0,.07);
-    transition: .3s;
+    transition: transform .3s, box-shadow .3s;
 }
 
 .card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
     box-shadow: 0 9px 22px rgba(0,0,0,.12);
 }
 
@@ -253,7 +250,7 @@ section {
 }
 
 .card p {
-    color: #59675d;
+    color: var(--muted);
     font-size: 14px;
 }
 
@@ -291,6 +288,25 @@ section {
     font-weight: bold;
 }
 
+/* DOWNLOADS */
+
+.download-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--green);
+    font-weight: bold;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}
+
+.note {
+    font-size: 13px;
+    color: #66756a;
+    margin-top: 12px;
+}
+
 /* FOOTER */
 
 footer {
@@ -318,6 +334,7 @@ footer p {
     justify-content: center;
     align-items: center;
     font-size: 22px;
+    box-shadow: 0 3px 10px #0003;
 }
 
 /* MOBILE DESIGN */
@@ -329,16 +346,16 @@ footer p {
     }
 
     .logo {
-        width: 48px;
-        height: 48px;
+        width: 45px;
+        height: 45px;
     }
 
     .header-title h1 {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .header-title p {
-        font-size: 10px;
+        font-size: 9px;
     }
 
     nav a {
@@ -360,6 +377,20 @@ footer p {
 
     .content-box {
         padding: 20px;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    *,
+    *:before,
+    *:after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
     }
 }
 </style>
@@ -410,6 +441,8 @@ footer p {
     <a href="#downloads">Downloads</a>
     <a href="#contact">Contact</a>
 </nav>
+
+<main>
 
 <!-- HOME -->
 
@@ -504,7 +537,7 @@ footer p {
     </div>
 
     <input
-        type="text"
+        type="search"
         id="activitySearch"
         class="search-box"
         placeholder="Search field activities..."
@@ -556,9 +589,13 @@ footer p {
         </div>
 
     </div>
+
+    <p id="noResults" class="note" style="display:none;text-align:center">
+        No matching activities found.
+    </p>
 </section>
 
-<!-- ATTACHMENTS -->
+<!-- INSTITUTIONAL AND INDUSTRIAL ATTACHMENTS -->
 
 <section id="attachments" class="light-section">
     <div class="section-title">
@@ -795,6 +832,9 @@ footer p {
 
         <div class="card">
             <h3>Soil Health Awareness</h3>
+            <p>Awarenes
+                <div class="card">
+            <h3>Soil Health Awareness</h3>
             <p>Awareness about soil sampling,
             soil testing and nutrient management.</p>
         </div>
@@ -820,8 +860,163 @@ footer p {
 
         <div class="card">
             <h3>Farmer Interaction Reports</h3>
-            <p>Documentation of individual farmer profiles,
-            crop details and cultivation problems.</p>
+            <p>Individual farmer profiles, crop details
+            and cultivation problems.</p>
         </div>
 
-      
+        <div class="card">
+            <h3>Institutional Visit Reports</h3>
+            <p>Documentation of institutional functions,
+            services and learning outcomes.</p>
+        </div>
+
+        <div class="card">
+            <h3>Demonstration Reports</h3>
+            <p>Agricultural demonstrations, methods
+            and observations.</p>
+        </div>
+
+        <div class="card">
+            <h3>PRA Reports</h3>
+            <p>Village maps, seasonal calendar,
+            timeline and problem analysis.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- PHOTO GALLERY -->
+
+<section id="gallery">
+    <div class="section-title">
+        <h2>Photo Gallery</h2>
+        <p>Moments from RAWE field activities</p>
+    </div>
+
+    <div class="gallery-grid">
+
+        <div class="gallery-item">
+            Farmer Interaction
+        </div>
+
+        <div class="gallery-item">
+            Village PRA Activities
+        </div>
+
+        <div class="gallery-item">
+            Institutional Visits
+        </div>
+
+        <div class="gallery-item">
+            SELVA TRUST Training
+        </div>
+
+        <div class="gallery-item">
+            Agricultural Demonstrations
+        </div>
+
+        <div class="gallery-item">
+            KVK – Vamban Visit
+        </div>
+
+    </div>
+</section>
+
+<!-- DOWNLOADS -->
+
+<section id="downloads" class="light-section">
+    <div class="section-title">
+        <h2>Downloads</h2>
+        <p>RAWE documents and learning materials</p>
+    </div>
+
+    <div class="card-grid">
+
+        <div class="card">
+            <h3>RAWE Field Reports</h3>
+            <p>Field visit reports and programme documentation.</p>
+        </div>
+
+        <div class="card">
+            <h3>Village PRA Documents</h3>
+            <p>Village maps, seasonal calendar and PRA materials.</p>
+        </div>
+
+        <div class="card">
+            <h3>Agricultural Leaflets</h3>
+            <p>Extension leaflets and agricultural awareness materials.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- CONTACT -->
+
+<section id="contact">
+    <div class="section-title">
+        <h2>Contact</h2>
+        <p>Keeramangalam RAWE 2026</p>
+    </div>
+
+    <div class="content-box">
+        <h3>AEX 401 – Rural Agricultural Work Experience</h3>
+        <p>Keeramangalam, Pudukkottai District, Tamil Nadu.</p>
+        <p>Academic Year: 2026</p>
+    </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+
+<footer>
+    <p><strong>KEERAMANGALAM RAWE 2026</strong></p>
+    <p>AEX 401 – Rural Agricultural Work Experience Programme (0+20)</p>
+    <p>Keeramangalam, Pudukkottai District, Tamil Nadu</p>
+    <p>Learning Agriculture Through Experience 🌱</p>
+</footer>
+
+<a class="back-top" href="#home" aria-label="Back to top">↑</a>
+
+<!-- SEARCH SCRIPT -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const searchInput = document.getElementById('activitySearch');
+    const activityGrid = document.getElementById('activityGrid');
+    const noResults = document.getElementById('noResults');
+
+    if (!searchInput || !activityGrid) return;
+
+    const cards = activityGrid.querySelectorAll('.card');
+
+    searchInput.addEventListener('input', function () {
+
+        const query = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+
+            const matches = card.textContent
+                .toLowerCase()
+                .includes(query);
+
+            card.style.display = matches ? '' : 'none';
+
+            if (matches) visibleCount++;
+
+        });
+
+        if (noResults) {
+            noResults.style.display =
+                visibleCount > 0 ? 'none' : 'block';
+        }
+
+    });
+
+});
+</script>
+
+</body>
+    </html>
