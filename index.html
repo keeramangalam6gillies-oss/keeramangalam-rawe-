@@ -1400,6 +1400,204 @@ function () {
 
 });
 
+/* ==================================
+   AGRICULTURAL WEBSITE DESIGN UPGRADE
+================================== */
+
+body {
+    background:
+        radial-gradient(ellipse at 8% 12%, rgba(119,170,91,.10), transparent 28%),
+        radial-gradient(ellipse at 92% 38%, rgba(242,193,78,.10), transparent 25%),
+        #f7faf3;
+}
+
+/* HEADER AND LOGOS */
+
+header {
+    padding: 15px 4%;
+    background: linear-gradient(110deg, #ffffff, #f0f8ec, #fffaf0);
+    box-shadow: 0 4px 18px rgba(16,69,36,.09);
+}
+
+.logo {
+    width: 90px;
+    height: 90px;
+    padding: 5px;
+    background: #fff;
+    border: 2px solid #e0ecd9;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(16,69,36,.10);
+}
+
+/* AGRICULTURAL HERO */
+
+.hero {
+    min-height: 520px;
+    background-image:
+        linear-gradient(115deg, rgba(5,43,20,.82), rgba(16,69,36,.56)),
+        url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1800&q=90");
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-content {
+    padding: 35px;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 24px;
+    background: rgba(8,48,24,.25);
+    backdrop-filter: blur(3px);
+}
+
+/* SECTIONS */
+
+section:nth-of-type(even) {
+    background-image: linear-gradient(
+        135deg,
+        rgba(225,241,216,.42),
+        rgba(255,255,255,.76)
+    );
+}
+
+.section-title h2 {
+    letter-spacing: .3px;
+}
+
+.section-title:after {
+    width: 92px;
+    height: 5px;
+}
+
+/* ATTRACTIVE CARDS */
+
+.content-box,
+.card {
+    border: 1px solid rgba(34,103,54,.09);
+    box-shadow: 0 7px 22px rgba(24,75,39,.075);
+}
+
+.card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    border-bottom: 4px solid var(--green);
+    transition: transform .25s, box-shadow .25s;
+}
+
+.card:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 62px;
+    height: 62px;
+    border-radius: 0 0 0 62px;
+    background: rgba(222,239,211,.48);
+    pointer-events: none;
+}
+
+.card-icon {
+    position: relative;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(24,75,39,.14);
+}
+
+/* PRA CARD */
+
+.pra-card {
+    background: linear-gradient(145deg, #ffffff, #eff8e9);
+}
+
+.photo-link {
+    color: #176b38 !important;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+/* BUTTONS AND NAVIGATION */
+
+.button {
+    box-shadow: 0 5px 13px rgba(16,69,36,.16);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(16,69,36,.2);
+}
+
+nav {
+    box-shadow: 0 3px 12px rgba(0,0,0,.12);
+}
+
+/* AUTOMATIC PHOTO CARDS */
+
+.photo-card {
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e1eadc;
+    border-radius: 13px;
+    box-shadow: 0 5px 15px rgba(20,65,30,.09);
+}
+
+.photo-card img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform .3s;
+}
+
+.photo-card img:hover {
+    transform: scale(1.035);
+}
+
+.photo-card p {
+    padding: 9px 12px;
+    color: #31563a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* FOOTER */
+
+footer {
+    background: linear-gradient(120deg, #0b321b, #176b38);
+    border-top: 5px solid #e5bd48;
+}
+
+/* MOBILE DESIGN */
+
+@media(max-width:600px) {
+    header {
+        padding: 10px 8px;
+    }
+
+    .logo {
+        width: 58px;
+        height: 58px;
+        border-radius: 12px;
+    }
+
+    .header-title h1 {
+        font-size: 15px;
+    }
+
+    .hero {
+        min-height: 410px;
+    }
+
+    .hero-content {
+        padding: 22px 16px;
+    }
+
+    .photo-card img {
+        height: 155px;
+    }
+        }
 </script>
 
 </body>
