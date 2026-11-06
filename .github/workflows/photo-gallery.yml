@@ -1,1 +1,38 @@
+name: Automatic Photo Gallery
 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Pra/**'
+      - 'Gallery/**'
+      - 'Demonstrations/**'
+      - 'Farmers-Visit/**'
+      - 'Institutional-Visits/**'
+      - 'scripts/build-photo-manifest.py'
+      - '.github/workflows/photo-gallery.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-gallery:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate photo manifest
+        run: python scripts/build-photo-manifest.py
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add photo-manifest.json
+          git diff --cached --quiet || git commit -m "Update automatic photo gallery"
+          git push
