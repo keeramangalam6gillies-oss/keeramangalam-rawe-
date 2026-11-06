@@ -1292,57 +1292,86 @@ footer p {
 
 <script>
 
-const praPhotos = [
-    "IMG-20261104-WA0004.jpg",
-    "IMG-20261104-WA0005.jpg",
-    "IMG-20261104-WA0010.jpg",
-    "IMG-20261104-WA0011.jpg",
-    "IMG-20261104-WA0013.jpg",
-    "IMG-20261104-WA0014.jpg",
-    "IMG-20261104-WA0015.jpg",
-    "IMG-20261104_140237.jpg",
-    "IMG-20261104_140316.jpg",
-    "IMG-20261104_140354.jpg",
-    "IMG-20261104_140429.jpg",
-    "IMG-20261104_140446.jpg",
-    "IMG-20261104_140517.jpg",
-    "IMG-20261104_140605.jpg"
-];
+// AUTOMATIC PHOTO GALLERY
 
-const praGrid = document.getElementById("praPhotoGrid");
+async function loadAutomaticPhotos() {
 
-praPhotos.forEach((photo, index) => {
+    try {
 
-    const item = document.createElement("div");
+        const response = await fetch("./photo-manifest.json");
 
-    item.className = "card";
+        if (!response.ok) {
+            throw new Error("Photo manifest not found");
+        }
 
-    const image = document.createElement("img");
+        const photos = await response.json();
 
-    image.src = photo;
-    image.alt = "PRA Activity " + (index + 1);
-    image.loading = "lazy";
+        const galleryContainers = {
+            "Pra": "autoPraGallery",
+            "Gallery": "autoGallery",
+            "Demonstrations": "autoDemonstrations",
+            "Farmers-Visit": "autoFarmers",
+            "Institutional-Visits": "autoInstitutions"
+        };
 
-    image.style.width = "100%";
-    image.style.height = "190px";
-    image.style.objectFit = "cover";
-    image.style.borderRadius = "8px";
-    image.style.cursor = "pointer";
+        for (const [folder, containerId] of
+             Object.entries(galleryContainers)) {
 
-    image.onclick = function () {
-        window.open(photo, "_blank");
-    };
+            const container = document.getElementById(containerId);
 
-    const title = document.createElement("h3");
+            if (!container) continue;
 
-    title.textContent = "PRA Activity " + (index + 1);
+            container.innerHTML = "";
 
-    item.appendChild(image);
-    item.appendChild(title);
+            const folderPhotos = photos[folder] || [];
 
-    praGrid.appendChild(item);
+            folderPhotos.forEach((photo, index) => {
 
-});
+                const card = document.createElement("div");
+                card.className = "card";
+
+                const image = document.createElement("img");
+
+                image.src = "./" + photo;
+                image.alt = folder + " Photo " + (index + 1);
+                image.loading = "lazy";
+
+                image.style.width = "100%";
+                image.style.height = "190px";
+                image.style.objectFit = "cover";
+                image.style.borderRadius = "8px";
+                image.style.cursor = "pointer";
+
+                image.onclick = function () {
+                    window.open(this.src, "_blank");
+                };
+
+                const title = document.createElement("h3");
+                title.textContent = folder + " Photo " + (index + 1);
+
+                card.appendChild(image);
+                card.appendChild(title);
+
+                container.appendChild(card);
+
+            });
+
+            if (folderPhotos.length === 0) {
+                container.innerHTML =
+                    "<p>No photographs uploaded yet.</p>";
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error("Gallery loading error:", error);
+
+    }
+
+}
+
+loadAutomaticPhotos();
 
 
 // ACTIVITY SEARCH
