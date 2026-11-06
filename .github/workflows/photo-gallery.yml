@@ -1,6 +1,6 @@
 name: Automatic Photo Gallery
 
-on:
+"on":
   push:
     branches:
       - main
