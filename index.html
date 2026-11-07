@@ -214,6 +214,42 @@ img{max-width:100%}
  .lightbox-prev{left:8px}.lightbox-next{right:8px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}.reveal{opacity:1;transform:none}}
+
+/* VIDEO GALLERY AND DIGITAL REGISTERS */
+.video-gallery-section{background:#f0f5e9}
+.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.video-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 25px #1d4b2d0a}
+.video-card video{display:block;width:100%;aspect-ratio:16/9;background:#17251b;object-fit:contain}
+.video-card h3{padding:13px 16px 2px;color:var(--forest);font-size:1rem}
+.video-card p{padding:0 16px 15px;color:var(--muted);font-size:.82rem}
+.register-section{background:#fff}
+.register-tabs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin:25px 0}
+.register-tab{border:1px solid #d5e3d1;background:#fff;color:#176b38;padding:10px 16px;border-radius:30px;font-weight:800;cursor:pointer}
+.register-tab.active,.register-tab:hover{background:#176b38;color:#fff}
+.register-panel{background:#f8faf5;border:1px solid var(--line);border-radius:20px;padding:22px;margin:18px 0}
+.register-panel h3{color:var(--forest);margin-bottom:12px}
+.register-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.register-form-grid label{display:block;font-weight:750;color:#405746;font-size:.9rem}
+.register-form-grid input,.register-form-grid textarea,.register-form-grid select{width:100%;padding:11px;border:1px solid #d8e3d5;border-radius:10px;margin-top:5px;background:#fff;color:#24352b}
+.register-form-grid textarea{min-height:105px;resize:vertical}
+.register-full{grid-column:1/-1}
+.register-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.register-message{padding:12px;border-radius:10px;background:#edf5e9;color:#315c38;margin:12px 0}
+.register-records{display:grid;gap:13px;margin-top:16px}
+.register-record{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.register-record h4{color:var(--forest);margin-bottom:4px}
+.register-record small{color:var(--muted)}
+.register-record p{white-space:pre-wrap;margin:9px 0}
+.register-attachment{display:block;margin:10px 0;color:var(--green);font-weight:700;overflow-wrap:anywhere}
+.register-attachment img,.register-attachment video{display:block;max-width:100%;max-height:360px;border-radius:10px;margin-top:8px}
+.register-attachment iframe{width:100%;height:480px;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+.attendance-row{display:grid;grid-template-columns:1fr 145px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #e8eee3}
+.attendance-row select{padding:8px;border:1px solid #d8e3d5;border-radius:8px;background:#fff}
+.admin-only{display:none}
+.register-hint{font-size:.86rem;color:var(--muted);margin:8px 0}
+@media(max-width:760px){.video-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.video-grid,.register-form-grid{grid-template-columns:1fr}.register-full{grid-column:auto}.register-panel{padding:15px}.attendance-row{grid-template-columns:1fr 115px}}
+
 </style>
 </head>
 <body>
@@ -233,7 +269,7 @@ img{max-width:100%}
  <nav class="main-nav" id="mainNav"><div class="container nav-inner">
   <a href="#home">Home</a><a href="#about">About</a><a href="#team">Student Team</a><a href="#village">Village Profile</a><a href="#activities">Field Activities</a>
   <a href="#attachments">Attachments</a><a href="#visits">Institutional Visits</a><a href="#training">Training</a>
-  <a href="#demonstrations">Demonstrations</a><a href="#reports">Reports</a><a href="#gallery">Photo Galleries</a><a href="#downloads">Downloads</a><a href="#contact">Contact</a>
+  <a href="#demonstrations">Demonstrations</a><a href="#reports">Reports</a><a href="#gallery">Photo Galleries</a><a href="#video-gallery">Video Gallery</a><a href="#registers">Registers</a><a href="#downloads">Downloads</a><a href="#contact">Contact</a>
  </div></nav>
 </header>
 
@@ -302,7 +338,7 @@ img{max-width:100%}
  <div class="section-heading"><span class="eyebrow">Our academic team</span><h2>Student Team & Course Faculty</h2><p>Six B.Sc. (Hons.) Agriculture students participating in the AEX 401 Rural Agricultural Work Experience Programme.</p><div class="heading-line"></div></div>
  <div class="team-grid">
   <article class="team-card"><div class="student-photo"><img src="Students/sabeen-raj.jpg" alt="Sabeen Raj" onerror="this.style.display='none'"><span>SR</span></div><h3>SABEEN RAJ</h3><p>B.Sc. (Hons.) Agriculture</p></article>
-  <article class="team-card"><div class="student-photo"><img src="Students/abu.jpg" alt="Abu" onerror="this.style.display='none'"><span>AB</span></div><h3>ABU</h3><p>B.Sc. (Hons.) Agriculture</p></article>
+  <article class="team-card"><div class="student-photo"><img src="Students/abu.jpg" alt="Abu Kuhafa" onerror="this.style.display='none'"><span>AB</span></div><h3>ABU KUHAFA</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/chockalingam.jpg" alt="Chockalingam" onerror="this.style.display='none'"><span>C</span></div><h3>CHOCKALINGAM</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/naveen.jpg" alt="Naveen" onerror="this.style.display='none'"><span>N</span></div><h3>NAVEEN</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/sri-prabhu.jpg" alt="Sri Prabhu" onerror="this.style.display='none'"><span>SP</span></div><h3>SRI PRABHU</h3><p>B.Sc. (Hons.) Agriculture</p></article>
@@ -310,7 +346,7 @@ img{max-width:100%}
  </div>
  <p class="gallery-intro" style="margin-top:18px">Add each student's photograph to the Students folder using the exact file names shown in the upload guide.</p>
  <div class="faculty-grid">
-  <article class="faculty-card"><span class="faculty-label">Course In-charge</span><h3>Mr. Rathna Kumar</h3><p>Assistant Professor of Plant Pathology</p></article>
+  <article class="faculty-card"><span class="faculty-label">Course In-charge</span><h3>Mr. G. Rathina Kumar</h3><p>Assistant Professor of Plant Pathology</p></article>
   <article class="faculty-card"><span class="faculty-label">Course Teacher</span><h3>Dr. Aravindh</h3><p>Assistant Professor of Extension</p></article>
  </div>
 </div></section>
@@ -459,6 +495,55 @@ img{max-width:100%}
   <div class="photo-grid modal-photo-grid" id="modalPhotoGrid"><div class="gallery-empty">Loading photographs…</div></div>
  </div>
 </div>
+
+<section class="section video-gallery-section" id="video-gallery"><div class="container">
+ <div class="section-heading"><span class="eyebrow">Moving memories</span><h2>RAWE Video Gallery</h2><p>Video documentation of field activities, demonstrations, farmer interactions and institutional visits.</p><div class="heading-line"></div></div>
+ <div class="video-grid" id="videoGrid"><p class="gallery-empty">Loading RAWE videos…</p></div>
+ <p class="gallery-intro">To add videos, upload them into the <strong>Videos</strong> folder and update <strong>Videos/video-manifest.json</strong>. Large videos are better hosted on an approved video platform and embedded here.</p>
+</div></section>
+
+<section class="section" id="registers"><div class="container">
+ <div class="section-heading"><span class="eyebrow">Digital field documentation</span><h2>RAWE Registers</h2><p>Public viewing of records with administrator-only entry and editing.</p><div class="heading-line"></div></div>
+ <div class="register-tabs" role="tablist" aria-label="RAWE registers">
+  <button class="register-tab active" type="button" data-register="attendance">Attendance Register</button>
+  <button class="register-tab" type="button" data-register="movement">Daily Movement Register</button>
+  <button class="register-tab" type="button" data-register="radio">Radio Note</button>
+  <button class="register-tab" type="button" data-register="newspaper">Newspaper Note</button>
+  <button class="register-tab" type="button" data-register="visitors">Visitors Register</button>
+ </div>
+ <div class="register-panel">
+  <h3 id="registerHeading">Attendance Register</h3>
+  <p class="register-hint">Visitors can view published entries. Only the authorised administrator can add, edit or upload records.</p>
+  <div id="registerLoginArea">
+   <button class="btn btn-gold" id="showAdminLogin" type="button">Administrator Login</button>
+   <div id="adminLoginForm" hidden style="margin-top:14px">
+    <div class="register-form-grid">
+     <label>Email address<input type="email" id="adminEmail" autocomplete="username"></label>
+     <label>Password<input type="password" id="adminPassword" autocomplete="current-password"></label>
+    </div>
+    <div class="register-actions"><button class="btn btn-gold" id="adminLoginButton" type="button">Login</button><button class="btn btn-outline" id="cancelAdminLogin" type="button" style="background:#526b59">Cancel</button></div>
+   </div>
+   <div id="adminSession" hidden><div class="register-message">Administrator signed in.</div><button class="btn btn-outline" id="adminLogoutButton" type="button" style="background:#526b59">Logout</button></div>
+  </div>
+  <div id="registerMessage" class="register-message" aria-live="polite">Register database setup is required before online records can be displayed.</div>
+  <div id="adminEditor" class="admin-only">
+   <h3 id="editorHeading">Add a new record</h3>
+   <form id="registerForm">
+    <input type="hidden" id="editRecordId">
+    <div class="register-form-grid">
+     <label>Date<input type="date" id="recordDate" required></label>
+     <label>Record title<input type="text" id="recordTitle" placeholder="Enter title" required></label>
+     <label class="register-full">Details / observations<textarea id="recordDetails" placeholder="Write the record details…" required></textarea></label>
+     <label class="register-full">Photos, videos or documents<input type="file" id="recordFiles" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"></label>
+    </div>
+    <div id="attendanceEditor" hidden><h3 style="margin-top:18px">Student attendance</h3><div id="attendanceStudents"></div></div>
+    <div class="register-actions"><button class="btn btn-gold" type="submit" id="saveRecordButton">Save Record</button><button class="btn btn-outline" type="button" id="cancelEditButton" style="background:#526b59">Clear</button></div>
+   </form>
+  </div>
+ </div>
+ <div class="register-panel"><h3>Published Records</h3><div id="registerRecords" class="register-records"><p>Register records will appear here after database setup.</p></div></div>
+</div></section>
+
 <section class="section alt" id="downloads"><div class="container">
  <div class="section-heading"><span class="eyebrow">Academic resources</span><h2>Downloads & Attachments</h2><p>RAWE academic materials and documents.</p><div class="heading-line"></div></div>
  <div class="village-grid">
@@ -526,5 +611,50 @@ img{max-width:100%}
  if("IntersectionObserver" in window){const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");observer.unobserve(e.target);}}),{threshold:.08});document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));}else document.querySelectorAll(".reveal").forEach(el=>el.classList.add("visible"));
 })();
 </script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+// Replace with your Firebase project's Web App configuration.
+const firebaseConfig = {
+ apiKey: "YOUR_API_KEY",
+ authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+ projectId: "YOUR_PROJECT_ID",
+ storageBucket: "YOUR_PROJECT_ID.appspot.com",
+ messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+ appId: "YOUR_APP_ID"
+};
+// Replace with the UID of your administrator account after creating it in Firebase Authentication.
+const ADMIN_UID = "YOUR_ADMIN_USER_UID";
+const students = ["SABEEN RAJ","ABU KUHAFA","CHOCKALINGAM","NAVEEN","SRI PRABHU","ARUN KUNAR"];
+const registerNames = {attendance:"Attendance Register",movement:"Daily Movement Register",radio:"Radio Note",newspaper:"Newspaper Note",visitors:"Visitors Register"};
+const $ = id => document.getElementById(id);
+let app,auth,db,storage,currentUser=null,activeRegister="attendance",unsubscribe=null,records=[];
+const message = (txt) => { $('registerMessage').textContent=txt; };
+function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderAttendance(){ $('attendanceStudents').innerHTML=students.map((name,i)=>`<div class="attendance-row"><strong>${escapeHTML(name)}</strong><select id="student-${i}" aria-label="${escapeHTML(name)} attendance"><option value="Present">Present</option><option value="Absent">Absent</option><option value="Leave">Leave</option></select></div>`).join(''); }
+function setAdminUI(isAdmin){ $('adminEditor').style.display=isAdmin?'block':'none'; $('showAdminLogin').hidden=isAdmin; $('adminLoginForm').hidden=true; $('adminSession').hidden=!isAdmin; }
+function showAttachments(items=[]){return items.map(f=>{const u=escapeHTML(f.url),n=escapeHTML(f.name),type=String(f.type||"");let preview='';if(type.startsWith('image/'))preview=`<img src="${u}" alt="${n}" loading="lazy" oncontextmenu="return false">`;else if(type.startsWith('video/'))preview=`<video src="${u}" controls controlsList="nodownload" disablePictureInPicture playsinline></video>`;else if(type==='application/pdf')preview=`<iframe src="${u}#toolbar=0" title="${n}"></iframe>`;return `<div class="register-attachment"><a href="${u}" target="_blank" rel="noopener">View ${n}</a>${preview}</div>`;}).join('');}
+function renderRecords(){const host=$('registerRecords');if(!records.length){host.innerHTML='<p>No published records in this register yet.</p>';return;}host.innerHTML=records.map(r=>`<article class="register-record"><h4>${escapeHTML(r.title)}</h4><small>${escapeHTML(r.date||'')} · ${escapeHTML(registerNames[r.type]||r.type||'Register')}</small><p>${escapeHTML(r.details||'')}</p>${r.attendance?`<p><strong>Attendance:</strong> ${Object.entries(r.attendance).map(([n,v])=>`${escapeHTML(n)} – ${escapeHTML(v)}`).join(' · ')}</p>`:''}${showAttachments(r.attachments||[])}${currentUser?.uid===ADMIN_UID?`<button class="btn btn-gold" type="button" data-edit="${escapeHTML(r.id)}">Edit</button>`:''}</article>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editRecord(b.dataset.edit)));}
+function loadRegister(){if(unsubscribe){unsubscribe();unsubscribe=null;} $('registerHeading').textContent=registerNames[activeRegister];$('attendanceEditor').hidden=activeRegister!=='attendance';$('registerRecords').innerHTML='<p>Loading records…</p>';if(!db){$('registerRecords').innerHTML='<p>Connect Firebase to load published records.</p>';return;}const q=query(collection(db,'raweRegisters'),orderBy('createdAt','desc'));unsubscribe=onSnapshot(q,snap=>{records=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.type===activeRegister);renderRecords();},err=>{console.error(err);message('Could not load records. Check Firestore public-read rules and database setup.');});}
+function resetForm(){ $('registerForm').reset();$('editRecordId').value='';$('recordDate').value=new Date().toISOString().slice(0,10);$('editorHeading').textContent='Add a new record';$('saveRecordButton').textContent='Save Record';if(activeRegister==='attendance')renderAttendance(); }
+function editRecord(id){const r=records.find(x=>x.id===id);if(!r)return;$('editRecordId').value=id;$('recordDate').value=r.date||'';$('recordTitle').value=r.title||'';$('recordDetails').value=r.details||'';if(r.attendance)students.forEach((n,i)=>{const el=$(`student-${i}`);if(el)el.value=r.attendance[n]||'Absent';});$('editorHeading').textContent='Edit record';$('saveRecordButton').textContent='Update Record';$('adminEditor').scrollIntoView({behavior:'smooth'});}
+$('registerTabsFallback');
+document.querySelectorAll('[data-register]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.register-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeRegister=b.dataset.register;resetForm();loadRegister();}));
+$('showAdminLogin').addEventListener('click',()=>{$('adminLoginForm').hidden=false;});$('cancelAdminLogin').addEventListener('click',()=>{$('adminLoginForm').hidden=true;});
+$('adminLoginButton').addEventListener('click',async()=>{try{await signInWithEmailAndPassword(auth,$('adminEmail').value.trim(),$('adminPassword').value);$('adminPassword').value='';}catch(e){message('Login failed: '+e.message);}});
+$('adminLogoutButton').addEventListener('click',()=>signOut(auth));$('cancelEditButton').addEventListener('click',resetForm);
+$('registerForm').addEventListener('submit',async e=>{e.preventDefault();if(!currentUser||currentUser.uid!==ADMIN_UID){message('Administrator permission required.');return;}try{$('saveRecordButton').disabled=true;const attachments=[];for(const file of $('recordFiles').files){const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const path=`rawe-registers/${currentUser.uid}/${Date.now()}-${safeName}`;const storageRef=ref(storage,path);await uploadBytes(storageRef,file);attachments.push({name:file.name,type:file.type,url:await getDownloadURL(storageRef),path});}const attendance={};if(activeRegister==='attendance')students.forEach((n,i)=>attendance[n]=$(`student-${i}`).value);const data={type:activeRegister,date:$('recordDate').value,title:$('recordTitle').value.trim(),details:$('recordDetails').value.trim(),attendance,attachments,updatedAt:serverTimestamp()};const id=$('editRecordId').value;if(id){await updateDoc(doc(db,'raweRegisters',id),data);}else{data.createdAt=serverTimestamp();data.createdBy=currentUser.uid;await addDoc(collection(db,'raweRegisters'),data);}resetForm();message('Record saved and published.');}catch(err){console.error(err);message('Could not save. Check Firebase Storage and Firestore administrator rules. '+err.message);}finally{$('saveRecordButton').disabled=false;}});
+
+// Video manifest: Videos/video-manifest.json; each entry has {"title":"...","src":"Videos/name.mp4","description":"..."}
+fetch('./Videos/video-manifest.json?refresh='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Video manifest not found');return r.json();}).then(items=>{const host=$('videoGrid');host.innerHTML='';if(!Array.isArray(items)||!items.length){host.innerHTML='<p>No videos uploaded yet. Add video entries to Videos/video-manifest.json.</p>';return;}items.forEach(v=>{const card=document.createElement('article');card.className='video-card';const video=document.createElement('video');video.src='./'+String(v.src||'').replace(/^\.\//,'');video.controls=true;video.preload='metadata';video.setAttribute('controlsList','nodownload');video.setAttribute('disablePictureInPicture','');video.addEventListener('contextmenu',e=>e.preventDefault());const h=document.createElement('h3');h.textContent=v.title||'RAWE Activity';const p=document.createElement('p');p.textContent=v.description||'';card.append(video,h,p);host.append(card);});}).catch(()=>{$('videoGrid').innerHTML='<p>No video manifest found yet. Create <strong>Videos/video-manifest.json</strong> to display videos here.</p>';});
+
+try{if(firebaseConfig.apiKey==='YOUR_API_KEY'||ADMIN_UID==='YOUR_ADMIN_USER_UID'){message('Firebase setup pending: add your Firebase Web App configuration and administrator UID to enable secure login and online registers.');$('registerRecords').innerHTML='<p>Registers are ready. Firebase connection is required for shared online records.</p>';}else{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);storage=getStorage(app);onAuthStateChanged(auth,user=>{currentUser=user;const isAdmin=!!user&&user.uid===ADMIN_UID;setAdminUI(isAdmin);if(user&&!isAdmin)message('Signed in account is not authorised as the RAWE administrator.');else if(isAdmin)message('Administrator access enabled.');loadRegister();});}}catch(err){console.error(err);message('Firebase could not be initialised. Check the configuration.');}
+$('recordDate').value=new Date().toISOString().slice(0,10);renderAttendance();
+</script>
+
 </body>
 </html>
