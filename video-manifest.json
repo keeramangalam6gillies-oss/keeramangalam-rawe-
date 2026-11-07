@@ -1,0 +1,12 @@
+{
+  "videos": [
+    {
+      "src": "Videos/field-activity-01.mp4",
+      "title": "Field Activity 01"
+    },
+    {
+      "src": "Videos/farmer-visit.mp4",
+      "title": "Farmer Visit"
+    }
+  ]
+}
