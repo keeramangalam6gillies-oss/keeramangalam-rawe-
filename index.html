@@ -250,6 +250,32 @@ img{max-width:100%}
 @media(max-width:760px){.video-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.video-grid,.register-form-grid{grid-template-columns:1fr}.register-full{grid-column:auto}.register-panel{padding:15px}.attendance-row{grid-template-columns:1fr 115px}}
 
+
+/* PUBLIC READ-ONLY RAWE DOCUMENTATION VIEWER */
+.resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px}
+.resource-card{display:block;width:100%;text-align:left;padding:23px;border-radius:18px;background:#fff;border:1px solid var(--line);cursor:pointer;transition:transform .2s,box-shadow .2s;color:inherit}
+.resource-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.resource-card .resource-icon{font-size:2rem;display:block;margin-bottom:10px}
+.resource-card h3{color:var(--forest);margin:7px 0;font-size:1.05rem}
+.resource-card p{font-size:.86rem;color:var(--muted)}
+.resource-card .open-label{display:inline-block;margin-top:13px;color:var(--green);font-weight:800;font-size:.82rem}
+.resource-modal{position:fixed;inset:0;z-index:1200;background:#06170feF;display:none;align-items:center;justify-content:center;padding:18px}
+.resource-modal.open{display:flex}
+.resource-modal-panel{width:min(100%,1050px);max-height:92vh;overflow:auto;background:#f8fbf5;border-radius:20px;padding:22px;box-shadow:0 20px 70px #0008}
+.resource-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:16px}
+.resource-modal-head h2{color:var(--forest);margin:0 0 5px}
+.resource-close{border:0;border-radius:50%;width:42px;height:42px;font-size:1.5rem;background:#e5eee1;color:var(--forest);cursor:pointer;flex:none}
+.resource-file-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.resource-file{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.resource-file h4{color:var(--forest);overflow-wrap:anywhere;margin-bottom:8px}
+.resource-file img,.resource-file video{display:block;width:100%;max-height:360px;object-fit:contain;background:#101a13;border-radius:9px}
+.resource-file iframe{width:100%;height:480px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.resource-file .file-preview-note{font-size:.8rem;color:var(--muted);margin-top:8px}
+.resource-empty{background:#fff;border:1px dashed #b8cbb3;padding:22px;border-radius:14px;color:var(--muted)}
+.resource-crumb{font-size:.85rem;color:var(--muted)}
+@media(max-width:800px){.resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.resource-grid,.resource-file-grid{grid-template-columns:1fr}.resource-modal{padding:8px}.resource-modal-panel{padding:14px;max-height:96vh}.resource-file iframe{height:360px}}
+
 </style>
 </head>
 <body>
@@ -269,7 +295,7 @@ img{max-width:100%}
  <nav class="main-nav" id="mainNav"><div class="container nav-inner">
   <a href="#home">Home</a><a href="#about">About</a><a href="#team">Student Team</a><a href="#village">Village Profile</a><a href="#activities">Field Activities</a>
   <a href="#attachments">Attachments</a><a href="#visits">Institutional Visits</a><a href="#training">Training</a>
-  <a href="#demonstrations">Demonstrations</a><a href="#reports">Reports</a><a href="#gallery">Photo Galleries</a><a href="#video-gallery">Video Gallery</a><a href="#registers">Registers</a><a href="#downloads">Downloads</a><a href="#contact">Contact</a>
+  <a href="#demonstrations">Demonstrations</a><a href="#reports">Reports</a><a href="#gallery">Photo Galleries</a><a href="#video-gallery">Video Gallery</a><a href="#registers">Registers</a><a href="#downloads">RAWE Documentation</a><a href="#contact">Contact</a>
  </div></nav>
 </header>
 
@@ -471,11 +497,11 @@ img{max-width:100%}
 
 <section class="section alt" id="reports"><div class="container">
  <div class="section-heading"><span class="eyebrow">Documentation</span><h2>RAWE Reports</h2><p>Field observations and academic documentation.</p><div class="heading-line"></div></div>
- <div class="report-grid">
-  <article class="report-card"><span>📘</span><h3>Village Profile Report</h3><p>Village resources, agricultural activities and rural infrastructure.</p></article>
-  <article class="report-card"><span>🌾</span><h3>Farmer Visit Reports</h3><p>Individual farmer details, crops, cultivation practices and field problems.</p></article>
-  <article class="report-card"><span>🏢</span><h3>Institutional Visit Reports</h3><p>Observations from agricultural and rural institutions.</p></article>
-  <article class="report-card"><span>📝</span><h3>Demonstration Reports</h3><p>Agricultural demonstrations and practical learning.</p></article>
+ <div class="resource-grid">
+  <button class="resource-card" type="button" data-resource-path="Reports/Village-Profile" data-resource-title="Village Profile Report"><span class="resource-icon">📘</span><h3>Village Profile Report</h3><p>Village resources, agricultural activities and rural infrastructure.</p><span class="open-label">Open report folder ↗</span></button>
+  <button class="resource-card" type="button" data-resource-path="Reports/Farmer-Visits" data-resource-title="Farmer Visit Reports"><span class="resource-icon">🌾</span><h3>Farmer Visit Reports</h3><p>Individual farmer details, crops, cultivation practices and field problems.</p><span class="open-label">Open report folder ↗</span></button>
+  <button class="resource-card" type="button" data-resource-path="Reports/Institutional-Visits" data-resource-title="Institutional Visit Reports"><span class="resource-icon">🏢</span><h3>Institutional Visit Reports</h3><p>Observations from agricultural and rural institutions.</p><span class="open-label">Open report folder ↗</span></button>
+  <button class="resource-card" type="button" data-resource-path="Reports/Demonstrations" data-resource-title="Demonstration Reports"><span class="resource-icon">📝</span><h3>Demonstration Reports</h3><p>Agricultural demonstrations and practical learning.</p><span class="open-label">Open report folder ↗</span></button>
  </div>
 </div></section>
 
@@ -545,13 +571,18 @@ img{max-width:100%}
 </div></section>
 
 <section class="section alt" id="downloads"><div class="container">
- <div class="section-heading"><span class="eyebrow">Academic resources</span><h2>Downloads & Attachments</h2><p>RAWE academic materials and documents.</p><div class="heading-line"></div></div>
- <div class="village-grid">
-  <article class="info-card"><div class="icon">📄</div><h3>RAWE Report</h3><p>Academic fieldwork documentation.</p></article>
-  <article class="info-card"><div class="icon">📷</div><h3>Photo Documentation</h3><p>Photographic records of RAWE activities.</p></article>
-  <article class="info-card"><div class="icon">🗂️</div><h3>Field Notes & Records</h3><p>Field observations, activity records and supporting materials.</p></article>
+ <div class="section-heading"><span class="eyebrow">Academic resources</span><h2>RAWE Documentation</h2><p>Read-only access to reports, photo documentation and field notes. Only authorised website administrators can add or change files in the GitHub repository.</p><div class="heading-line"></div></div>
+ <div class="resource-grid">
+  <button class="resource-card" type="button" data-resource-path="Photo-Documentation" data-resource-title="Photo Documentation"><span class="resource-icon">📷</span><h3>Photo Documentation</h3><p>Photographic records of RAWE activities, field visits and demonstrations.</p><span class="open-label">View photographs ↗</span></button>
+  <button class="resource-card" type="button" data-resource-path="Field-Notes" data-resource-title="Field Notes & Records"><span class="resource-icon">🗂️</span><h3>Field Notes & Records</h3><p>Field observations, daily activity notes and supporting documents.</p><span class="open-label">Open field notes ↗</span></button>
+  <button class="resource-card" type="button" data-resource-path="Reports" data-resource-title="All RAWE Reports"><span class="resource-icon">📚</span><h3>All RAWE Reports</h3><p>Browse all uploaded village, farmer, institutional and demonstration reports.</p><span class="open-label">Browse reports ↗</span></button>
  </div>
+ <p class="gallery-intro" style="margin-top:18px">Visitors can view files in this section. There are no visitor upload, edit or delete controls. Add new files to the matching folders in your GitHub repository to update this section.</p>
 </div></section>
+
+<div class="resource-modal" id="resourceModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="resourceModalTitle">
+ <div class="resource-modal-panel"><div class="resource-modal-head"><div><span class="eyebrow">Keeramangalam RAWE 2026 · View only</span><h2 id="resourceModalTitle">RAWE documents</h2><p class="resource-crumb" id="resourceModalInfo">Uploaded files will appear here.</p></div><button class="resource-close" type="button" id="resourceModalClose" aria-label="Close">×</button></div><div id="resourceFileGrid" class="resource-file-grid"><div class="resource-empty">Select a folder to view its files.</div></div></div>
+</div>
 
 <section class="section" id="contact"><div class="container">
  <div class="contact-box"><span class="eyebrow" style="color:#f5d98d">Programme information</span><h2>KEERAMANGALAM RAWE 2026</h2><p>AEX 401 – Rural Agricultural Work Experience Programme (0+20)</p><p>Academic Year: 2026</p><p>Keeramangalam, Pudukkottai District, Tamil Nadu</p></div>
@@ -654,6 +685,87 @@ fetch('./Videos/video-manifest.json?refresh='+Date.now(),{cache:'no-store'}).the
 
 try{if(firebaseConfig.apiKey==='YOUR_API_KEY'||ADMIN_UID==='YOUR_ADMIN_USER_UID'){message('Firebase setup pending: add your Firebase Web App configuration and administrator UID to enable secure login and online registers.');$('registerRecords').innerHTML='<p>Registers are ready. Firebase connection is required for shared online records.</p>';}else{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);storage=getStorage(app);onAuthStateChanged(auth,user=>{currentUser=user;const isAdmin=!!user&&user.uid===ADMIN_UID;setAdminUI(isAdmin);if(user&&!isAdmin)message('Signed in account is not authorised as the RAWE administrator.');else if(isAdmin)message('Administrator access enabled.');loadRegister();});}}catch(err){console.error(err);message('Firebase could not be initialised. Check the configuration.');}
 $('recordDate').value=new Date().toISOString().slice(0,10);renderAttendance();
+</script>
+
+
+<script>
+(() => {
+  const OWNER = 'keeramangalam6gillies-oss';
+  const REPO = 'keeramangalam-rawe-';
+  const BRANCH = 'main';
+  const modal = document.getElementById('resourceModal');
+  const grid = document.getElementById('resourceFileGrid');
+  const title = document.getElementById('resourceModalTitle');
+  const info = document.getElementById('resourceModalInfo');
+  if (!modal || !grid) return;
+
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const rawUrl = path => `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${path.split('/').map(encodeURIComponent).join('/')}`;
+  const apiUrl = path => `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${BRANCH}`;
+  const allowed = name => !name.startsWith('.') && !name.toLowerCase().endsWith('.json');
+
+  function preview(file) {
+    const name = safe(file.name);
+    const url = rawUrl(file.path);
+    const ext = file.name.split('.').pop().toLowerCase();
+    let body = '';
+    if (['jpg','jpeg','png','gif','webp','avif'].includes(ext)) {
+      body = `<img src="${url}" alt="${name}" loading="lazy" draggable="false">`;
+    } else if (['mp4','webm','ogg','mov'].includes(ext)) {
+      body = `<video src="${url}" controls controlsList="nodownload" disablePictureInPicture playsinline preload="metadata"></video>`;
+    } else if (ext === 'pdf') {
+      body = `<iframe src="${url}#toolbar=0&navpanes=0" title="${name}" loading="lazy"></iframe>`;
+    } else if (['txt','md','csv'].includes(ext)) {
+      body = `<iframe src="${url}" title="${name}" loading="lazy"></iframe>`;
+    } else if (['doc','docx','ppt','pptx','xls','xlsx'].includes(ext)) {
+      const office = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(url);
+      body = `<iframe src="${office}" title="${name}" loading="lazy"></iframe><p class="file-preview-note">Office document preview. If the preview is unavailable, check that the file is publicly accessible.</p>`;
+    } else {
+      body = `<p class="file-preview-note">This file type cannot be previewed inside the page.</p>`;
+    }
+    return `<article class="resource-file"><h4>${name}</h4>${body}</article>`;
+  }
+
+  async function openFolder(path, heading) {
+    title.textContent = heading;
+    info.textContent = 'Loading files from the website repository…';
+    grid.innerHTML = '<div class="resource-empty">Loading…</div>';
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    try {
+      const response = await fetch(apiUrl(path), {headers:{'Accept':'application/vnd.github+json'}});
+      if (!response.ok) throw new Error(response.status === 404 ? 'Folder not found yet. Create this folder in the GitHub repository and upload files.' : `GitHub returned ${response.status}. Please try again later.`);
+      const items = await response.json();
+      const files = items.filter(item => item.type === 'file' && allowed(item.name)).sort((a,b)=>a.name.localeCompare(b.name));
+      const folders = items.filter(item => item.type === 'dir');
+      if (!files.length && !folders.length) {
+        grid.innerHTML = '<div class="resource-empty">No files uploaded in this folder yet. Upload your report, photos or field notes to this folder in GitHub.</div>';
+      } else {
+        grid.innerHTML = files.map(file => preview({name:file.name,path:file.path})).join('');
+        folders.forEach(folder => {
+          const button = document.createElement('button');
+          button.type = 'button'; button.className = 'resource-card';
+          button.innerHTML = `<span class="resource-icon">📁</span><h3>${safe(folder.name)}</h3><p>Open this subfolder.</p><span class="open-label">Open folder ↗</span>`;
+          button.addEventListener('click',()=>openFolder(folder.path,folder.name));
+          grid.appendChild(button);
+        });
+      }
+      info.textContent = `${files.length} file(s) · View-only display`;
+    } catch (error) {
+      grid.innerHTML = `<div class="resource-empty">${safe(error.message)}<br><br>Check the folder name and make sure the repository is public.</div>`;
+      info.textContent = 'Unable to load this folder.';
+    }
+  }
+
+  document.querySelectorAll('[data-resource-path]').forEach(button => {
+    button.addEventListener('click', () => openFolder(button.dataset.resourcePath, button.dataset.resourceTitle || 'RAWE Documents'));
+  });
+  function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  document.getElementById('resourceModalClose').addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape' && modal.classList.contains('open'))closeModal();});
+})();
 </script>
 
 </body>
