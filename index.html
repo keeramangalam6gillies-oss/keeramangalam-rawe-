@@ -53,6 +53,45 @@ img{max-width:100%}
 .nav-inner{display:flex;justify-content:center;align-items:center;gap:4px;flex-wrap:wrap;padding:7px 0}
 .main-nav a{font-size:.78rem;font-weight:700;padding:9px 12px;border-radius:9px;color:#edf6ee;transition:.2s}
 .main-nav a:hover,.main-nav a:focus{background:var(--gold);color:var(--forest)}
+
+/* RAWE additions: rotating hero, focused info pages and printable attendance */
+.hero{animation:raweHeroSlides 24s infinite;background-size:cover;background-position:center}
+@keyframes raweHeroSlides{
+  0%,28%{background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=88')}
+  33%,61%{background-image:url('https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=2000&q=88')}
+  66%,94%{background-image:url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=2000&q=88')}
+  100%{background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=88')}
+}
+@media(prefers-reduced-motion:reduce){.hero{animation:none}}
+body.single-page-view main>section:not(.active-page){display:none!important}
+.page-back-wrap{max-width:1180px;margin:28px auto 8px;padding:0 22px}.page-back-bottom{padding-top:18px;border-top:1px solid #e3ebdf}
+.page-back{border:1px solid #d7e4d4;background:#f1f7ed;color:#1c5835;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer}
+.attendance-report{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;margin:18px 0;box-shadow:0 8px 24px #1d4b2d0a}
+.attendance-report-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.attendance-report h3{font-family:Georgia,serif;color:var(--forest);margin:0}
+.attendance-actions{display:flex;gap:8px;flex-wrap:wrap}
+.attendance-actions button{border:0;border-radius:999px;padding:9px 15px;background:#1d603b;color:#fff;font-weight:800;cursor:pointer}
+.attendance-list{list-style:none;padding:0;margin:18px 0}
+.attendance-list li{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #e8eee3}
+.attendance-number{color:#788578;font-weight:800}
+.attendance-status{font-weight:800;white-space:nowrap}
+.attendance-status.present{color:#168044}.attendance-status.absent{color:#c13b36}
+.team-signature{margin:42px 0 0 auto;width:260px;text-align:center;color:#344b38}
+.team-signature img{display:block;max-width:190px;max-height:65px;object-fit:contain;margin:0 auto 5px}
+.team-signature .signature-line{border-top:1px solid #627565;padding-top:7px;font-weight:750}
+.village-map{width:100%;height:360px;border:0;border-radius:16px;margin-top:14px}
+@media print{
+  body *{visibility:hidden!important}
+  .attendance-report,.attendance-report *{visibility:visible!important}
+  .attendance-report{position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none}
+  .attendance-actions{display:none!important}
+}
+@media(max-width:600px){
+ .attendance-report{padding:16px}
+ .attendance-report-head{align-items:flex-start}
+ .attendance-list li{grid-template-columns:32px 1fr auto;font-size:.92rem}
+}
+
 .hero{min-height:610px;display:flex;align-items:center;position:relative;isolation:isolate;color:#fff;background:#183f2a url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2000&q=88") center/cover no-repeat}
 .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,39,25,.91),rgba(12,54,32,.72) 53%,rgba(12,54,32,.23));z-index:-1}
 .hero-content{padding:90px 0;max-width:760px}
@@ -364,7 +403,7 @@ img{max-width:100%}
  <div class="section-heading"><span class="eyebrow">Our academic team</span><h2>Student Team & Course Faculty</h2><p>Six B.Sc. (Hons.) Agriculture students participating in the AEX 401 Rural Agricultural Work Experience Programme.</p><div class="heading-line"></div></div>
  <div class="team-grid">
   <article class="team-card"><div class="student-photo"><img src="Students/sabeen-raj.jpg" alt="Sabeen Raj" onerror="this.style.display='none'"><span>SR</span></div><h3>SABEEN RAJ</h3><p>B.Sc. (Hons.) Agriculture</p></article>
-  <article class="team-card"><div class="student-photo"><img src="Students/abu-kuhafa.jpg" alt="Abu Kuhafa" onerror="this.style.display='none'"><span>AB</span></div><h3>ABU KUHAFA</h3><p>B.Sc. (Hons.) Agriculture</p></article>
+  <article class="team-card"><div class="student-photo"><img src="Students/abu.jpg" alt="Abu Kuhafa" onerror="this.style.display='none'"><span>AB</span></div><h3>ABU KUHAFA</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/chockalingam.jpg" alt="Chockalingam" onerror="this.style.display='none'"><span>C</span></div><h3>CHOCKALINGAM</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/naveen.jpg" alt="Naveen" onerror="this.style.display='none'"><span>N</span></div><h3>NAVEEN</h3><p>B.Sc. (Hons.) Agriculture</p></article>
   <article class="team-card"><div class="student-photo"><img src="Students/sri-prabhu.jpg" alt="Sri Prabhu" onerror="this.style.display='none'"><span>SP</span></div><h3>SRI PRABHU</h3><p>B.Sc. (Hons.) Agriculture</p></article>
@@ -384,7 +423,17 @@ img{max-width:100%}
   <article class="info-card reveal"><div class="icon">🌴</div><h3>Major Agricultural Activities</h3><ul><li>Coconut cultivation</li><li>Paddy cultivation</li><li>Flower cultivation</li><li>Black gram cultivation</li><li>Vegetable cultivation</li></ul></article>
   <article class="info-card reveal"><div class="icon">🗺️</div><h3>Village Study & PRA</h3><ul><li>Social and resource mapping</li><li>Village timeline</li><li>Seasonal calendar</li><li>Problem tree analysis</li><li>Community interaction</li></ul></article>
  </div>
-</div></section>
+</div>
+ <div class="village-grid" style="margin-top:18px">
+  <article class="info-card reveal"><div class="icon">🌡️</div><h3>Climate & Temperature</h3><p>Keeramangalam has a tropical climate. Temperatures vary by season, with hot conditions before the monsoon and seasonal rainfall during the northeast monsoon. Check a live weather service for the current temperature.</p></article>
+  <article class="info-card reveal"><div class="icon">🧭</div><h3>Geographical Location</h3><p>Keeramangalam is in Alangudi Taluk, Pudukkottai District, Tamil Nadu. Use the map below to view the village location and select a point to obtain its latitude and longitude.</p></article>
+ </div>
+ <div class="info-card" style="margin-top:18px">
+  <h3>Keeramangalam Map</h3>
+  <iframe class="village-map" title="Map of Keeramangalam, Pudukkottai" loading="lazy" src="https://maps.google.com/maps?q=Keeramangalam%2C%20Pudukkottai%2C%20Tamil%20Nadu&z=13&output=embed"></iframe>
+  <p style="margin-top:12px"><a class="btn btn-gold" href="https://www.google.com/maps/search/?api=1&query=Keeramangalam%2C+Pudukkottai%2C+Tamil+Nadu" target="_blank" rel="noopener">Open Map ↗</a></p>
+ </div>
+</section>
 
 <section class="section" id="activities"><div class="container">
  <div class="section-heading"><span class="eyebrow">Field exposure</span><h2>RAWE Field Activities</h2><p>Practical learning and village-level agricultural exposure.</p><div class="heading-line"></div></div>
@@ -615,7 +664,49 @@ img{max-width:100%}
  document.addEventListener("dragstart", event => { if (event.target.matches("img")) event.preventDefault(); });
  const menuToggle=document.getElementById("menuToggle"), mainNav=document.getElementById("mainNav");
  menuToggle.addEventListener("click",()=>{const open=mainNav.classList.toggle("open");menuToggle.setAttribute("aria-expanded",String(open));menuToggle.textContent=open?"×":"☰";});
- mainNav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{mainNav.classList.remove("open");menuToggle.setAttribute("aria-expanded","false");menuToggle.textContent="☰";}));
+ function getPageSections(){return [...document.querySelectorAll("main>section")];}
+function showHomePage(updateHistory=true){
+ document.body.classList.remove("single-page-view");
+ getPageSections().forEach(sec=>sec.classList.remove("active-page"));
+ if(updateHistory)history.pushState({page:"home"},"",location.pathname+location.search+"#home");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function showInfoPage(id,updateHistory=true){
+ const target=document.getElementById(id);
+ if(!target||!target.matches("main>section"))return;
+ document.body.classList.add("single-page-view");
+ getPageSections().forEach(sec=>sec.classList.toggle("active-page",sec===target));
+ let back=target.querySelector(":scope > .page-back-wrap");
+ if(!back){
+  back=document.createElement("div");
+  back.className="page-back-wrap page-back-bottom";
+  back.innerHTML='<button class="page-back" type="button">← Back to Home</button>';
+  target.appendChild(back);
+  back.querySelector("button").addEventListener("click",()=>showHomePage());
+ }
+ if(updateHistory)history.pushState({page:id},"",location.pathname+location.search+"#"+id);
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function navigateToSection(id){
+ if(id==="home"){showHomePage();return;}
+ showInfoPage(id);
+}
+mainNav.querySelectorAll("a").forEach(a=>a.addEventListener("click",e=>{
+ const id=(a.getAttribute("href")||"").slice(1);
+ if(!document.getElementById(id)?.matches("main>section"))return;
+ e.preventDefault();
+ mainNav.classList.remove("open");menuToggle.setAttribute("aria-expanded","false");menuToggle.textContent="☰";
+ navigateToSection(id);
+}));
+document.querySelectorAll('main a[href^="#"]').forEach(a=>a.addEventListener("click",e=>{
+ const id=(a.getAttribute("href")||"").slice(1);
+ if(!document.getElementById(id)?.matches("main>section"))return;
+ e.preventDefault();navigateToSection(id);
+}));
+window.addEventListener("popstate",()=>{
+ const id=(location.hash||"#home").slice(1);
+ if(id==="home")showHomePage(false);else showInfoPage(id,false);
+});
  const settings=[
   {key:"Pra",label:"PRA & Village Appraisal"},{key:"Gallery",label:"General Field Activities"},{key:"Demonstrations",label:"Agricultural Demonstrations"},{key:"Farmers-Visit",label:"Farmers’ Visits & Interviews"},{key:"Institutional-Visits",label:"Institutional & Office Visits"},{key:"Village-Survey",label:"Village Survey & Household Study"},{key:"Crop-Visits",label:"Crop & Field Visits"},{key:"Awareness-Programmes",label:"Awareness & Extension Programmes"},{key:"Training-Programmes",label:"Training & Skill Development"},{key:"Organic-Inputs",label:"Organic Input & Preparation"},{key:"Agro-Industries",label:"Agro-industries & Marketing"},{key:"NGO-Community",label:"NGO & Community Activities"},{key:"Exhibitions",label:"Exhibitions & Displays"},{key:"Students",label:"Student Photographs"}
  ];
@@ -669,7 +760,31 @@ function escapeHTML(value){return String(value??"").replace(/[&<>"']/g,c=>({'&':
 function renderAttendance(){ $('attendanceStudents').innerHTML=students.map((name,i)=>`<div class="attendance-row"><strong>${escapeHTML(name)}</strong><select id="student-${i}" aria-label="${escapeHTML(name)} attendance"><option value="Present">Present</option><option value="Absent">Absent</option><option value="Leave">Leave</option></select></div>`).join(''); }
 function setAdminUI(isAdmin){ $('adminEditor').style.display=isAdmin?'block':'none'; $('showAdminLogin').hidden=isAdmin; $('adminLoginForm').hidden=true; $('adminSession').hidden=!isAdmin; }
 function showAttachments(items=[]){return items.map(f=>{const u=escapeHTML(f.url),n=escapeHTML(f.name),type=String(f.type||"");let preview='';if(type.startsWith('image/'))preview=`<img src="${u}" alt="${n}" loading="lazy" oncontextmenu="return false">`;else if(type.startsWith('video/'))preview=`<video src="${u}" controls controlsList="nodownload" disablePictureInPicture playsinline></video>`;else if(type==='application/pdf')preview=`<iframe src="${u}#toolbar=0" title="${n}"></iframe>`;return `<div class="register-attachment"><a href="${u}" target="_blank" rel="noopener">View ${n}</a>${preview}</div>`;}).join('');}
-function renderRecords(){const host=$('registerRecords');if(!records.length){host.innerHTML='<p>No published records in this register yet.</p>';return;}host.innerHTML=records.map(r=>`<article class="register-record"><h4>${escapeHTML(r.title)}</h4><small>${escapeHTML(r.date||'')} · ${escapeHTML(registerNames[r.type]||r.type||'Register')}</small><p>${escapeHTML(r.details||'')}</p>${r.attendance?`<p><strong>Attendance:</strong> ${Object.entries(r.attendance).map(([n,v])=>`${escapeHTML(n)} – ${escapeHTML(v)}`).join(' · ')}</p>`:''}${showAttachments(r.attachments||[])}${currentUser?.uid===ADMIN_UID?`<button class="btn btn-gold" type="button" data-edit="${escapeHTML(r.id)}">Edit</button>`:''}</article>`).join('');host.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editRecord(b.dataset.edit)));}
+function attendanceReportHTML(r){
+ const knownOrder=["SABEEN RAJ","ABU KUHAFA","CHOCKALINGAM","NAVEEN","SRI PRABHU","ARUN KUNAR"];
+ const attendance=r.attendance||{};
+ const entries=Object.entries(attendance);
+ const ordered=knownOrder.filter(n=>Object.prototype.hasOwnProperty.call(attendance,n)).map(n=>[n,attendance[n]]);
+ entries.filter(([n])=>!knownOrder.includes(n)).forEach(item=>ordered.push(item));
+ const displayNames={"SABEEN RAJ":"R.S. Sabeen Raj","ABU KUHAFA":"R. Abu Kuhafa","CHOCKALINGAM":"R. Chockalingam","NAVEEN":"S. Naveen","SRI PRABHU":"S. Sri Prabhu","ARUN KUNAR":"M. Arun Kumar"};
+ const rows=ordered.map(([name,status],i)=>{
+  const present=String(status).toLowerCase()==="present";
+  return '<li><span class="attendance-number">'+String(i+1).padStart(2,"0")+'</span><strong>'+escapeHTML(displayNames[name]||name)+'</strong><span class="attendance-status '+(present?"present":"absent")+'">'+(present?"● Present":"● Absent")+'</span></li>';
+ }).join("");
+ return '<article class="attendance-report"><div class="attendance-report-head"><h3>Attendance Report · '+escapeHTML(r.date||"")+'</h3><div class="attendance-actions"><button type="button" data-attendance-print>Print</button><button type="button" data-attendance-pdf>Download PDF</button></div></div><ol class="attendance-list">'+rows+'</ol><div class="team-signature"><img src="Students/team-leader-signature.png" alt="Team Leader Signature" onerror="this.style.display=\'none\'"><div class="signature-line">Team Leader Signature</div></div></article>';
+}
+function printAttendanceReport(){window.print();}
+function renderRecords(){
+ const host=$("registerRecords");
+ if(!records.length){host.innerHTML="<p>No published records in this register yet.</p>";return;}
+ host.innerHTML=records.map(r=>{
+  if(r.type==="attendance"&&r.attendance)return attendanceReportHTML(r);
+  return `<article class="register-record"><h4>${escapeHTML(r.title)}</h4><small>${escapeHTML(r.date||"")} · ${escapeHTML(registerNames[r.type]||r.type||"Register")}</small><p>${escapeHTML(r.details||"")}</p>${r.attendance?`<p><strong>Attendance:</strong> ${Object.entries(r.attendance).map(([n,v])=>`${escapeHTML(n)} – ${escapeHTML(v)}`).join(" · ")}</p>`:""}${showAttachments(r.attachments||[])}${currentUser?.uid===ADMIN_UID?`<button class="btn btn-gold" type="button" data-edit="${escapeHTML(r.id)}">Edit</button>`:""}</article>`;
+ }).join("");
+ host.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>editRecord(b.dataset.edit)));
+ host.querySelectorAll("[data-attendance-print],[data-attendance-pdf]").forEach(b=>b.addEventListener("click",printAttendanceReport));
+}
+
 function loadRegister(){if(unsubscribe){unsubscribe();unsubscribe=null;} $('registerHeading').textContent=registerNames[activeRegister];$('attendanceEditor').hidden=activeRegister!=='attendance';$('registerRecords').innerHTML='<p>Loading records…</p>';if(!db){$('registerRecords').innerHTML='<p>Connect Firebase to load published records.</p>';return;}const q=query(collection(db,'raweRegisters'),orderBy('createdAt','desc'));unsubscribe=onSnapshot(q,snap=>{records=snap.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.type===activeRegister);renderRecords();},err=>{console.error(err);message('Could not load records. Check Firestore public-read rules and database setup.');});}
 function resetForm(){ $('registerForm').reset();$('editRecordId').value='';$('recordDate').value=new Date().toISOString().slice(0,10);$('editorHeading').textContent='Add a new record';$('saveRecordButton').textContent='Save Record';if(activeRegister==='attendance')renderAttendance(); }
 function editRecord(id){const r=records.find(x=>x.id===id);if(!r)return;$('editRecordId').value=id;$('recordDate').value=r.date||'';$('recordTitle').value=r.title||'';$('recordDetails').value=r.details||'';if(r.attendance)students.forEach((n,i)=>{const el=$(`student-${i}`);if(el)el.value=r.attendance[n]||'Absent';});$('editorHeading').textContent='Edit record';$('saveRecordButton').textContent='Update Record';$('adminEditor').scrollIntoView({behavior:'smooth'});}
