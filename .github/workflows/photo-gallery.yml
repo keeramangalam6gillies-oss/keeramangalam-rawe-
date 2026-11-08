@@ -10,6 +10,7 @@ name: Automatic Photo Gallery
       - 'Demonstrations/**'
       - 'Farmers-Visit/**'
       - 'Institutional-Visits/**'
+      - 'NGO-Community/**'
       - 'scripts/build-photo-manifest.py'
       - '.github/workflows/photo-gallery.yml'
 
