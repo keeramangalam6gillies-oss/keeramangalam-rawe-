@@ -7,6 +7,7 @@ folders = [
     "Demonstrations",
     "Farmers-Visit",
     "Institutional-Visits"
+    "NGO-Community"
 ]
 
 extensions = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
