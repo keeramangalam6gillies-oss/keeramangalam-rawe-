@@ -6,7 +6,7 @@ folders = [
     "Gallery",
     "Demonstrations",
     "Farmers-Visit",
-    "Institutional-Visits"
+    "Institutional-Visits",
     "NGO-Community"
 ]
 
