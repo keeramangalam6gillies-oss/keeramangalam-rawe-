@@ -7,12 +7,12 @@ service firebase.storage {
         && request.auth.token.email_verified == true;
     }
 
-    match /uploads/{allPaths=**} {
+    match /rawe-registers/{uid}/{fileName} {
       allow read: if true;
       allow write: if isAdmin()
+        && request.auth.uid == uid
         && request.resource != null
-        && request.resource.size < 50 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.size < 50 * 1024 * 1024;
     }
   }
 }
