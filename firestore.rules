@@ -7,17 +7,9 @@ service cloud.firestore {
         && request.auth.token.email_verified == true;
     }
 
-    function isSiteCollection(name) {
-      return name in [
-        'journey', 'photos', 'videos',
-        'reg_attendance', 'reg_movement', 'reg_radio',
-        'reg_newspaper', 'reg_visitor', 'reg_reports'
-      ];
-    }
-
-    match /{collection}/{document} {
-      allow read: if isSiteCollection(collection);
-      allow create, update, delete: if isSiteCollection(collection) && isAdmin();
+    match /raweRegisters/{recordId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
   }
 }
