@@ -217,7 +217,7 @@ if(fbReady){fbAuth.onAuthStateChanged(async user=>{if(user){try{await user.reloa
 function safeCoverKey(g,s=''){return s?`${g}/${s}`:g}
 function coverFor(g,s=''){return (stored._covers||{})[safeCoverKey(g,s)]||''}
 function coverMarkup(g,s=''){let u=coverFor(g,s);return `<div class="rawe-cover" ${u?`style="background-image:linear-gradient(90deg,#102e22d9,#102e2255),url('${u}')"`:''}><div><span>${s?'SUBFOLDER':'FIELDWORK FOLDER'}</span><h3>${esc(s||g)}</h3>${adminAuthenticated?`<label class="btn small light">${u?'Change':'Add'} cover<input type="file" accept="image/*" hidden onchange="uploadCover('${esc(g)}','${esc(s)}',this)"></label>`:''}</div></div>`}
-async async function uploadCover(g,s,input){
+async function uploadCover(g,s,input){
  if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
  const f=input.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Choose an image');return}
  try{
