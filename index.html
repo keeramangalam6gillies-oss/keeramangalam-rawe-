@@ -447,4 +447,101 @@ document.head.appendChild(villageGalleryRules);
 
 render();
 
+
+/* ===== RAWE_GITHUB_MEDIA_INDEX_V1: automatically show files committed to GitHub ===== */
+const raweGitHubMediaStyle = document.createElement('style');
+raweGitHubMediaStyle.textContent = `
+/* Use the full browser width and remove the unused side gutters. */
+html,body{width:100%;max-width:100%;margin:0;overflow-x:hidden}
+#app.container{width:100%;max-width:none;margin:20px auto;padding-left:clamp(12px,2.2vw,34px);padding-right:clamp(12px,2.2vw,34px)}
+.rawe-github-file{overflow:hidden}
+.rawe-github-file iframe{display:block;width:100%;height:420px;border:1px solid var(--line);border-radius:8px}
+.rawe-github-file video{display:block;width:100%;max-height:460px;background:#111;border-radius:8px}
+.rawe-github-file a{color:var(--green);font-weight:700;overflow-wrap:anywhere}
+.rawe-media-note{font-size:12px;color:var(--muted);margin:8px 0 14px}
+`;
+document.head.appendChild(raweGitHubMediaStyle);
+
+let raweGitHubMedia = [];
+let raweGitHubMediaReady = false;
+const RAWE_MEDIA_INDEX_URL = './rawe-media-index.json';
+
+function raweGitHubRawUrl(path){
+  return 'https://raw.githubusercontent.com/keeramangalam6gillies-oss/keeramangalam-rawe-/' +
+    'main/' + String(path).split('/').map(encodeURIComponent).join('/');
+}
+async function loadRaweGitHubMedia(){
+  try{
+    const response = await fetch(RAWE_MEDIA_INDEX_URL + '?v=' + Date.now(), {cache:'no-store'});
+    if(!response.ok) throw new Error('Media index not available yet');
+    const data = await response.json();
+    raweGitHubMedia = Array.isArray(data) ? data : (Array.isArray(data.files) ? data.files : []);
+    raweGitHubMediaReady = true;
+    if(state.page==='home'||state.page==='gallery'||state.page==='videos'||state.page==='reports'||state.page==='content') render();
+  }catch(error){
+    console.info('RAWE GitHub media index will appear after the first media upload and index build.', error);
+    raweGitHubMediaReady = false;
+  }
+}
+function raweMediaInFolder(g,s,k){
+  const key = g + '/' + s + '/' + k;
+  return raweGitHubMedia.filter(x => x.folderKey===key || x.key===key);
+}
+function raweMediaTitle(x){
+  return x.title || String(x.path||'').split('/').pop().replace(/\\.[^.]+$/,'').replace(/[_-]+/g,' ');
+}
+function raweGitHubMediaCard(x,k){
+  const title=esc(raweMediaTitle(x)), url=esc(x.url||raweGitHubRawUrl(x.path||''));
+  const path=esc(x.path||''), date=esc(x.date||'Date not supplied');
+  if(k==='Photos') return `<article class="media-card rawe-github-file"><img loading="lazy" src="${url}" alt="${title}" onclick="lightbox('${encodeURIComponent(x.url||raweGitHubRawUrl(x.path||''))}')"><div class="body"><h3>${title}</h3><p>${path}</p></div></article>`;
+  if(k==='Videos') return `<article class="report rawe-github-file"><h3>▶ ${title}</h3><p>${path}</p><video controls preload="metadata" playsinline src="${url}">Your browser does not support video playback.</video></article>`;
+  const ext=String(x.path||'').split('.').pop().toLowerCase();
+  const preview=(ext==='pdf') ? `<iframe loading="lazy" title="${title}" src="${url}#toolbar=0"></iframe>` : '';
+  return `<article class="report rawe-github-file"><h3>${k==='Reports'?'📑':'📄'} ${title}</h3><p>${path} · ${date}</p>${preview}<p><a href="${url}" target="_blank" rel="noopener">Open ${k==='Reports'?'report':'document'} ↗</a></p></article>`;
+}
+function contentPage(g,s,k){
+  const key=pathKey(g,s,k), localItems=stored[key]||[], githubItems=raweMediaInFolder(g,s,k);
+  return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}
+  <div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Files committed to this GitHub folder appear here automatically. Local administrator entries are shown too.</p></div>${adminButton()}</div>
+  ${localItems.length?renderItems(localItems,k):''}
+  ${githubItems.length? (k==='Photos'?'<div class="media-grid">':'')+githubItems.map(x=>raweGitHubMediaCard(x,k)).join('')+(k==='Photos'?'</div>':'') : ''}
+  ${(!localItems.length&&!githubItems.length)?`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>No ${k.toLowerCase()} uploaded yet</h3><p>Upload files to the matching GitHub folder: <b>${esc(key)}/</b>. They will appear here automatically after GitHub finishes building the media index.</p></div>`:''}
+  ${adminForm(key,k)}</div>`;
+}
+function raweAllGitHub(kind){
+  return raweGitHubMedia.filter(x=>x.kind===kind || String(x.folderKey||x.key||'').endsWith('/'+kind));
+}
+function galleryPage(){
+  const local=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&/\\/Photos$/i.test(path)?items.filter(x=>x&&x.url).map(x=>({title:x.title||'Uploaded RAWE photo',url:x.url,category:path.split('/')[0],date:x.date||'Date not supplied',place:x.location||''})):[]);
+  const remote=raweAllGitHub('Photos').map(x=>({title:raweMediaTitle(x),url:x.url||raweGitHubRawUrl(x.path),category:x.group||String(x.folderKey||'').split('/')[0],date:x.date||'Date not supplied',place:''}));
+  const all=[...local,...remote];
+  return `${topPage('Overall Photo Gallery','Photos uploaded to any activity folder in GitHub are listed here automatically.')}
+  <div class="toolbar"><input id="gallerySearch" placeholder="Search uploaded photos…" oninput="filterGallery()" style="padding:8px;border:1px solid var(--line);border-radius:7px"><select id="galleryCategory" onchange="filterGallery()"><option value="">All categories</option>${[...new Set(all.map(x=>x.category))].sort().map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+  <div id="galleryGrid" class="media-grid">${all.length?all.map((x,i)=>galleryCard(x,i)).join(''):`<div class="empty-state"><div class="empty-icon">📷</div><h3>No photos uploaded yet</h3><p>Upload an image to a folder ending in /Photos/ in the GitHub repository.</p></div>`}</div>`;
+}
+function filterGallery(){
+  const q=(document.getElementById('gallerySearch')?.value||'').toLowerCase(), c=document.getElementById('galleryCategory')?.value||'';
+  document.querySelectorAll('#galleryGrid .media-card').forEach(el=>el.classList.toggle('hide',!(el.dataset.title.includes(q)&&(!c||el.dataset.cat===c))));
+}
+function videosPage(){
+  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.filter(x=>x&&x.type==='Videos').map(x=>({...x,path:p})):[]);
+  const remote=raweAllGitHub('Videos');
+  return `${topPage('Overall Video Gallery','Videos uploaded to any activity folder in GitHub are listed here automatically.')}
+  <div class="panel">${local.length?renderItems(local,'Videos'):''}${remote.length?remote.map(x=>raweGitHubMediaCard(x,'Videos')).join(''):`${local.length?'':`<div class="empty-state"><div class="empty-icon">▶️</div><h3>No videos uploaded yet</h3><p>Upload a video to a folder ending in /Videos/.</p></div>`}`}</div>`;
+}
+function reportsPage(){
+  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.filter(x=>x&&['Reports','Documents'].includes(x.type)).map(x=>({...x,path:p})):[]);
+  const remote=[...raweAllGitHub('Reports'),...raweAllGitHub('Documents')];
+  return `${topPage('Reports and Documents','Reports and documents uploaded to the relevant GitHub folders appear here automatically.')}
+  <div class="panel">${local.length?renderItems(local,'Reports'):''}${remote.length?remote.map(x=>raweGitHubMediaCard(x,x.kind==='Reports'?'Reports':'Documents')).join(''):`${local.length?'':`<div class="empty-state"><div class="empty-icon">📄</div><h3>No reports or documents uploaded yet</h3><p>Upload files to the matching /Reports/ or /Documents/ folder.</p></div>`}`}</div>`;
+}
+function raweFinalUploadedPhotos(){
+  const local=[];
+  try{Object.entries(stored||{}).forEach(([key,items])=>{if(/\\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x&&x.url&&String(x.url).startsWith('http'))local.push({url:x.url,title:x.title||key.split('/')[0]})})})}catch(e){}
+  const remote=raweAllGitHub('Photos').map(x=>({url:x.url||raweGitHubRawUrl(x.path),title:raweMediaTitle(x)}));
+  const seen=new Set();return [...local,...remote].filter(x=>x.url&&!seen.has(x.url)&&seen.add(x.url));
+}
+loadRaweGitHubMedia();
+/* ===== End automatic GitHub media integration ===== */
+
 </script></body></html>
