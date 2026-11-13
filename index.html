@@ -284,12 +284,13 @@ function renderItems(items,k){return `<div class="${k==='Photos'?'media-grid':''
 
 /* Authenticated controls for items inside an individual activity folder. */
 function renderItems(items,k,key){
- const canManage=!!(key&&isAdminUser());
+ const canManage=!!(isAdminUser()&&(key||items.some(x=>x&&x.path&&Number.isInteger(x.index))));
  return `<div class="${k==='Photos'?'media-grid':''}">${items.map((x,i)=>{
+  const itemKey=key||x.path,itemIndex=Number.isInteger(x.index)?x.index:i;
   let body='';
-  if(k==='Photos') body=`<article class="media-card"><img loading="lazy" src="${esc(x.url||'')}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url||'')}','${esc(x.title)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p></div>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(key)+'\','+i+')">Edit</button><button onclick="deleteFolderItem(\''+esc(key)+'\','+i+')">Delete</button></div>':''}</article>`;
-  else if(k==='Videos') body=`<article class="report"><h3>▶ ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${x.url&&x.url.startsWith('data:')?`<video controls style="width:100%;max-height:320px" src="${x.url}"></video>`:youtubeEmbed(x.url)?`<iframe title="${esc(x.title)}" src="${youtubeEmbed(x.url)}" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0"></iframe>`:`<p><a href="${esc(x.url||'#')}" target="_blank" rel="noopener">Open video</a></p>`}<p>${esc(x.desc||'')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(key)+'\','+i+')">Edit</button><button onclick="deleteFolderItem(\''+esc(key)+'\','+i+')">Delete</button></div>':''}</article>`;
-  else body=`<article class="report"><h3>${k==='Documents'?'📄 ':''}${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'')}</p><p style="white-space:pre-wrap">${esc(x.url||x.desc||'No details entered.')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(key)+'\','+i+')">Edit</button><button onclick="deleteFolderItem(\''+esc(key)+'\','+i+')">Delete</button></div>':''}</article>`;
+  if(k==='Photos') body=`<article class="media-card"><img loading="lazy" src="${esc(x.url||'')}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url||'')}','${esc(x.title)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p></div>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
+  else if(k==='Videos') body=`<article class="report"><h3>▶ ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${x.url&&x.url.startsWith('data:')?`<video controls style="width:100%;max-height:320px" src="${x.url}"></video>`:youtubeEmbed(x.url)?`<iframe title="${esc(x.title)}" src="${youtubeEmbed(x.url)}" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0"></iframe>`:`<p><a href="${esc(x.url||'#')}" target="_blank" rel="noopener">Open video</a></p>`}<p>${esc(x.desc||'')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
+  else body=`<article class="report"><h3>${k==='Documents'?'📄 ':''}${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'')}</p><p style="white-space:pre-wrap">${esc(x.url||x.desc||'No details entered.')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
   return body;
  }).join('')}</div>`;
 }
@@ -627,11 +628,12 @@ function contentPage(g,s,k){
  ${adminForm(key,k)}</div>`;
 }
 function raweGitHubGalleryCard(x){
- const title=raweMediaTitle(x),url=x.url||raweGitHubRawUrl(x.path);
- return `<article class="media-card" data-title="${esc(title.toLowerCase())}" data-cat="${esc(x.group||'')}"><img loading="lazy" src="${esc(url)}" alt="${esc(title)}" onclick="lightbox('${encodeURIComponent(url)}')"><div class="body"><h3>${esc(title)}</h3><p>${esc(x.group||'')} · ${esc(x.subfolder||'')}</p></div></article>`;
-}
+  const title=raweMediaTitle(x),url=x.url||raweGitHubRawUrl(x.path);
+  const actions=x.key&&isAdminUser()?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(x.key)+'\','+x.index+')">Edit</button><button onclick="deleteFolderItem(\''+esc(x.key)+'\','+x.index+')">Delete</button></div>':'';
+  return `<article class="media-card" data-title="${esc(title.toLowerCase())}" data-cat="${esc(x.group||'')}"><img loading="lazy" src="${esc(url)}" alt="${esc(title)}" onclick="lightbox('${encodeURIComponent(url)}')"><div class="body"><h3>${esc(title)}</h3><p>${esc(x.group||'')} · ${esc(x.subfolder||'')}</p></div>${actions}</article>`;
+ }
 function galleryPage(){
- const local=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&path.endsWith('/Photos')?items.filter(x=>x&&x.url).map(x=>({title:x.title||'Uploaded RAWE photo',url:x.url,group:path.split('/')[0],subfolder:path.split('/')[1]})):[]);
+ const local=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&path.endsWith('/Photos')?items.flatMap((x,index)=>x&&x.url?[{...x,title:x.title||'Uploaded RAWE photo',group:path.split('/')[0],subfolder:path.split('/')[1],key:path,index}]:[]):[]);
  const remote=raweAllGitHub('Photos');
  return `${topPage('Overall Photo Gallery','Photos uploaded to all RAWE activity folders in GitHub are displayed here automatically.')}
  <div class="toolbar"><input id="gallerySearch" placeholder="Search uploaded photos…" oninput="filterGallery()" style="padding:8px;border:1px solid var(--line);border-radius:7px"><select id="galleryCategory" onchange="filterGallery()"><option value="">All categories</option>${[...new Set([...local,...remote].map(x=>x.group||'Other'))].sort().map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
@@ -643,12 +645,12 @@ function filterGallery(){
 }
 async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const title=document.getElementById('galleryUploadTitle')?.value.trim(),file=document.getElementById('galleryUploadFile')?.files?.[0],key=document.getElementById('galleryTarget')?.value;if(!title){toast('Enter a photo title');return}if(!file){toast('Choose a photo');return}if(!file.type.startsWith('image/')){toast('Choose an image file');return}if(file.size>100*1024*1024){toast('Maximum photo size is 100 MB');return}const button=document.querySelector('#galleryUploadFile')?.closest('.panel')?.querySelector('button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}try{const url=await uploadFileToStorage(file,'photos');stored[key]=stored[key]||[];stored[key].push({title,date:document.getElementById('galleryUploadDate')?.value||'',location:document.getElementById('galleryUploadLocation')?.value||'',desc:document.getElementById('galleryUploadDesc')?.value||'',type:'Photos',url,createdAt:new Date().toISOString()});await save();toast('Photo uploaded and saved');render()}catch(e){console.error(e);toast('Photo upload failed: '+e.message);if(button){button.disabled=false;button.textContent='Upload photograph'}}}
 function videosPage(){
- const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.filter(x=>x&&x.type==='Videos').map(x=>({...x,path:p})):[]);
+ const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&x.type==='Videos'?[{...x,path:p,index}]:[]):[]);
  const remote=raweAllGitHub('Videos');
  return `${topPage('Overall Video Gallery','Videos uploaded to any activity folder in GitHub appear here automatically.')}<div class="panel">${local.length?renderItems(local,'Videos'):''}${remote.map(x=>raweGitHubMediaCard(x,'Videos')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">▶️</div><h3>No videos uploaded yet</h3><p>Upload videos into the relevant activity folder's Videos subfolder in GitHub.</p></div>`:''}</div>`;
 }
 function reportsPage(){
- const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.filter(x=>x&&['Reports','Documents'].includes(x.type)).map(x=>({...x,path:p})):[]);
+ const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&['Reports','Documents'].includes(x.type)?[{...x,path:p,index}]:[]):[]);
  const remote=[...raweAllGitHub('Reports'),...raweAllGitHub('Documents')];
  return `${topPage('Reports and Documents','Reports and documents uploaded to any activity folder in GitHub appear here automatically.')}<div class="panel">${local.length?renderItems(local,'Reports'):''}${remote.map(x=>raweGitHubMediaCard(x,x.kind==='Reports'?'Reports':'Documents')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">📄</div><h3>No reports or documents uploaded yet</h3><p>Upload files into the relevant activity folder's Reports or Documents subfolder in GitHub.</p></div>`:''}</div>`;
 }
