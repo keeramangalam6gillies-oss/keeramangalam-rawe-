@@ -545,7 +545,7 @@ function deleteRegisterEntry(i){
 /* ===== Paiyur-style attendance report for Keeramangalam RAWE ===== */
 let raweAttendanceRecords={};
 let raweAttendanceLoaded=false,raweAttendanceLoading=false;
-function attendanceIsAdmin(){return !!adminAuthenticated}
+function attendanceIsAdmin(){return typeof adminAuthenticated!=='undefined'&&!!adminAuthenticated}
 async function loadRaweAttendance(){
  if(raweAttendanceLoaded||raweAttendanceLoading)return;
  raweAttendanceLoading=true;
