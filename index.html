@@ -210,7 +210,23 @@ async function migrateEmbeddedData(value,folder='legacy'){if(typeof value==='str
 async function syncAllContent(){if(!isAdminUser())throw Error('Admin authentication required');let batch=fbDb.batch(),writes=0;for(const [key,value] of Object.entries(stored)){const clean=await migrateEmbeddedData(value,'legacy');stored[key]=clean;const ref=fbDb.collection('raweContent').doc(encodeDocId(key));batch.set(ref,{key,value:clean,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:ADMIN_EMAIL});writes++;if(writes===450){await batch.commit();batch=fbDb.batch();writes=0;}}if(writes)await batch.commit();try{localStorage.setItem('rawe26content',JSON.stringify(stored))}catch(e){}}
 async function syncAllProfiles(){if(!isAdminUser())return;let p=profiles();p=await migrateEmbeddedData(p,'profiles');localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
 async function bootstrapCloudIfNeeded(){if(!isAdminUser())return;const content=await fbDb.collection('raweContent').limit(1).get();if(content.empty&&Object.keys(stored).length)await syncAllContent();const profile=await fbDb.collection('raweProfiles').doc('main').get();if(!profile.exists&&Object.keys(profiles()).length)await syncAllProfiles();}
-async function uploadFileToStorage(file,folder='media'){if(!fbReady||!isAdminUser())throw Error('Please sign in with the verified administrator account');const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,'_').slice(-100);const path=`uploads/${fbAuth.currentUser.uid}/${folder}/${Date.now()}_${safe}`;const ref=fbStorage.ref().child(path);await ref.put(file,{contentType:file.type||'application/octet-stream'});return await ref.getDownloadURL()}
+async function uploadFileToStorage(file,folder='media'){
+ if(!fbReady||!isAdminUser())throw Error('Please sign in with the verified administrator account');
+ if(!file)throw Error('Choose a file to upload');
+ const token=await fbAuth.currentUser.getIdToken(true);
+ const signerUrl='https://rawe-cloudinary-signer.keeramangalam6gillies.workers.dev/sign';
+ const signResponse=await fetch(signerUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({folder})});
+ if(!signResponse.ok){const message=await signResponse.text();throw Error('Cloudinary signing failed ('+signResponse.status+'): '+message)}
+ const signed=await signResponse.json();
+ const data=new FormData();
+ data.append('file',file);
+ ['folder','public_id','timestamp','signature','api_key'].forEach(key=>{if(signed[key]!==undefined)data.append(key,String(signed[key]))});
+ const uploadResponse=await fetch('https://api.cloudinary.com/v1_1/'+encodeURIComponent(signed.cloud_name)+'/auto/upload',{method:'POST',body:data});
+ const result=await uploadResponse.json();
+ if(!uploadResponse.ok)throw Error(result.error?.message||'Cloudinary upload failed');
+ if(!result.secure_url)throw Error('Cloudinary did not return a secure file URL');
+ return result.secure_url;
+}
 async function loadCloudData(){if(!fbReady||cloudLoadDone)return;try{const snap=await fbDb.collection('raweContent').get();if(!snap.empty){const cloud={};snap.forEach(d=>{const x=d.data();if(x&&typeof x.key==='string')cloud[x.key]=x.value});stored=cloud;localStorage.setItem('rawe26content',JSON.stringify(stored));}const ps=await fbDb.collection('raweProfiles').doc('main').get();if(ps.exists&&ps.data().profiles){localStorage.setItem(PROFILE_KEY,JSON.stringify(ps.data().profiles));}cloudLoadDone=true;}catch(e){console.error('Cloud data load failed',e);toast('Could not load cloud data. Check Firestore read rules.');}}
 if(fbReady){fbAuth.onAuthStateChanged(async user=>{if(user){try{await user.reload();const freshUser=fbAuth.currentUser;if(!freshUser||!isAdminUser(freshUser)){adminAuthenticated=false;if(fbAuth.currentUser)await fbAuth.signOut();toast('Firebase reports this account as unverified or unauthorized after refreshing its status.');return}adminAuthenticated=true;await loadCloudData();await bootstrapCloudIfNeeded();render();}catch(e){console.error('Admin auth refresh failed',e);adminAuthenticated=false;}}else{adminAuthenticated=false;}});loadCloudData().then(()=>render());}
 
