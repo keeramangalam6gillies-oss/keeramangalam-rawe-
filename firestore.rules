@@ -19,6 +19,12 @@ service cloud.firestore {
       allow create, update, delete: if isRaweAdmin();
     }
 
+    // Attendance is publicly viewable; only the verified RAWE administrator can change it.
+    match /raweAttendance/{documentId} {
+      allow read: if true;
+      allow create, update, delete: if isRaweAdmin();
+    }
+
     // Deny access to every collection not explicitly listed above.
     match /{document=**} {
       allow read, write: if false;
