@@ -541,4 +541,75 @@ function deleteRegisterEntry(i){
  items.splice(i,1);stored[key]=items;save();render();toast('Register entry deleted');
 }
 
+
+/* ===== Paiyur-style attendance report for Keeramangalam RAWE ===== */
+let raweAttendanceRecords={};
+let raweAttendanceLoaded=false,raweAttendanceLoading=false;
+function attendanceIsAdmin(){return !!adminAuthenticated}
+async function loadRaweAttendance(){
+ if(raweAttendanceLoaded||raweAttendanceLoading)return;
+ raweAttendanceLoading=true;
+ try{
+  if(typeof fbDb!=='undefined'&&fbDb){
+   const snap=await fbDb.collection('raweAttendance').doc('main').get();
+   if(snap.exists&&snap.data()&&snap.data().records)raweAttendanceRecords=snap.data().records;
+   else raweAttendanceRecords=JSON.parse(localStorage.getItem('raweAttendanceRecords')||'{}');
+  }else raweAttendanceRecords=JSON.parse(localStorage.getItem('raweAttendanceRecords')||'{}');
+  raweAttendanceLoaded=true;
+ }catch(e){console.error('Attendance load failed',e);raweAttendanceRecords=JSON.parse(localStorage.getItem('raweAttendanceRecords')||'{}');raweAttendanceLoaded=true;toast('Could not load shared attendance. Showing this device\'s saved copy.')}
+ finally{raweAttendanceLoading=false;if(state.page==='registers'&&state.register==='Attendance Register')render()}
+}
+function attendanceDate(){return state.selectedDate||new Date().toISOString().slice(0,10)}
+function attendanceSummary(date){
+ const rec=raweAttendanceRecords[date]||{},marks=rec.marks||{};
+ let present=students.filter(n=>marks[n]==='Present').length,absent=students.filter(n=>marks[n]==='Absent').length;
+ return {present,absent,marked:present+absent,total:students.length,pct:Math.round(present/students.length*100)};
+}
+function attendanceReportPage(){
+ if(!raweAttendanceLoaded&&!raweAttendanceLoading)loadRaweAttendance();
+ const date=attendanceDate(),rec=raweAttendanceRecords[date]||{},marks=rec.marks||{},sum=attendanceSummary(date),admin=attendanceIsAdmin();
+ return `<div class="crumbs"><button onclick="go('home')">Home</button><span>›</span><button onclick="go('registers')">Digital Registers</button><span>›</span><b>Attendance Report</b></div>
+ <div class="page-head"><h2>📋 Students Attendance</h2><p>AEX 401 Rural Agricultural Work Experience · Keeramangalam RAWE 2026</p><div class="toolbar"><button onclick="historyBack()">← Back</button><button onclick="go('home')">⌂ Home</button></div></div>
+ <div class="panel" id="attendancePrintable">
+  <div style="text-align:center;margin-bottom:16px"><h2 style="margin:0;color:var(--forest)">KEERAMANGALAM RAWE 2026</h2><p style="margin:5px 0;color:var(--muted)">STUDENTS ATTENDANCE REPORT · AEX 401 (0+20)</p></div>
+  <div class="form-grid" style="align-items:end"><label>Select Date<input id="attendanceDate" type="date" value="${esc(date)}" onchange="state.selectedDate=this.value;render()"></label><div><button class="btn primary" onclick="viewAttendanceDate()">View Report</button></div></div>
+  <p class="muted" style="margin:10px 0">${admin?'Administrator mode: mark or update each student’s attendance, then save.':'Students and visitors can view the attendance report. Only the administrator can enter or change attendance.'}</p>
+  <div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:16px 0">
+   ${statBox(sum.total,'Total Students')}${statBox(sum.present,'🟢 Present')}${statBox(sum.absent,'🔴 Absent')}${statBox(sum.pct+'%','📊 Attendance')}
+  </div>
+  <h3 style="color:var(--forest)">Attendance for ${esc(fmt(date))}</h3>
+  ${raweAttendanceLoaded?`<div class="table-wrap"><table><thead><tr><th>S.No.</th><th>Student Name</th><th>Attendance Status</th></tr></thead><tbody>${students.map((n,i)=>`<tr><td>${i+1}</td><td>${esc(n)}</td><td>${admin?`<select class="attendance-mark" data-student="${esc(n)}" style="padding:7px;border:1px solid var(--line);border-radius:7px"><option value="">Not marked</option><option value="Present" ${marks[n]==='Present'?'selected':''}>Present</option><option value="Absent" ${marks[n]==='Absent'?'selected':''}>Absent</option></select>`:`<strong style="color:${marks[n]==='Present'?'#16834a':marks[n]==='Absent'?'#b33':'#777'}">${esc(marks[n]||'Not marked')}</strong>`}</td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">Loading attendance records…</p>'}
+  ${admin?`<div class="toolbar" style="margin-top:16px"><button class="btn primary" onclick="saveRaweAttendance()">💾 Save Attendance</button><button class="btn light" onclick="clearRaweAttendanceDate()">Delete This Date</button></div>`:''}
+  <div style="margin:26px 0 8px;text-align:right"><div style="display:inline-block;min-width:210px;text-align:center;border-top:1px solid #333;padding-top:8px;margin-top:28px">Team Leader / Authorized Signature</div></div>
+  <p class="muted" style="font-size:11px;text-align:center">Keeramangalam RAWE 2026 · Sethu Bhaskara Agriculture College and Research Foundation, Karaikudi</p>
+ </div>
+ <div class="toolbar" style="justify-content:center;margin:14px 0"><button class="btn primary" onclick="downloadAttendancePDF()">📄 Download PDF</button><button class="btn light" onclick="printAttendance()">🖨️ Print</button></div>`;
+}
+function viewAttendanceDate(){const d=document.getElementById('attendanceDate')?.value;if(d){state.selectedDate=d;render()}}
+async function saveRaweAttendance(){
+ if(!attendanceIsAdmin()){toast('Administrator login required');return}
+ const date=attendanceDate(),marks={};
+ document.querySelectorAll('.attendance-mark').forEach(el=>{if(el.value)marks[el.dataset.student]=el.value});
+ raweAttendanceRecords[date]={date,marks,updatedAt:new Date().toISOString()};
+ try{
+  if(typeof fbDb!=='undefined'&&fbDb)await fbDb.collection('raweAttendance').doc('main').set({records:raweAttendanceRecords,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  localStorage.setItem('raweAttendanceRecords',JSON.stringify(raweAttendanceRecords));raweAttendanceLoaded=true;render();toast('Attendance saved successfully');
+ }catch(e){console.error(e);localStorage.setItem('raweAttendanceRecords',JSON.stringify(raweAttendanceRecords));toast('Cloud save failed: '+e.message+' (saved on this device only)')}
+}
+async function clearRaweAttendanceDate(){
+ if(!attendanceIsAdmin()){toast('Administrator login required');return}
+ const date=attendanceDate();if(!raweAttendanceRecords[date]){toast('No attendance record for this date');return}
+ if(!confirm('Delete attendance for '+fmt(date)+'?'))return;
+ delete raweAttendanceRecords[date];
+ try{if(typeof fbDb!=='undefined'&&fbDb)await fbDb.collection('raweAttendance').doc('main').set({records:raweAttendanceRecords,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});localStorage.setItem('raweAttendanceRecords',JSON.stringify(raweAttendanceRecords));render();toast('Attendance record deleted')}
+ catch(e){console.error(e);toast('Could not delete cloud record: '+e.message)}
+}
+function printAttendance(){const el=document.getElementById('attendancePrintable');if(!el)return;const w=window.open('','_blank');if(!w){toast('Allow pop-ups to print the report');return}w.document.write('<html><head><title>Keeramangalam RAWE Attendance</title><style>body{font-family:Arial,sans-serif;padding:25px;color:#222}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #777;padding:9px;text-align:left}h2,h3{text-align:center}select,button{display:none}.stats{display:flex;gap:12px;margin:15px 0}.stat{border:1px solid #bbb;padding:12px;flex:1;text-align:center}.num{font-size:24px;font-weight:bold}.label{font-size:12px}.muted{color:#555}.form-grid label{display:block;margin:10px 0}.form-grid input{border:0;font-weight:bold}</style></head><body>'+el.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(()=>w.print(),350)}
+function downloadAttendancePDF(){printAttendance()}
+const originalRegistersPageForAttendance=registersPage;
+function registersPage(){
+ if(state.register==='Attendance Register')return attendanceReportPage();
+ return originalRegistersPageForAttendance();
+}
+
 </script></body></html>
