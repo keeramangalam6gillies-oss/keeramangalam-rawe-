@@ -621,10 +621,10 @@ function raweGitHubMediaCard(x,k){
 }
 function contentPage(g,s,k){
  const key=pathKey(g,s,k),local=stored[key]||[],remote=raweMediaInFolder(g,s,k);
- return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>GitHub files uploaded to this folder appear automatically. Existing administrator entries are retained.</p></div>${adminButton()}</div>
+ return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Administrator uploads are saved to the shared RAWE archive. Legacy GitHub media-index files may also appear here.</p></div>${adminButton()}</div>
  ${local.length?renderItems(local,k,key):''}
  ${remote.length?(k==='Photos'?'<div class="media-grid">':'')+remote.map(x=>raweGitHubMediaCard(x,k)).join('')+(k==='Photos'?'</div>':''):''}
- ${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>No ${k.toLowerCase()} uploaded yet</h3><p>Upload files to <b>${esc(key)}/</b> in GitHub. They will appear here automatically after the media index updates.</p></div>`:''}
+ ${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>No ${k.toLowerCase()} uploaded yet</h3><p>The administrator can add files here using the folder tools. Uploaded files are shared with website visitors.</p></div>`:''}
  ${adminForm(key,k)}</div>`;
 }
 function raweGitHubGalleryCard(x){
@@ -635,7 +635,7 @@ function raweGitHubGalleryCard(x){
 function galleryPage(){
  const local=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&path.endsWith('/Photos')?items.flatMap((x,index)=>x&&x.url?[{...x,title:x.title||'Uploaded RAWE photo',group:path.split('/')[0],subfolder:path.split('/')[1],key:path,index}]:[]):[]);
  const remote=raweAllGitHub('Photos');
- return `${topPage('Overall Photo Gallery','Photos uploaded to all RAWE activity folders in GitHub are displayed here automatically.')}
+ return `${topPage('Overall Photo Gallery','Administrator-uploaded photographs from all RAWE activity folders are displayed here.')}
  <div class="toolbar"><input id="gallerySearch" placeholder="Search uploaded photos…" oninput="filterGallery()" style="padding:8px;border:1px solid var(--line);border-radius:7px"><select id="galleryCategory" onchange="filterGallery()"><option value="">All categories</option>${[...new Set([...local,...remote].map(x=>x.group||'Other'))].sort().map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
  <div id="galleryGrid" class="media-grid">${local.map(x=>raweGitHubGalleryCard(x)).join('')}${remote.map(x=>raweGitHubGalleryCard(x)).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">📷</div><h3>No photos uploaded yet</h3><p>Upload images into the relevant activity folder's Photos subfolder in GitHub.</p></div>`:''}</div>`;
 }
@@ -647,12 +647,12 @@ async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Ad
 function videosPage(){
  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&x.type==='Videos'?[{...x,path:p,index}]:[]):[]);
  const remote=raweAllGitHub('Videos');
- return `${topPage('Overall Video Gallery','Videos uploaded to any activity folder in GitHub appear here automatically.')}<div class="panel">${local.length?renderItems(local,'Videos'):''}${remote.map(x=>raweGitHubMediaCard(x,'Videos')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">▶️</div><h3>No videos uploaded yet</h3><p>Upload videos into the relevant activity folder's Videos subfolder in GitHub.</p></div>`:''}</div>`;
+ return `${topPage('Overall Video Gallery','Administrator-uploaded videos from all RAWE activity folders appear here.')}<div class="panel">${local.length?renderItems(local,'Videos'):''}${remote.map(x=>raweGitHubMediaCard(x,'Videos')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">▶️</div><h3>No videos uploaded yet</h3><p>Upload videos into the relevant activity folder's Videos subfolder in GitHub.</p></div>`:''}</div>`;
 }
 function reportsPage(){
  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&['Reports','Documents'].includes(x.type)?[{...x,path:p,index}]:[]):[]);
  const remote=[...raweAllGitHub('Reports'),...raweAllGitHub('Documents')];
- return `${topPage('Reports and Documents','Reports and documents uploaded to any activity folder in GitHub appear here automatically.')}<div class="panel">${local.length?renderItems(local,'Reports'):''}${remote.map(x=>raweGitHubMediaCard(x,x.kind==='Reports'?'Reports':'Documents')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">📄</div><h3>No reports or documents uploaded yet</h3><p>Upload files into the relevant activity folder's Reports or Documents subfolder in GitHub.</p></div>`:''}</div>`;
+ return `${topPage('Reports and Documents','Administrator-uploaded reports and documents from all RAWE activity folders appear here.')}<div class="panel">${local.length?renderItems(local,'Reports'):''}${remote.map(x=>raweGitHubMediaCard(x,x.kind==='Reports'?'Reports':'Documents')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">📄</div><h3>No reports or documents uploaded yet</h3><p>Upload files into the relevant activity folder's Reports or Documents subfolder in GitHub.</p></div>`:''}</div>`;
 }
 function raweFinalUploadedPhotos(){
  const local=[];
