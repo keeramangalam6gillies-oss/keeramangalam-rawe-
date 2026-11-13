@@ -217,7 +217,15 @@ if(fbReady){fbAuth.onAuthStateChanged(async user=>{if(user){try{await user.reloa
 function safeCoverKey(g,s=''){return s?`${g}/${s}`:g}
 function coverFor(g,s=''){return (stored._covers||{})[safeCoverKey(g,s)]||''}
 function coverMarkup(g,s=''){let u=coverFor(g,s);return `<div class="rawe-cover" ${u?`style="background-image:linear-gradient(90deg,#102e22d9,#102e2255),url('${u}')"`:''}><div><span>${s?'SUBFOLDER':'FIELDWORK FOLDER'}</span><h3>${esc(s||g)}</h3>${adminAuthenticated?`<label class="btn small light">${u?'Change':'Add'} cover<input type="file" accept="image/*" hidden onchange="uploadCover('${esc(g)}','${esc(s)}',this)"></label>`:''}</div></div>`}
-async function uploadCover(g,s,input){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const f=input.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Choose an image');return}try{const url=await uploadFileToStorage(f,'covers');stored._covers=stored._covers||{};stored._covers[safeCoverKey(g,s)]=url;save();await cloudWriteQueue;toast('Cover uploaded to Firebase');render()}catch(e){console.error(e);toast('Cover upload failed: '+e.message)}}
+async function uploadCover(g,s,input){
+ if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
+ const f=input.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Choose an image');return}
+ try{
+  const url=await uploadFileToStorage(f,'covers');
+  stored._covers=stored._covers||{};stored._covers[safeCoverKey(g,s)]=url;
+  await save();toast('Cover uploaded and synced to Firebase');render();
+ }catch(e){console.error(e);toast('Cover upload failed: '+e.message)}
+}
 function ngoDays(){return ['26 October – Day 1','27 October – Day 2','28 October – Day 3','29 October – Day 4','30 October – Day 5']}
 /* Correct the NGO tree: SELVA TRUST is the parent of its five days. */
 groups[6].subs=['SELVA TRUST','Herbal Garden','Nursery','Tailoring Unit','Soap Manufacturing Unit'];
@@ -247,7 +255,7 @@ async function addItem(key,k){
    if(file.size>max){toast('Maximum file size is 100 MB');return}
    const allowed=k==='Photos'?file.type.startsWith('image/'):
     k==='Videos'?file.type.startsWith('video/'):
-    /pdf|msword|officedocument|text\\//i.test(file.type)||/\\.(pdf|doc|docx|txt)$/i.test(file.name);
+    /pdf|msword|officedocument|text\//i.test(file.type)||/\.(pdf|doc|docx|txt)$/i.test(file.name);
    if(!allowed){toast('Choose a supported file type for '+k);return}
    item.url=await uploadFileToStorage(file,k.toLowerCase());
   }else if(k==='Reports'&&desc.trim()){
@@ -262,10 +270,35 @@ async function addItem(key,k){
   render();
  }catch(e){console.error('Folder item save failed',e);toast('Upload/save failed: '+(e.message||'check Firebase Storage and Firestore rules'))}
 }
-function renderItems(items,k,path=''){return `<div class="${k==='Photos'?'media-grid':''}">${items.map((x,i)=>{let actions=adminAuthenticated?`<div class="toolbar"><button onclick="editItem('${encodeURIComponent(path)}',${i})">Edit</button><button onclick="deleteItem('${encodeURIComponent(path)}',${i})">Delete</button></div>`:'';return k==='Photos'?`<article class="media-card"><img loading="lazy" src="${x.url}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p>${actions}</div></article>`:k==='Videos'?`<article class="report"><h3>▶ ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${x.url?.startsWith('data:')?`<video controls style="width:100%;max-height:320px" src="${x.url}"></video>`:`${youtubeEmbed(x.url)?`<div style="aspect-ratio:16/9"><iframe title="${esc(x.title)}" src="${youtubeEmbed(x.url)}" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>`:`<p><a href="${esc(x.url)}" target="_blank" rel="noopener">Open video</a></p>`}`}<p>${esc(x.desc||'')}</p>${actions}</article>`:k==='Documents'?`<article class="report"><h3>📄 ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'')}</p>${x.url?.startsWith('data:application/pdf')?`<iframe title="${esc(x.title)}" src="${x.url}" style="width:100%;height:420px;border:1px solid var(--line)"></iframe>`:`<p><a href="${x.url}" target="_blank" rel="noopener">Open document</a></p>`}${actions}</article>`:`<article class="report"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.url||x.desc||'Report content has not been entered.')}</p>${actions}</article>`}).join('')}</div>`}
+function renderItems(items,k,path=''){
+ return `<div class="${k==='Photos'?'media-grid':''}">${items.map((x,i)=>{
+  const actions=adminAuthenticated?`<div class="toolbar"><button onclick="editItem('${encodeURIComponent(path)}',${i})">Edit</button><button onclick="deleteItem('${encodeURIComponent(path)}',${i})">Delete</button></div>`:'';
+  if(k==='Photos')return `<article class="media-card"><img loading="lazy" src="${esc(x.url)}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p>${actions}</div></article>`;
+  if(k==='Videos')return `<article class="report"><h3>▶ ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${youtubeEmbed(x.url)?`<div style="aspect-ratio:16/9"><iframe title="${esc(x.title)}" src="${youtubeEmbed(x.url)}" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>`:x.url?.startsWith('http')?`<video controls preload="metadata" playsinline style="width:100%;max-height:360px" src="${esc(x.url)}"></video>`:''}<p>${esc(x.desc||'')}</p>${actions}</article>`;
+  if(k==='Documents'||k==='Reports')return `<article class="report"><h3>${k==='Documents'?'📄':'📑'} ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${x.url?.startsWith('http')?`<p><a href="${esc(x.url)}" target="_blank" rel="noopener">Open ${k==='Reports'?'report':'document'}</a></p>`:''}<p>${esc(x.desc||(!x.url?'Report content has not been entered.':''))}</p>${actions}</article>`;
+  return `<article class="report"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p>${actions}</article>`;
+ }).join('')}</div>`;
+}
 function contentPage(g,s,k){let key=pathKey(g,s,k),items=stored[key]||[];return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Only content assigned to <b>${esc(key)}</b> is displayed here.</p></div>${adminButton()}</div>${items.length?renderItems(items,k,key):`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>Activity content will be updated.</h3><p>No ${k.toLowerCase()} have been added to this folder yet.</p></div>`}${adminForm(key,k)}</div>`}
-async function deleteItem(path,index){if(!adminAuthenticated||!isAdminUser())return;let key=decodeURIComponent(path);if(!confirm('Delete this item from the RAWE website?'))return;const item=stored[key]?.[index];if(item?.url&&item.url.includes('firebasestorage.googleapis.com')){try{await fbStorage.refFromURL(item.url).delete()}catch(e){console.warn('Storage object cleanup:',e)}}stored[key].splice(index,1);save();await cloudWriteQueue;render();toast('Item deleted')}
-function editItem(path,index){if(!adminAuthenticated)return;let key=decodeURIComponent(path),x=stored[key][index];let title=prompt('Title',x.title);if(title===null)return;let desc=prompt('Description / caption',x.desc||'');if(desc===null)return;let date=prompt('Date (YYYY-MM-DD)',x.date||'');if(date===null)return;let location=prompt('Location',x.location||'');if(location===null)return;Object.assign(x,{title,desc,date,location});save();render()}
+async function deleteItem(path,index){
+ if(!adminAuthenticated||!isAdminUser())return;
+ const key=decodeURIComponent(path);if(!confirm('Delete this item from the RAWE website?'))return;
+ const item=stored[key]?.[index];if(!item)return;
+ try{
+  if(item.url&&item.url.includes('firebasestorage.googleapis.com')){try{await fbStorage.refFromURL(item.url).delete()}catch(e){console.warn('Storage object cleanup:',e)}}
+  stored[key].splice(index,1);await save();render();toast('Item deleted and synced');
+ }catch(e){console.error(e);toast('Delete failed: '+(e.message||'check Firebase connection'))}
+}
+async function editItem(path,index){
+ if(!adminAuthenticated||!isAdminUser())return;
+ const key=decodeURIComponent(path),x=stored[key]?.[index];if(!x)return;
+ const title=prompt('Title',x.title);if(title===null)return;
+ const desc=prompt('Description / caption',x.desc||'');if(desc===null)return;
+ const date=prompt('Date (YYYY-MM-DD)',x.date||'');if(date===null)return;
+ const location=prompt('Location',x.location||'');if(location===null)return;
+ Object.assign(x,{title,desc,date,location});
+ try{await save();render();toast('Changes saved and synced')}catch(e){console.error(e);toast('Edit failed: '+(e.message||'check Firebase connection'))}
+}
 const registerColumns={'Attendance Register':['Date','Student','Present / Absent'],'Daily Movement Register':['Date','Starting location','Places visited','Activities','Return time'],'Radio Register':['Date','Station','Frequency','Programme','Agricultural news','Speaker'],'Newspaper Register':['Date','Newspaper','News','Summary'],'Visitor Register':['Date','Visitor','Purpose','Remarks'],'Reports Register':['Date','Category','Title','Link']};
 function localToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function registersPage(){
