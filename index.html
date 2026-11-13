@@ -889,6 +889,14 @@ function mapsPage(){
   ['SELVA TRUST','NGO and community activities'],
   ['MKS Senthankudiyar Mills','Agro-industries field visit']
  ];
+ const surroundingVillages=[
+  'Vamban','Kothamangalam','Thiruvarankulam','Alangudi','Neduvasal East','Neduvasal West',
+  'Senthankudi','Seriyalur Inam','Seriyalur Zamin','Kulamangalam North','Kulamangalam South',
+  'Nagaram','Kaikurichi','Kalangudi','Kallalangudi','Vandakkottai','Vallathirakottai',
+  'Pallathividuthi','Pathampatti','Pudukkottaividuthi','Pullanviduthi','Vadakadu',
+  'Mangadu','Melathur','Keelathur','Pachikkottai','Manjanviduthi','Kovilur',
+  'Poovarasakudi','Vennavalkudi','Veppankudi','Arayapatti'
+ ];
  const q=encodeURIComponent('Keeramangalam, Pudukkottai, Tamil Nadu, India');
  const praMaps=[
   ['PRA Resource Map','assets/01_PRA_Activities/PRA_Resource_Map.jpg'],
@@ -903,12 +911,16 @@ function mapsPage(){
   <h2 style="margin:8px 8px 12px;color:var(--forest)">📍 Keeramangalam Location Map</h2>
   <div class="village-map"><iframe title="Keeramangalam village map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&output=embed" allowfullscreen></iframe></div>
   <p class="muted" style="margin:9px 4px">Map centred on Keeramangalam, Pudukkottai district. Select a fieldwork location below to open its Google Maps search and directions.</p>
-  <p class="muted" style="margin:9px 4px">Google Maps embed and 10 location-search links are present; individual institution pins are not verified.</p>
+  <p class="muted" style="margin:9px 4px">The map is centred on Keeramangalam. Use the village links below to search nearby settlements; individual institution pins are not verified.</p>
   <a class="btn primary" style="display:inline-flex;margin:8px 4px" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">Open village map in Google Maps ↗</a>
  </div>
  <div class="spacer"></div>
  <div class="section-head"><div><h2>RAWE Fieldwork Locations</h2><p>Tap any location to open its map search.</p></div></div>
  <div class="quick-grid">${places.map(p=>{const query=encodeURIComponent(p[0]+', Keeramangalam, Pudukkottai, Tamil Nadu, India');return `<a class="quick" href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener"><span>📍</span><span><strong>${esc(p[0])}</strong><small style="display:block;color:var(--muted);font-weight:400">${esc(p[1])}</small></span><span>↗</span></a>`}).join('')}</div>
+ <div class="spacer"></div>
+ <div class="section-head"><div><h2>Surrounding Villages – Google Maps</h2><p>Nearby villages in and around the Keeramangalam–Thiruvarankulam area. Tap a village to open its Google Maps location search.</p></div></div>
+ <div class="quick-grid">${surroundingVillages.map(name=>{const query=encodeURIComponent(name+', Pudukkottai, Tamil Nadu, India');return `<a class="quick" href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener"><span>📍</span><span><strong>${esc(name)}</strong><small style="display:block;color:var(--muted);font-weight:400">Open village map</small></span><span>↗</span></a>`}).join('')}</div>
+ <p class="muted" style="font-size:12px;margin-top:10px">Village names are based on the Pudukkottai District administration’s Thiruvarankulam block and Alangudi taluk village lists. Google Maps search results may need confirmation for the exact village boundary or pin.</p>
  <div class="spacer"></div>
  <div class="section-head"><div><h2>PRA Maps and Village Appraisal</h2><p>Open each original PRA map or diagram in a separate tab for a larger view.</p></div></div>
  <div class="pra-map-grid">${praMaps.map(p=>`<a class="pra-map-card" href="${p[1]}" target="_blank" rel="noopener"><img loading="lazy" src="${p[1]}" alt="${esc(p[0])}"><span>${esc(p[0])}</span><small>Open full-size map ↗</small></a>`).join('')}</div>`;
