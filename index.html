@@ -991,6 +991,7 @@ loadSharedProfiles();
 /* ===== Digital register administrator editing and deletion ===== */
 const registerNames=['Attendance Register','Daily Movement Register','Radio Programme Register','Newspaper Register','Visitor Register','Daily Activity Register'];
 function registersPage(){
+ if(state.register==='Attendance Register')return attendanceReportPage();
  const name=state.register||registerNames[0];if(!registerNames.includes(name))state.register=registerNames[0];
  const allItems=Array.isArray(stored['register:'+state.register])?stored['register:'+state.register]:[];
  const filterDate=state.registerDateFilter||'';
@@ -1090,10 +1091,6 @@ async function clearRaweAttendanceDate(){
 }
 function printAttendance(){const el=document.getElementById('attendancePrintable');if(!el)return;const w=window.open('','_blank');if(!w){toast('Allow pop-ups to print the report');return}w.document.write('<html><head><title>Keeramangalam RAWE Attendance</title><style>body{font-family:Arial,sans-serif;padding:25px;color:#222}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #777;padding:9px;text-align:left}h2,h3{text-align:center}select,button{display:none}.stats{display:flex;gap:12px;margin:15px 0}.stat{border:1px solid #bbb;padding:12px;flex:1;text-align:center}.num{font-size:24px;font-weight:bold}.label{font-size:12px}.muted{color:#555}.form-grid label{display:block;margin:10px 0}.form-grid input{border:0;font-weight:bold}</style></head><body>'+el.innerHTML+'</body></html>');w.document.close();w.focus();setTimeout(()=>w.print(),350)}
 function downloadAttendancePDF(){printAttendance()}
-const originalRegistersPageForAttendance=registersPage;
-function registersPage(){
- if(state.register==='Attendance Register')return attendanceReportPage();
- return originalRegistersPageForAttendance();
-}
+
 
 </script></body></html>
