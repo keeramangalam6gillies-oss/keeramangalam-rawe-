@@ -211,6 +211,7 @@ async function uploadFileToStorage(file,folder='activity'){
 }
 async function deleteUploadedFile(url){
  if(!url||!fbStorage||!isAdminUser()||!fbAuth.currentUser)return;
+ if(!String(url).includes('firebasestorage.googleapis.com'))return;
  try{
   const ref=fbStorage.refFromURL(url),prefix='uploads/'+fbAuth.currentUser.uid+'/';
   if(ref.fullPath.startsWith(prefix))await ref.delete();
