@@ -1,0 +1,75 @@
+name: Update RAWE media index
+
+on:
+  push:
+    paths-ignore:
+      - "rawe-media-index.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-media-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build media index from all activity folders
+        env:
+          REPOSITORY: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from urllib.parse import quote
+
+          repo = os.environ["REPOSITORY"]
+          branch = os.environ["BRANCH"]
+          root = Path(".")
+          allowed = {
+              "Photos": {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"},
+              "Videos": {".mp4", ".m4v", ".mov", ".webm", ".ogv"},
+              "Reports": {".pdf", ".doc", ".docx", ".txt", ".md", ".rtf"},
+              "Documents": {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".txt", ".md", ".rtf", ".odt", ".ods", ".odp"}
+          }
+          records = []
+          for file in root.rglob("*"):
+              if not file.is_file():
+                  continue
+              parts = file.as_posix().split("/")
+              if len(parts) < 4 or parts[0].startswith("."):
+                  continue
+              if parts[0] in {".git", ".github"} or parts[2] not in allowed:
+                  continue
+              kind = parts[2]
+              if file.suffix.lower() not in allowed[kind]:
+                  continue
+              rel = file.as_posix()
+              encoded_path = "/".join(quote(part, safe="") for part in rel.split("/"))
+              title = file.stem.replace("_", " ").replace("-", " ")
+              records.append({
+                  "path": rel,
+                  "url": f"https://raw.githubusercontent.com/{repo}/{branch}/{encoded_path}",
+                  "group": parts[0],
+                  "subfolder": parts[1],
+                  "kind": kind,
+                  "folderKey": "/".join(parts[:3]),
+                  "title": title
+              })
+          records.sort(key=lambda item: (item["group"].casefold(), item["subfolder"].casefold(), item["kind"], item["title"].casefold()))
+          Path("rawe-media-index.json").write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(f"Indexed {len(records)} RAWE media/document files.")
+          PY
+      - name: Commit updated media index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rawe-media-index.json
+          if git diff --cached --quiet; then
+            echo "Media index is already up to date."
+          else
+            git commit -m "Update automatic RAWE media index"
+            git push
+          fi
