@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build media index from all activity folders
+      - name: Build media index from all activity folders and legacy root galleries
         env:
           REPOSITORY: ${{ github.repository }}
           BRANCH: ${{ github.ref_name }}
@@ -34,30 +34,46 @@ jobs:
               "Reports": {".pdf", ".doc", ".docx", ".txt", ".md", ".rtf"},
               "Documents": {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".txt", ".md", ".rtf", ".odt", ".ods", ".odp"}
           }
+          legacy_roots = {
+              "Pra": ("PRA Activities", "General PRA Activities"),
+              "NGO-Community": ("NGO Activities", "Community Activities"),
+              "Gallery": ("PRA Activities", "General PRA Activities")
+          }
           records = []
           for file in root.rglob("*"):
-              if not file.is_file():
+              if not file.is_file() or file.name.startswith("."):
                   continue
               parts = file.as_posix().split("/")
-              if len(parts) < 4 or parts[0].startswith("."):
+              if parts[0].startswith(".") or parts[0] in {"node_modules", ".git", ".github"}:
                   continue
-              if parts[0] in {".git", ".github"} or parts[2] not in allowed:
+
+              if len(parts) >= 4 and parts[2] in allowed:
+                  group, subfolder, kind = parts[0], parts[1], parts[2]
+                  if file.suffix.lower() not in allowed[kind]:
+                      continue
+                  folder_key = "/".join(parts[:3])
+              elif len(parts) == 2 and parts[0] in legacy_roots:
+                  if file.suffix.lower() not in allowed["Photos"]:
+                      continue
+                  group, subfolder = legacy_roots[parts[0]]
+                  kind = "Photos"
+                  folder_key = f"{group}/{subfolder}/{kind}"
+              else:
                   continue
-              kind = parts[2]
-              if file.suffix.lower() not in allowed[kind]:
-                  continue
+
               rel = file.as_posix()
               encoded_path = "/".join(quote(part, safe="") for part in rel.split("/"))
               title = file.stem.replace("_", " ").replace("-", " ")
               records.append({
                   "path": rel,
                   "url": f"https://raw.githubusercontent.com/{repo}/{branch}/{encoded_path}",
-                  "group": parts[0],
-                  "subfolder": parts[1],
+                  "group": group,
+                  "subfolder": subfolder,
                   "kind": kind,
-                  "folderKey": "/".join(parts[:3]),
+                  "folderKey": folder_key,
                   "title": title
               })
+
           records.sort(key=lambda item: (item["group"].casefold(), item["subfolder"].casefold(), item["kind"], item["title"].casefold()))
           Path("rawe-media-index.json").write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
           print(f"Indexed {len(records)} RAWE media/document files.")
