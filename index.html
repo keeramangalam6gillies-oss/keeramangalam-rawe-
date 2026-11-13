@@ -207,8 +207,6 @@ function save(){
  raweSyncQueue=current;
  return current.then(()=>true).catch(e=>{console.error('Shared archive sync failed',e);toast('Shared archive save failed: '+(e.message||e));return false});
 }
-const CLOUDINARY_SIGNER_URL='https://rawe-cloudinary-signer.keeramangalam6gillies.workers.dev';
-
 const CLOUDINARY_SIGNER_URL =
   "https://rawe-cloudinary-signer.keeramangalam6gillies.workers.dev";
 
