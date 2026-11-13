@@ -583,7 +583,7 @@ function peoplePage(){
             hidden
             onchange="uploadProfilePhoto('${type}',${i},this)">
         </label>
-
+        ${d.photo?`<button class="btn small light" type="button" onclick="removeProfilePhoto('${type}',${i})">Remove photo</button><button class="btn small danger" type="button" onclick="deleteProfilePhoto('${type}',${i})">Delete photo</button>`:''}
       </div>
     `:''}
 
@@ -615,7 +615,28 @@ function peoplePage(){
  </div>`;
 }
 
-async function removeProfilePhoto(type,i){if(!adminAuthenticated||!isAdminUser())return;if(!confirm('Remove this profile photograph?'))return;try{const p=profiles(),key=type==='student'?'students':'faculty',oldPhoto=p[key]?.[i];if(p[key]?.[i]){delete p[key][i].photo;delete p[key][i].photo_public_id;delete p[key][i].photo_resource_type;}await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await deleteUploadedFile({url:oldPhoto?.photo,public_id:oldPhoto?.photo_public_id,resource_type:oldPhoto?.photo_resource_type,cloudinary:true});render();toast('Profile photograph removed');}catch(e){console.error(e);toast('Could not remove photo: '+e.message);}}
+async function removeProfilePhoto(type,i){
+ if(!adminAuthenticated||!isAdminUser())return;
+ if(!confirm('Remove this photo from the profile? The uploaded file will be kept in Cloudinary.'))return;
+ try{
+  const p=profiles(),key=type==='student'?'students':'faculty';
+  if(!p[key]?.[i]?.photo)return;
+  delete p[key][i].photo;delete p[key][i].photo_public_id;delete p[key][i].photo_resource_type;
+  await saveProfiles(p);render();toast('Photo removed from profile. Uploaded file was kept.');
+ }catch(e){console.error(e);toast('Could not remove photo: '+e.message);}
+}
+async function deleteProfilePhoto(type,i){
+ if(!adminAuthenticated||!isAdminUser())return;
+ if(!confirm('Permanently delete this uploaded photo from Cloudinary and remove it from the profile? This cannot be undone.'))return;
+ try{
+  const p=profiles(),key=type==='student'?'students':'faculty',photo=p[key]?.[i];
+  if(!photo?.photo){toast('No profile photo is available.');return;}
+  if(!photo.photo_public_id||!photo.photo_resource_type){toast('This photo has no Cloudinary deletion details. Use Remove photo to detach it from the profile.');return;}
+  await deleteUploadedFile({url:photo.photo,public_id:photo.photo_public_id,resource_type:photo.photo_resource_type,cloudinary:true});
+  delete p[key][i].photo;delete p[key][i].photo_public_id;delete p[key][i].photo_resource_type;
+  await saveProfiles(p);render();toast('Photo permanently deleted from Cloudinary and profile.');
+ }catch(e){console.error(e);toast('Could not delete photo: '+e.message);}
+}
 async function uploadProfilePhoto(type,i,input){const file=input.files&&input.files[0];if(!file)return;if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');input.value='';return}if(!file.type.startsWith('image/')){toast('Choose an image file');input.value='';return}if(file.size>10*1024*1024){toast('Profile photo must be under 10 MB');input.value='';return}try{const p=profiles(),key=type==='student'?'students':'faculty';p[key]=p[key]||{};const old=p[key][i]||{};const media=await uploadFileToStorage(file,'profiles');p[key][i]={...old,photo:media.url,photo_public_id:media.public_id,photo_resource_type:media.resource_type};localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile photo uploaded and saved successfully')}catch(e){console.error('Profile photo upload failed',e);toast('Profile photo upload failed: '+e.message)}finally{input.value=''}}
 async function editProfile(type,i){if(!adminAuthenticated||!isAdminUser())return;let p=profiles(),arr=type==='student'?(p.students=p.students||{}):(p.faculty=p.faculty||{}),base=type==='student'?students[i]:faculty[i][0],old=arr[i]||{};let name=prompt('Name',old.name||base);if(name===null)return;let qualification=prompt(type==='student'?'Qualification':'Designation',old.qualification||old.designation||(type==='student'?'B.Sc. (Hons.) Agriculture':faculty[i][1]));if(qualification===null)return;let role=prompt('Role / profile note',old.role||(type==='student'?'RAWE 2026 · AEX 401':faculty[i][2]));if(role===null)return;arr[i]={...old,name,role};if(type==='student')arr[i].qualification=qualification;else arr[i].designation=qualification;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile details saved successfully')}catch(e){console.error(e);toast('Profile save failed: '+e.message)}}
 function adminPage(){return `${topPage('Administrator Login & Management','Firebase-secured administrator workspace. Public visitors can view content; only the verified administrator can edit it.')}<div class="panel" style="max-width:850px;margin:auto"><div id="adminAuthBox">${adminAuthenticated?adminWorkspace():`<h2 style="color:var(--forest)">Administrator login</h2><p class="muted">Sign in using the administrator account registered in Firebase Authentication.</p><label>Administrator email<input id="adminEmail" type="email" autocomplete="username" placeholder="Enter administrator email" required></label><label>Password<input id="adminPass" type="password" autocomplete="current-password" placeholder="Firebase account password"></label><button class="btn primary" onclick="adminLogin()">Sign in securely</button><p class="muted" style="font-size:12px;margin-top:14px">The administrator email must exist in Firebase Authentication and its email address must be verified. Do not create an administrator password on this website.</p>${fbReady?'':'<p style="color:#a33">Firebase could not initialize. Check the web app configuration and internet connection.</p>'}`}</div></div>`}
