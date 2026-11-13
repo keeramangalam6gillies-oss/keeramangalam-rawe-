@@ -175,7 +175,7 @@ const PROFILE_KEY='_raweProfiles';
 function adminHashKey(){return 'rawe26_admin_hash'}
 function adminSaltKey(){return 'rawe26_admin_salt'}
 const ADMIN_EMAIL='keeramangalam6gillies@gmail.com';
-const firebaseConfig={apiKey:'AIzaSyAYWYOn5r-S-LAjHuLQ3CMl1jmr0Na50aTw',authDomain:'keeramangalam-rawe-2026.firebaseapp.com',projectId:'keeramangalam-rawe-2026',storageBucket:'keeramangalam-rawe-2026.firebasestorage.app',messagingSenderId:'765887583162',appId:'1:765887583162:web:174611ba7d7105a4b2c383',measurementId:'G-P5QC81306K'};
+const firebaseConfig={apiKey:'AIzaSyAYWYOn5rS-LAjHuLQ3CMl1jmr0Na50aTw',authDomain:'keeramangalam-rawe-2026.firebaseapp.com',projectId:'keeramangalam-rawe-2026',storageBucket:'keeramangalam-rawe-2026.firebasestorage.app',messagingSenderId:'765887583162',appId:'1:765887583162:web:174611ba7d7105a4b2c383',measurementId:'G-P5QC81306K'};
 let fbApp=null,fbAuth=null,fbDb=null,fbStorage=null,fbReady=false,cloudLoadDone=false,cloudWriteQueue=Promise.resolve();
 try{fbApp=firebase.initializeApp(firebaseConfig);fbAuth=firebase.auth();fbDb=firebase.firestore();fbStorage=firebase.storage();fbReady=true;}catch(e){console.error('Firebase initialization failed',e)}
 function encodeDocId(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
