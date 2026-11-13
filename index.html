@@ -199,10 +199,10 @@ let raweSyncQueue=Promise.resolve();
 function save(){
  try{localStorage.setItem('rawe26content',JSON.stringify(stored))}
  catch(e){console.error('Local backup save failed',e);toast('Browser storage is full. Files are being saved to the shared archive where possible.')}
- if(isAdminUser()){
-  raweSyncQueue=raweSyncQueue.then(()=>syncSharedContent()).catch(e=>{console.error('Shared archive sync failed',e);toast('Shared archive save failed: '+(e.message||e))});
- }
- return raweSyncQueue;
+ if(!isAdminUser())return Promise.resolve(false);
+ const current=raweSyncQueue.catch(()=>{}).then(()=>syncSharedContent());
+ raweSyncQueue=current;
+ return current.then(()=>true).catch(e=>{console.error('Shared archive sync failed',e);toast('Shared archive save failed: '+(e.message||e));return false});
 }
 async function uploadFileToStorage(file,folder='activity'){
  if(!fbReady||!fbStorage||!isAdminUser())throw new Error('Verified administrator login is required for uploads.');
@@ -298,7 +298,7 @@ async function addItem(key,k){
  if(!title){toast('Please enter a title');return}
  const fileInput=document.getElementById('itemFile'),file=fileInput?.files?.[0];
  const date=document.getElementById('itemDate')?.value||'',location=document.getElementById('itemLocation')?.value||'',desc=document.getElementById('itemDesc')?.value||'';
- const saveItem=async(url='')=>{stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({title,date,location,desc,url,type:k,createdAt:new Date().toISOString()});await save();toast('Saved to the shared RAWE archive');render()};
+ const saveItem=async(url='')=>{stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({title,date,location,desc,url,type:k,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Saved to the shared RAWE archive':'Saved on this device only; shared sync failed');render()};
  try{
   if(k==='Reports'){const body=fileInput?.value||'';if(!body.trim()){toast('Enter the report text');return}await saveItem(body);return}
   if(k==='Videos'){
@@ -341,13 +341,13 @@ async function editFolderItem(key,index){
  let url=item.url||'';
  if(item.type==='Reports') {const body=prompt('Report content',url);if(body===null)return;url=body;}
  list[index]={...item,title,date,location,desc,url,updatedAt:new Date().toISOString()};
- stored[key]=list;await save();render();toast('Folder item updated');
+ stored[key]=list;const synced=await save();if(!synced){list[index]=item;stored[key]=list;await save();toast('Update could not be shared; original item restored');return}render();toast('Folder item updated');
 }
 async function deleteFolderItem(key,index){
  if(!isAdminUser()){toast('Administrator login required');return}
  const list=stored[key]||[];if(!list[index])return;
  if(!confirm('Delete this folder item? This cannot be undone.'))return;
- const removed=list[index];try{await deleteUploadedFile(removed.url)}catch(e){toast('File delete failed: '+(e.message||e));return}list.splice(index,1);stored[key]=list;await save();render();toast('Folder item deleted');
+ const removed=list[index];list.splice(index,1);stored[key]=list;const synced=await save();if(!synced){list.splice(index,0,removed);stored[key]=list;await save();toast('Delete could not be shared; original item restored');return}try{await deleteUploadedFile(removed.url)}catch(e){console.error('Storage cleanup failed after record deletion',e);toast('Item removed from the archive, but its stored file could not be cleaned up.')}render();toast('Folder item deleted');
 }
 
 function road(short=false){let data=short?[...journey.filter((x,i)=>i%3===0).slice(0,10),...journey.filter(x=>['2026-11-11','2026-11-12','2026-11-13'].includes(x[0]))]:journey;return `<div class="road-preview"><div class="road-line">${data.map((x,i)=>`<div class="road-item"><span class="road-pin"></span><div class="road-card"><span class="date">${fmt(x[0])}</span><strong>${esc(x[1])}</strong><small>${esc(x[2])}</small><div class="toolbar"><button class="btn small light" onclick="selectDate('${x[0]}')">View date</button><button class="btn small primary" onclick="${x[4]?`go('subfolder','${esc(x[3])}','${esc(x[4])}')`:`go('folder','${esc(x[3])}')`}">Open folder</button></div></div></div>`).join('')}</div></div>`}
@@ -680,7 +680,7 @@ function filterGallery(){
  const q=(document.getElementById('gallerySearch')?.value||'').toLowerCase(),c=document.getElementById('galleryCategory')?.value||'';
  document.querySelectorAll('#galleryGrid .media-card').forEach(el=>el.classList.toggle('hide',!(el.dataset.title.includes(q)&&(!c||el.dataset.cat===c))));
 }
-async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const title=document.getElementById('galleryUploadTitle')?.value.trim(),file=document.getElementById('galleryUploadFile')?.files?.[0],key=document.getElementById('galleryTarget')?.value;if(!title){toast('Enter a photo title');return}if(!file){toast('Choose a photo');return}if(!file.type.startsWith('image/')){toast('Choose an image file');return}if(file.size>100*1024*1024){toast('Maximum photo size is 100 MB');return}const button=document.querySelector('#galleryUploadFile')?.closest('.panel')?.querySelector('button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}try{const url=await uploadFileToStorage(file,'photos');stored[key]=stored[key]||[];stored[key].push({title,date:document.getElementById('galleryUploadDate')?.value||'',location:document.getElementById('galleryUploadLocation')?.value||'',desc:document.getElementById('galleryUploadDesc')?.value||'',type:'Photos',url,createdAt:new Date().toISOString()});await save();toast('Photo uploaded and saved');render()}catch(e){console.error(e);toast('Photo upload failed: '+e.message);if(button){button.disabled=false;button.textContent='Upload photograph'}}}
+async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const title=document.getElementById('galleryUploadTitle')?.value.trim(),file=document.getElementById('galleryUploadFile')?.files?.[0],key=document.getElementById('galleryTarget')?.value;if(!title){toast('Enter a photo title');return}if(!file){toast('Choose a photo');return}if(!file.type.startsWith('image/')){toast('Choose an image file');return}if(file.size>100*1024*1024){toast('Maximum photo size is 100 MB');return}const button=document.querySelector('#galleryUploadFile')?.closest('.panel')?.querySelector('button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}try{const url=await uploadFileToStorage(file,'photos');stored[key]=stored[key]||[];stored[key].push({title,date:document.getElementById('galleryUploadDate')?.value||'',location:document.getElementById('galleryUploadLocation')?.value||'',desc:document.getElementById('galleryUploadDesc')?.value||'',type:'Photos',url,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Photo uploaded and saved to the shared archive':'Photo uploaded on this device; shared sync failed');render()}catch(e){console.error(e);toast('Photo upload failed: '+e.message);if(button){button.disabled=false;button.textContent='Upload photograph'}}}
 function videosPage(){
  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&x.type==='Videos'?[{...x,path:p,index}]:[]):[]);
  const remote=raweAllGitHub('Videos');
