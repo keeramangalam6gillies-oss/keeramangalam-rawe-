@@ -204,9 +204,13 @@ async function uploadFileToStorage(file,folder='activity'){
  if(!fbReady||!fbStorage||!isAdminUser())throw new Error('Verified administrator login is required for uploads.');
  if(!file)throw new Error('Choose a file first.');
  const safeName=String(file.name||'upload').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^\.+/,'').slice(-100)||'upload';
+ const ext=(safeName.split('.').pop()||'').toLowerCase();
+ const inferredMime=({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime',pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',txt:'text/plain'})[ext];
+ const contentType=file.type||inferredMime;
+ if(!contentType)throw new Error('The selected file type is not supported by the shared archive.');
  const path='uploads/'+fbAuth.currentUser.uid+'/'+String(folder).replace(/[^a-zA-Z0-9_-]/g,'_')+'/'+Date.now()+'_'+safeName;
  const ref=fbStorage.ref().child(path);
- const snap=await ref.put(file,{contentType:file.type||'application/octet-stream'});
+ const snap=await ref.put(file,{contentType});
  return await snap.ref.getDownloadURL();
 }
 async function deleteUploadedFile(url){
