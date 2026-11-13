@@ -114,13 +114,13 @@ const START='2026-10-02', END='2026-12-03';
 const students=['SABEEN RAJ','ABU KUHAFA','CHOCKALINGAM','NAVEEN','SRI PRABHU','ARUN KUNAR'];
 const faculty=[['Mr. G. Rathina Kumar','Assistant Professor, Plant Pathology','Course In-charge'],['Dr. Aravindh','Assistant Professor, Agricultural Extension','Course Teacher']];
 const groups=[
-{name:'PRA Activities',icon:'🗺️',color:'#24704f',subs:['Resource Map','Social Map','Village Timeline','Seasonal Calendar','Problem Tree','Venn Diagram','Village Infrastructure','Community Resources','Village Problems and Solutions']},
+{name:'PRA Activities',icon:'🗺️',color:'#24704f',subs:['Resource Map','Social Map','Village Timeline','Seasonal Calendar','Problem Tree','Venn Diagram','Village Infrastructure','Community Resources','Village Problems and Solutions','General PRA Activities']},
 {name:'Farmer Visits',icon:'👨‍🌾',color:'#b17a27',subs:['Coconut Farmers','Jasmine Farmers','Guava Farmers','Other Farmers']},
 {name:'Institutional Visits',icon:'🏛️',color:'#28658a',subs:['Panchayat','Primary Health Centre (PHC)','VAO','AAO','ADA','Ration Shop','KVK Vamban','FPO','PACS','Cooperative Bank','Milk Society','Government Nursery – Nagaram']},
 {name:'Demonstrations',icon:'🧪',color:'#ad5b3c',subs:['Soil Sampling','Coconut Buttermilk Solution','Egg Amino Acid','Maida Solution','Cow Udder Swelling Management','Jasmine Air Layering','Lemon T-Budding','Calotropis and Coconut Boron Efficiency']},
 {name:'Training Programmes',icon:'🎓',color:'#8b5a9c',subs:['Mushroom Cultivation','Kitchen Garden','Organic Input Preparation','Kunapajalam','Insect Killer Preparation','Fish Amino Acid','Home Herbal Garden']},
 {name:'Awareness Programmes',icon:'📢',color:'#248a83',subs:['School Awareness','Soil Health','IFS and Government Schemes','El Niño']},
-{name:'NGO Activities',icon:'🤝',color:'#7953a6',subs:['SELVA TRUST','Herbal Garden','Nursery','Tailoring Unit','Soap Manufacturing Unit']},
+{name:'NGO Activities',icon:'🤝',color:'#7953a6',subs:['SELVA TRUST','Herbal Garden','Nursery','Tailoring Unit','Soap Manufacturing Unit','Community Activities']},
 {name:'Agro-Industries',icon:'🏭',color:'#a65d32',subs:['Fertilizer Shop','Cattle Feed Shop','Rotary Oil Mill','Traders','Weekly Market','Dairy Enterprise','Sri Rajalakshmi Coir Industries','Sri Krishna Rice & Oil & Flour Mill']},
 {name:'Digital Crop Survey',icon:'📍',color:'#25879a',subs:['07 October','10 October','11 October']},
 {name:'Village Survey',icon:'🏘️',color:'#687f48',subs:['Household Survey','Social Infrastructure','Village Resources','Livelihood Survey']},
@@ -856,7 +856,7 @@ function villagePage(){
 }
 function mapsPage(){
  const places=[
-  ['Keeramangalam Village','Village location and surrounding roads'],
+  ['Keeramangalam Village','Village centre and surrounding roads'],
   ['Town Panchayat Office','Local civic administration'],
   ['Primary Health Centre (PHC)','Primary healthcare services'],
   ['VAO Office','Village administration and certificates'],
@@ -865,15 +865,32 @@ function mapsPage(){
   ['PACS / Cooperative Bank','Cooperative services'],
   ['Milk Producers Cooperative Society','Dairy collection and services'],
   ['KVK Vamban','Agricultural training and demonstrations'],
-  ['Kalasam FPO','Farmer Producer Organisation']
+  ['Kalasam FPO','Farmer Producer Organisation'],
+  ['SELVA TRUST','NGO and community activities'],
+  ['MKS Senthankudiyar Mills','Agro-industries field visit']
  ];
- const q=encodeURIComponent('Keeramangalam, Pudukkottai, Tamil Nadu');
- return `${topPage('Maps & Locations','Explore Keeramangalam village and important RAWE fieldwork institutions. Select a place to open its map search.')}
- <div class="panel" style="padding:10px"><iframe title="Keeramangalam village map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&output=embed" style="width:100%;height:430px;border:0;border-radius:10px"></iframe>
- <p class="muted" style="margin:8px 4px 2px">The map is centred on Keeramangalam. Individual institution pins should be confirmed on Google Maps before field navigation.</p>
- <a class="btn primary" style="display:inline-block;margin:10px 4px" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">Open Keeramangalam in Google Maps ↗</a></div>
- <div class="spacer"></div><div class="section-head"><div><h2>RAWE Fieldwork Locations</h2><p>Open a place-specific map search. Search results may show nearby or similarly named locations.</p></div></div>
- <div class="quick-grid">${places.map(p=>{const query=encodeURIComponent(p[0]+', Keeramangalam, Pudukkottai, Tamil Nadu, India');return `<a class="quick" href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener"><span>📍</span><span><strong>${esc(p[0])}</strong><small style="display:block;color:var(--muted);font-weight:400">${esc(p[1])}</small></span><span>↗</span></a>`}).join('')}</div>`;
+ const q=encodeURIComponent('Keeramangalam, Pudukkottai, Tamil Nadu, India');
+ const praMaps=[
+  ['PRA Resource Map','assets/01_PRA_Activities/PRA_Resource_Map.jpg'],
+  ['PRA Social Map','assets/01_PRA_Activities/PRA_Social_Map.jpg'],
+  ['PRA Village Timeline','assets/01_PRA_Activities/PRA_Timeline.jpg'],
+  ['PRA Seasonal Calendar','assets/01_PRA_Activities/PRA_Seasonal_Calendar.jpg'],
+  ['PRA Problem Tree','assets/01_PRA_Activities/PRA_Problem_Tree.jpg'],
+  ['PRA Village Landscape','assets/01_PRA_Activities/pra_village_landscape.jpg']
+ ];
+ return `${topPage('Maps & PRA Village Maps','Explore the Keeramangalam village map, RAWE fieldwork locations and PRA maps prepared during village appraisal.')}
+ <div class="panel" style="padding:10px">
+  <h2 style="margin:8px 8px 12px;color:var(--forest)">📍 Keeramangalam Location Map</h2>
+  <div class="village-map"><iframe title="Keeramangalam village map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${q}&output=embed" allowfullscreen></iframe></div>
+  <p class="muted" style="margin:9px 4px">Map centred on Keeramangalam, Pudukkottai district. Select a fieldwork location below to open its Google Maps search and directions.</p>
+  <a class="btn primary" style="display:inline-flex;margin:8px 4px" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">Open village map in Google Maps ↗</a>
+ </div>
+ <div class="spacer"></div>
+ <div class="section-head"><div><h2>RAWE Fieldwork Locations</h2><p>Tap any location to open its map search.</p></div></div>
+ <div class="quick-grid">${places.map(p=>{const query=encodeURIComponent(p[0]+', Keeramangalam, Pudukkottai, Tamil Nadu, India');return `<a class="quick" href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank" rel="noopener"><span>📍</span><span><strong>${esc(p[0])}</strong><small style="display:block;color:var(--muted);font-weight:400">${esc(p[1])}</small></span><span>↗</span></a>`}).join('')}</div>
+ <div class="spacer"></div>
+ <div class="section-head"><div><h2>PRA Maps and Village Appraisal</h2><p>Open each original PRA map or diagram in a separate tab for a larger view.</p></div></div>
+ <div class="pra-map-grid">${praMaps.map(p=>`<a class="pra-map-card" href="${p[1]}" target="_blank" rel="noopener"><img loading="lazy" src="${p[1]}" alt="${esc(p[0])}"><span>${esc(p[0])}</span><small>Open full-size map ↗</small></a>`).join('')}</div>`;
 }
 function galleryPage(){
  const all=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&/\/Photos$/i.test(path)?items.filter(x=>x&&x.url).map(x=>({title:x.title||'Uploaded RAWE photo',url:x.url,category:path.split('/')[0],date:x.date||'Date not supplied',place:x.location||''})):[]);
@@ -981,6 +998,29 @@ function renderRaweMemories(){
  items.forEach((x,i)=>{html+="<div class=\"memory-slide\" style=\"animation-delay:-"+(i*slot)+"s\"><img loading=\"lazy\" src=\""+esc(x.url)+"\" alt=\""+esc(x.title)+"\"><span>"+esc(x.title)+"</span></div>";});
  html+="</div>";box.innerHTML=html;
 }
+/* ===== RAWE map and digital-register layout corrections ===== */
+const raweMapRegisterFix=document.createElement('style');
+raweMapRegisterFix.textContent=`
+.village-map{width:100%;height:clamp(280px,52vw,500px);border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#edf2e8}
+.village-map iframe{display:block;width:100%;height:100%;border:0}
+.pra-map-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.pra-map-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;text-decoration:none;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--forest)}
+.pra-map-card img{display:block;width:100%;height:190px;object-fit:contain;background:#f4f6ef}
+.pra-map-card span{font-weight:750;padding:10px 12px 2px}
+.pra-map-card small{padding:0 12px 12px;color:var(--muted)}
+.register-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:100%;align-items:stretch}
+.register-tabs button{display:flex;align-items:center;justify-content:center;min-width:0;width:100%;min-height:48px;padding:10px 8px;white-space:normal;overflow-wrap:anywhere;word-break:normal;line-height:1.25;text-align:center}
+#app .table-wrap{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#app .table-wrap table{min-width:720px;width:100%}
+#app .table-wrap td:last-child{white-space:nowrap}
+#app .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+#app .form-grid>*{min-width:0}
+#app .form-grid input,#app .form-grid textarea,#app .form-grid select{max-width:100%;width:100%;min-width:0}
+@media(max-width:800px){.pra-map-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.register-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.pra-map-grid{grid-template-columns:1fr}.pra-map-card img{height:220px}.register-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.register-tabs button{font-size:12px;padding:9px 6px;min-height:52px}#app .form-grid{grid-template-columns:minmax(0,1fr)}}
+`;
+document.head.appendChild(raweMapRegisterFix);
+
 render(); // Run only after RAWE media state has been initialized.
 loadRaweGitHubMedia();
 loadSharedContent();
