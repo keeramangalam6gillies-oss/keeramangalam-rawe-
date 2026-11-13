@@ -65,7 +65,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<!-- Cloudinary stores media; Firebase is Auth + Firestore only. -->
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAYWYOn5rS-LAjHuLQ3CMl1jmr0Na50aTw",
@@ -77,13 +77,13 @@ const firebaseConfig = {
   measurementId: "G-P5QC81306K"
 };
 const ADMIN_EMAIL = "keeramangalam6gillies@gmail.com";
-let fbReady = false, fbAuth = null, fbDb = null, fbStorage = null;
+let fbReady = false, fbAuth = null, fbDb = null;
 let adminAuthenticated = false;
 try {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   fbAuth = firebase.auth();
   fbDb = firebase.firestore();
-  fbStorage = firebase.storage();
+  // Cloudinary is used for media storage; Firebase Storage is not initialized.
   fbReady = true;
 } catch (firebaseInitError) {
   console.error("Firebase initialization failed:", firebaseInitError);
@@ -204,26 +204,35 @@ function save(){
  raweSyncQueue=current;
  return current.then(()=>true).catch(e=>{console.error('Shared archive sync failed',e);toast('Shared archive save failed: '+(e.message||e));return false});
 }
-async function uploadFileToStorage(file,folder='activity'){
- if(!fbReady||!fbStorage||!isAdminUser())throw new Error('Verified administrator login is required for uploads.');
- if(!file)throw new Error('Choose a file first.');
- const safeName=String(file.name||'upload').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^\.+/,'').slice(-100)||'upload';
- const ext=(safeName.split('.').pop()||'').toLowerCase();
- const inferredMime=({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',mp4:'video/mp4',webm:'video/webm',mov:'video/quicktime',pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',txt:'text/plain'})[ext];
- const contentType=file.type||inferredMime;
- if(!contentType)throw new Error('The selected file type is not supported by the shared archive.');
- const path='uploads/'+fbAuth.currentUser.uid+'/'+String(folder).replace(/[^a-zA-Z0-9_-]/g,'_')+'/'+Date.now()+'_'+safeName;
- const ref=fbStorage.ref().child(path);
- const snap=await ref.put(file,{contentType});
- return await snap.ref.getDownloadURL();
+const CLOUDINARY_SIGNER_URL='https://rawe-cloudinary-signer.keeramangalam6gillies.workers.dev';
+async function cloudinaryRequest(path,payload){
+ if(!fbReady||!fbAuth||!isAdminUser())throw new Error('Verified Firebase administrator login is required.');
+ const user=fbAuth.currentUser;if(!user)throw new Error('Please sign in again.');
+ const token=await user.getIdToken(true);
+ const response=await fetch(CLOUDINARY_SIGNER_URL+path,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload||{})});
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(data.error||data.message||'Cloudinary authorization failed ('+response.status+').');
+ return data;
 }
-async function deleteUploadedFile(url){
- if(!url||!fbStorage||!isAdminUser()||!fbAuth.currentUser)return;
- if(!String(url).includes('firebasestorage.googleapis.com'))return;
- try{
-  const ref=fbStorage.refFromURL(url),prefix='uploads/'+fbAuth.currentUser.uid+'/';
-  if(ref.fullPath.startsWith(prefix))await ref.delete();
- }catch(e){if(e.code!=='storage/object-not-found')throw e}
+async function uploadFileToStorage(file,folder='activity'){
+ if(!file)throw new Error('Choose a file first.');
+ if(!isAdminUser())throw new Error('Verified Firebase administrator login is required for uploads.');
+ const resource_type=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'raw';
+ const signed=await cloudinaryRequest('/sign',{resource_type,folder:String(folder||'activity')});
+ if(!signed.cloud_name||!signed.api_key||!signed.signature||!signed.timestamp||!signed.public_id||!signed.upload_preset)throw new Error('Cloudinary signer returned incomplete upload credentials.');
+ const form=new FormData();form.append('file',file);form.append('api_key',signed.api_key);form.append('timestamp',String(signed.timestamp));form.append('signature',signed.signature);form.append('public_id',signed.public_id);form.append('upload_preset',signed.upload_preset);
+ const response=await fetch('https://api.cloudinary.com/v1_1/'+encodeURIComponent(signed.cloud_name)+'/'+resource_type+'/upload',{method:'POST',body:form});
+ const result=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(result.error?.message||'Cloudinary upload failed ('+response.status+').');
+ if(!result.secure_url||!result.public_id||!result.resource_type)throw new Error('Cloudinary response is missing media identifiers.');
+ return {url:result.secure_url,public_id:result.public_id,resource_type:result.resource_type,cloudinary:true};
+}
+async function deleteUploadedFile(item){
+ if(!item||!item.public_id||!item.resource_type)return false;
+ if(!isAdminUser())throw new Error('Verified administrator login is required to delete media.');
+ if(!item.cloudinary&&!String(item.url||'').includes('res.cloudinary.com'))return false;
+ await cloudinaryRequest('/delete',{public_id:item.public_id,resource_type:item.resource_type});
+ return true;
 }
 async function dataUrlToFile(dataUrl,name='migrated-upload'){
  const response=await fetch(dataUrl);const blob=await response.blob();
@@ -238,7 +247,7 @@ async function syncSharedContent(){
   for(const item of items){
    if(item&&typeof item.url==='string'&&item.url.startsWith('data:')){
     const file=await dataUrlToFile(item.url,item.title||'rawe-media');
-    item.url=await uploadFileToStorage(file,'activity');
+    const uploaded=await uploadFileToStorage(file,'activity');Object.assign(item,uploaded);
    }
   }
   await fbDb.collection('raweContent').doc(encodeURIComponent(key)).set({key,items,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
@@ -298,20 +307,20 @@ async function addItem(key,k){
  if(!title){toast('Please enter a title');return}
  const fileInput=document.getElementById('itemFile'),file=fileInput?.files?.[0];
  const date=document.getElementById('itemDate')?.value||'',location=document.getElementById('itemLocation')?.value||'',desc=document.getElementById('itemDesc')?.value||'';
- const saveItem=async(url='')=>{stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({title,date,location,desc,url,type:k,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Saved to the shared RAWE archive':'Saved on this device only; shared sync failed');render()};
+ const saveItem=async(media={url:''})=>{stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({title,date,location,desc,...media,type:k,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Saved to the shared RAWE archive':'Saved on this device only; shared sync failed');render()};
  try{
-  if(k==='Reports'){const body=fileInput?.value||'';if(!body.trim()){toast('Enter the report text');return}await saveItem(body);return}
+  if(k==='Reports'){const body=fileInput?.value||'';if(!body.trim()){toast('Enter the report text');return}await saveItem({url:body});return}
   if(k==='Videos'){
    const videoUrl=document.getElementById('videoUrl')?.value.trim()||'';
-   if(videoUrl){if(!youtubeEmbed(videoUrl)&&!/^https:\/\//i.test(videoUrl)){toast('Enter a valid HTTPS video URL');return}await saveItem(videoUrl);return}
+   if(videoUrl){if(!youtubeEmbed(videoUrl)&&!/^https:\/\//i.test(videoUrl)){toast('Enter a valid HTTPS video URL');return}await saveItem({url:videoUrl});return}
   }
   if(!file){toast('Choose a file first');return}
   const allowed=k==='Photos'?file.type.startsWith('image/'):k==='Videos'?file.type.startsWith('video/'):k==='Documents'?(/^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/.test(file.type)||/\.(pdf|doc|docx)$/i.test(file.name)):false;
   if(!allowed){toast('The selected file type is not supported for '+k);return}
   if(file.size>100*1024*1024){toast('Maximum file size is 100 MB');return}
   const button=document.querySelector('#adminPanel button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}
-  const url=await uploadFileToStorage(file,k.toLowerCase());
-  await saveItem(url);
+  const media=await uploadFileToStorage(file,k.toLowerCase());
+  await saveItem(media);
  }catch(e){console.error('RAWE file upload failed',e);toast('Upload/save failed: '+(e.message||e))}
  finally{const button=document.querySelector('#adminPanel button.btn.primary');if(button){button.disabled=false;button.textContent='Save to this folder'}}
 }
@@ -347,7 +356,7 @@ async function deleteFolderItem(key,index){
  if(!isAdminUser()){toast('Administrator login required');return}
  const list=stored[key]||[];if(!list[index])return;
  if(!confirm('Delete this folder item? This cannot be undone.'))return;
- const removed=list[index];list.splice(index,1);stored[key]=list;const synced=await save();if(!synced){list.splice(index,0,removed);stored[key]=list;await save();toast('Delete could not be shared; original item restored');return}try{await deleteUploadedFile(removed.url)}catch(e){console.error('Storage cleanup failed after record deletion',e);toast('Item removed from the archive, but its stored file could not be cleaned up.')}render();toast('Folder item deleted');
+ const removed=list[index];list.splice(index,1);stored[key]=list;const synced=await save();if(!synced){list.splice(index,0,removed);stored[key]=list;await save();toast('Delete could not be shared; original item restored');return}try{const deleted=await deleteUploadedFile(removed);if(!deleted&&removed.url&&String(removed.url).includes('res.cloudinary.com'))toast('Item removed, but older Cloudinary metadata is missing; media was not deleted.')}catch(e){console.error('Cloudinary cleanup failed after record deletion',e);toast('Item removed, but its Cloudinary file could not be cleaned up: '+e.message)}render();toast('Folder item deleted');
 }
 
 function road(short=false){let data=short?[...journey.filter((x,i)=>i%3===0).slice(0,10),...journey.filter(x=>['2026-11-11','2026-11-12','2026-11-13'].includes(x[0]))]:journey;return `<div class="road-preview"><div class="road-line">${data.map((x,i)=>`<div class="road-item"><span class="road-pin"></span><div class="road-card"><span class="date">${fmt(x[0])}</span><strong>${esc(x[1])}</strong><small>${esc(x[2])}</small><div class="toolbar"><button class="btn small light" onclick="selectDate('${x[0]}')">View date</button><button class="btn small primary" onclick="${x[4]?`go('subfolder','${esc(x[3])}','${esc(x[4])}')`:`go('folder','${esc(x[3])}')`}">Open folder</button></div></div></div>`).join('')}</div></div>`}
@@ -363,8 +372,8 @@ function peoplePage(){
  const card=(type,i,base,d)=>{const name=d.name||(type==='student'?base:base[0]);const sub=type==='student'?(d.qualification||'B.Sc. (Hons.) Agriculture'):(d.designation||base[1]);return `<article class="person"><div class="person-photo">${d.photo?`<img src="${esc(d.photo)}" alt="${esc(name)}">`:(type==='student'?'👤<br>Student photo':'🎓<br>Faculty photo space')}</div><div class="person-body"><h3>${esc(name)}</h3><p>${esc(sub)}</p><p>${esc(d.role||(type==='student'?'RAWE 2026 · AEX 401':base[2]))}</p>${isAdminUser()?`<label class="btn small light">${d.photo?'Change photo':'Add photo'}<input type="file" accept="image/*" hidden onchange="uploadProfilePhoto('${type}',${i},this)"></label> <button class="btn small light" onclick="editProfile('${type}',${i})">Edit details</button>${d.photo?` <button class="btn small light" onclick="removeProfilePhoto('${type}',${i})">Remove photo</button>`:''}`:''}</div></article>`;};
  return `${topPage('Students and Faculty','Administrator-managed student and faculty profiles.')}<div class="section-head"><h2>Six RAWE Students</h2></div><div class="student-grid">${students.map((x,i)=>card('student',i,x,sp[i]||{})).join('')}</div><div class="spacer"></div><h2 style="color:var(--forest)">Faculty Members</h2><div class="student-grid">${faculty.map((x,i)=>card('faculty',i,x,fp[i]||{})).join('')}</div>`;
 }
-async function removeProfilePhoto(type,i){if(!adminAuthenticated||!isAdminUser())return;if(!confirm('Remove this profile photograph?'))return;try{const p=profiles(),key=type==='student'?'students':'faculty',oldUrl=p[key]?.[i]?.photo;if(p[key]?.[i])delete p[key][i].photo;await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await deleteUploadedFile(oldUrl);render();toast('Profile photograph removed');}catch(e){console.error(e);toast('Could not remove photo: '+e.message);}}
-async function uploadProfilePhoto(type,i,input){const file=input.files&&input.files[0];if(!file)return;if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');input.value='';return}if(!file.type.startsWith('image/')){toast('Choose an image file');input.value='';return}if(file.size>10*1024*1024){toast('Profile photo must be under 10 MB');input.value='';return}try{const p=profiles(),key=type==='student'?'students':'faculty';p[key]=p[key]||{};const old=p[key][i]||{};const url=await uploadFileToStorage(file,'profiles');p[key][i]={...old,photo:url};localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile photo uploaded and saved successfully')}catch(e){console.error('Profile photo upload failed',e);toast('Profile photo upload failed: '+e.message)}finally{input.value=''}}
+async function removeProfilePhoto(type,i){if(!adminAuthenticated||!isAdminUser())return;if(!confirm('Remove this profile photograph?'))return;try{const p=profiles(),key=type==='student'?'students':'faculty',oldPhoto=p[key]?.[i];if(p[key]?.[i]){delete p[key][i].photo;delete p[key][i].photo_public_id;delete p[key][i].photo_resource_type;}await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await deleteUploadedFile({url:oldPhoto?.photo,public_id:oldPhoto?.photo_public_id,resource_type:oldPhoto?.photo_resource_type,cloudinary:true});render();toast('Profile photograph removed');}catch(e){console.error(e);toast('Could not remove photo: '+e.message);}}
+async function uploadProfilePhoto(type,i,input){const file=input.files&&input.files[0];if(!file)return;if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');input.value='';return}if(!file.type.startsWith('image/')){toast('Choose an image file');input.value='';return}if(file.size>10*1024*1024){toast('Profile photo must be under 10 MB');input.value='';return}try{const p=profiles(),key=type==='student'?'students':'faculty';p[key]=p[key]||{};const old=p[key][i]||{};const media=await uploadFileToStorage(file,'profiles');p[key][i]={...old,photo:media.url,photo_public_id:media.public_id,photo_resource_type:media.resource_type};localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile photo uploaded and saved successfully')}catch(e){console.error('Profile photo upload failed',e);toast('Profile photo upload failed: '+e.message)}finally{input.value=''}}
 async function editProfile(type,i){if(!adminAuthenticated||!isAdminUser())return;let p=profiles(),arr=type==='student'?(p.students=p.students||{}):(p.faculty=p.faculty||{}),base=type==='student'?students[i]:faculty[i][0],old=arr[i]||{};let name=prompt('Name',old.name||base);if(name===null)return;let qualification=prompt(type==='student'?'Qualification':'Designation',old.qualification||old.designation||(type==='student'?'B.Sc. (Hons.) Agriculture':faculty[i][1]));if(qualification===null)return;let role=prompt('Role / profile note',old.role||(type==='student'?'RAWE 2026 · AEX 401':faculty[i][2]));if(role===null)return;arr[i]={...old,name,role};if(type==='student')arr[i].qualification=qualification;else arr[i].designation=qualification;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile details saved successfully')}catch(e){console.error(e);toast('Profile save failed: '+e.message)}}
 function adminPage(){return `${topPage('Administrator Login & Management','Firebase-secured administrator workspace. Public visitors can view content; only the verified administrator can edit it.')}<div class="panel" style="max-width:850px;margin:auto"><div id="adminAuthBox">${adminAuthenticated?adminWorkspace():`<h2 style="color:var(--forest)">Administrator login</h2><p class="muted">Sign in using the administrator account registered in Firebase Authentication.</p><label>Administrator email<input id="adminEmail" type="email" autocomplete="username" placeholder="Enter administrator email" required></label><label>Password<input id="adminPass" type="password" autocomplete="current-password" placeholder="Firebase account password"></label><button class="btn primary" onclick="adminLogin()">Sign in securely</button><p class="muted" style="font-size:12px;margin-top:14px">The administrator email must exist in Firebase Authentication and its email address must be verified. Do not create an administrator password on this website.</p>${fbReady?'':'<p style="color:#a33">Firebase could not initialize. Check the web app configuration and internet connection.</p>'}`}</div></div>`}
 function adminWorkspace(){return `<div class="admin-panel"><h2>Administrator Dashboard</h2><p>Signed in with Firebase Authentication. Visitors remain read-only.</p><div class="quick-grid">${[['📁','Manage folder content','folders'],['👥','Student & faculty profiles','people'],['📚','Six digital registers','registers'],['📊','Dashboard','dashboard']].map(x=>`<button class="quick" onclick="go('${x[2]}')"><span>${x[0]}</span>${x[1]} →</button>`).join('')}</div><hr><h3>Backup and restore</h3><p>Backup includes the folder content, covers and profiles currently loaded on this device. Keep backup files in a safe location.</p><button class="btn primary" onclick="exportBackup()">⬇ Export full backup</button> <label class="btn light">⬆ Restore backup<input type="file" accept="application/json,.json" hidden onchange="restoreBackup(this)"></label><hr><h3>Session</h3><button class="btn light" onclick="adminLogout()">Log out</button><p class="muted" style="font-size:12px">For public deployment, configure Firebase Authentication and restrictive Firestore/Storage security rules. A client-side password gate alone is not production security.</p></div>`}
@@ -680,7 +689,7 @@ function filterGallery(){
  const q=(document.getElementById('gallerySearch')?.value||'').toLowerCase(),c=document.getElementById('galleryCategory')?.value||'';
  document.querySelectorAll('#galleryGrid .media-card').forEach(el=>el.classList.toggle('hide',!(el.dataset.title.includes(q)&&(!c||el.dataset.cat===c))));
 }
-async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const title=document.getElementById('galleryUploadTitle')?.value.trim(),file=document.getElementById('galleryUploadFile')?.files?.[0],key=document.getElementById('galleryTarget')?.value;if(!title){toast('Enter a photo title');return}if(!file){toast('Choose a photo');return}if(!file.type.startsWith('image/')){toast('Choose an image file');return}if(file.size>100*1024*1024){toast('Maximum photo size is 100 MB');return}const button=document.querySelector('#galleryUploadFile')?.closest('.panel')?.querySelector('button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}try{const url=await uploadFileToStorage(file,'photos');stored[key]=stored[key]||[];stored[key].push({title,date:document.getElementById('galleryUploadDate')?.value||'',location:document.getElementById('galleryUploadLocation')?.value||'',desc:document.getElementById('galleryUploadDesc')?.value||'',type:'Photos',url,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Photo uploaded and saved to the shared archive':'Photo uploaded on this device; shared sync failed');render()}catch(e){console.error(e);toast('Photo upload failed: '+e.message);if(button){button.disabled=false;button.textContent='Upload photograph'}}}
+async function galleryUpload(){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}const title=document.getElementById('galleryUploadTitle')?.value.trim(),file=document.getElementById('galleryUploadFile')?.files?.[0],key=document.getElementById('galleryTarget')?.value;if(!title){toast('Enter a photo title');return}if(!file){toast('Choose a photo');return}if(!file.type.startsWith('image/')){toast('Choose an image file');return}if(file.size>100*1024*1024){toast('Maximum photo size is 100 MB');return}const button=document.querySelector('#galleryUploadFile')?.closest('.panel')?.querySelector('button.btn.primary');if(button){button.disabled=true;button.textContent='Uploading…'}try{const media=await uploadFileToStorage(file,'photos');stored[key]=stored[key]||[];stored[key].push({title,date:document.getElementById('galleryUploadDate')?.value||'',location:document.getElementById('galleryUploadLocation')?.value||'',desc:document.getElementById('galleryUploadDesc')?.value||'',type:'Photos',...media,createdAt:new Date().toISOString()});const synced=await save();toast(synced?'Photo uploaded and saved to the shared archive':'Photo uploaded on this device; shared sync failed');render()}catch(e){console.error(e);toast('Photo upload failed: '+e.message);if(button){button.disabled=false;button.textContent='Upload photograph'}}}
 function videosPage(){
  const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&x.type==='Videos'?[{...x,path:p,index}]:[]):[]);
  const remote=raweAllGitHub('Videos');
