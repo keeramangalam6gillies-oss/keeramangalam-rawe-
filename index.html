@@ -167,6 +167,29 @@ const journey=[
 ];
 const photos=[]; // No stock or illustrative photographs are preloaded.
 let state={page:'home',group:null,sub:null,kind:null,register:'Attendance Register',month:9,year:2026,selectedDate:new Date().toISOString().slice(0,10),history:[]};
+const PROFILE_KEY='rawe26profiles';
+function profiles(){
+ try{const value=JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');return value&&typeof value==='object'?value:{}}
+ catch(e){console.error('Profile cache could not be read',e);return {}}
+}
+async function saveProfiles(value){
+ const data=value&&typeof value==='object'?value:{};
+ localStorage.setItem(PROFILE_KEY,JSON.stringify(data));
+ if(isAdminUser()&&fbDb)await fbDb.collection('raweProfiles').doc('main').set({profiles:data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+}
+async function loadSharedProfiles(){
+ if(!fbReady||!fbDb)return;
+ try{
+  const snap=await fbDb.collection('raweProfiles').doc('main').get();
+  if(snap.exists&&snap.data()&&snap.data().profiles){
+   localStorage.setItem(PROFILE_KEY,JSON.stringify(snap.data().profiles));
+   if(state.page==='people')render();
+  }else if(isAdminUser()){
+   const local=profiles();
+   if(Object.keys(local).length)await saveProfiles(local);
+  }
+ }catch(e){console.error('Shared profile load failed',e);if(state.page==='people')toast('Could not load shared student/faculty profiles: '+(e.message||e))}
+}
 let stored=JSON.parse(localStorage.getItem('rawe26content')||'{}');
 let raweSyncQueue=Promise.resolve();
 function save(){
@@ -675,6 +698,7 @@ function renderRaweMemories(){
 render(); // Run only after RAWE media state has been initialized.
 loadRaweGitHubMedia();
 loadSharedContent();
+loadSharedProfiles();
 /* ===== End RAWE automatic media integration ===== */
 
 
