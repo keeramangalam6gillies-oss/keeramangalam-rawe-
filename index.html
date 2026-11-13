@@ -367,11 +367,93 @@ function changeMonth(n){let d=new Date(state.year,state.month+n,1);state.month=d
 function selectDate(d){state.selectedDate=d;state.month=+d.slice(5,7)-1;state.year=+d.slice(0,4);render();if(state.page!=='home'){}}
 function selectedActivity(){let list=journey.filter(x=>x[0]===state.selectedDate);return `<p style="color:var(--forest);font-weight:800">${fmt(state.selectedDate)}</p>${list.length?list.map(x=>`<div class="report"><h3>${esc(x[1])}</h3><p>${esc(x[2])}</p><button class="btn small primary" onclick="${x[4]?`go('subfolder','${esc(x[3])}','${esc(x[4])}')`:`go('folder','${esc(x[3])}')` }">Open related folder →</button></div>`).join(''):`<p class="muted">No activity is recorded for this date yet. This date remains available for future updates.</p>`}`}
 function aboutPage(){return `${topPage('About RAWE','AEX 401 – Rural Agricultural Work Experience Programme (0+20).')}<div class="panel"><h2>Learning from the land and working with farming communities</h2><p>The RAWE programme provides undergraduate agriculture students with practical rural exposure. Students engage with farm families, village institutions and local agricultural systems to understand real field conditions and extension needs.</p><div class="quick-grid">${[['🌱','Rural exposure','Understand village life, farming systems and rural livelihoods.'],['🤝','Farmer interaction','Learn through discussions, observation and field engagement.'],['🧭','Agricultural extension','Connect agricultural knowledge with community needs.'],['🏡','Village development','Observe resources, institutions, opportunities and constraints.']].map(x=>`<div class="report"><h3>${x[0]} ${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div><h3>Programme objectives</h3><ul><li>Develop practical understanding of rural agricultural situations.</li><li>Study crops, farm practices, local resources and farmer challenges.</li><li>Understand agricultural institutions and extension services.</li><li>Build communication, observation, documentation and problem-solving skills.</li><li>Relate classroom learning to field-level agricultural development.</li></ul><h3>Expected student learning outcomes</h3><p>Field observation, farmer communication, participatory rural appraisal, documentation, demonstration planning, institutional exposure and community-oriented agricultural recommendations.</p></div>`}
+
 function peoplePage(){
  let p=profiles(),sp=p.students||{},fp=p.faculty||{};
- const card=(type,i,base,d)=>{const name=d.name||(type==='student'?base:base[0]);const sub=type==='student'?(d.qualification||'B.Sc. (Hons.) Agriculture'):(d.designation||base[1]);return `<article class="person"><div class="person-photo">${d.photo?`<img src="${esc(d.photo)}" alt="${esc(name)}">`:(type==='student'?'👤<br>Student photo':'🎓<br>Faculty photo space')}</div><div class="person-body"><h3>${esc(name)}</h3><p>${esc(sub)}</p><p>${esc(d.role||(type==='student'?'RAWE 2026 · AEX 401':base[2]))}</p>${isAdminUser()?`<label class="btn small light">${d.photo?'Change photo':'Add photo'}<input type="file" accept="image/*" hidden onchange="uploadProfilePhoto('${type}',${i},this)"></label> <button class="btn small light" onclick="editProfile('${type}',${i})">Edit details</button>${d.photo?` <button class="btn small light" onclick="removeProfilePhoto('${type}',${i})">Remove photo</button>`:''}`:''}</div></article>`;};
- return `${topPage('Students and Faculty','Administrator-managed student and faculty profiles.')}<div class="section-head"><h2>Six RAWE Students</h2></div><div class="student-grid">${students.map((x,i)=>card('student',i,x,sp[i]||{})).join('')}</div><div class="spacer"></div><h2 style="color:var(--forest)">Faculty Members</h2><div class="student-grid">${faculty.map((x,i)=>card('faculty',i,x,fp[i]||{})).join('')}</div>`;
+
+ const card=(type,i,base,d)=>{
+  const name=d.name||(type==='student'?base:base[0]);
+  const sub=type==='student'
+    ?(d.qualification||'B.Sc. (Hons.) Agriculture')
+    :(d.designation||base[1]);
+
+  return `
+  <article class="person">
+
+    <!-- Student / Faculty details first -->
+    <div class="person-body">
+      <h3>${esc(name)}</h3>
+      <p>${esc(sub)}</p>
+      <p>${esc(d.role||(type==='student'
+        ?'RAWE 2026 · AEX 401'
+        :base[2]))}</p>
+
+      ${isAdminUser()?`
+        <button class="btn small light"
+          onclick="editProfile('${type}',${i})">
+          Edit details
+        </button>
+      `:''}
+    </div>
+
+    <!-- Photo below the details -->
+    <div class="person-photo">
+      ${d.photo
+        ? `<img src="${esc(d.photo)}" alt="${esc(name)}">`
+        : `<span>${type==='student'
+          ?'👤 Student photo'
+          :'🎓 Faculty photo space'}</span>`
+      }
+    </div>
+
+    <!-- Photo controls below the photo -->
+    ${isAdminUser()?`
+      <div class="person-body profile-photo-actions">
+        <label class="btn small primary">
+          ${d.photo?'Change photo':'Add photo'}
+          <input type="file"
+            accept="image/*"
+            hidden
+            onchange="uploadProfilePhoto('${type}',${i},this)">
+        </label>
+
+        ${d.photo?`
+          <button class="btn small light"
+            onclick="removeProfilePhoto('${type}',${i})">
+            Remove photo
+          </button>
+        `:''}
+      </div>
+    `:''}
+
+  </article>`;
+ };
+
+ return `
+ ${topPage('Students and Faculty',
+ 'Administrator-managed student and faculty profiles.')}
+
+ <div class="section-head">
+   <h2>Six RAWE Students</h2>
+ </div>
+
+ <div class="student-grid">
+   ${students.map((x,i)=>
+     card('student',i,x,sp[i]||{})
+   ).join('')}
+ </div>
+
+ <div class="spacer"></div>
+
+ <h2 style="color:var(--forest)">Faculty Members</h2>
+
+ <div class="student-grid">
+   ${faculty.map((x,i)=>
+     card('faculty',i,x,fp[i]||{})
+   ).join('')}
+ </div>`;
 }
+
 async function removeProfilePhoto(type,i){if(!adminAuthenticated||!isAdminUser())return;if(!confirm('Remove this profile photograph?'))return;try{const p=profiles(),key=type==='student'?'students':'faculty',oldPhoto=p[key]?.[i];if(p[key]?.[i]){delete p[key][i].photo;delete p[key][i].photo_public_id;delete p[key][i].photo_resource_type;}await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await deleteUploadedFile({url:oldPhoto?.photo,public_id:oldPhoto?.photo_public_id,resource_type:oldPhoto?.photo_resource_type,cloudinary:true});render();toast('Profile photograph removed');}catch(e){console.error(e);toast('Could not remove photo: '+e.message);}}
 async function uploadProfilePhoto(type,i,input){const file=input.files&&input.files[0];if(!file)return;if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');input.value='';return}if(!file.type.startsWith('image/')){toast('Choose an image file');input.value='';return}if(file.size>10*1024*1024){toast('Profile photo must be under 10 MB');input.value='';return}try{const p=profiles(),key=type==='student'?'students':'faculty';p[key]=p[key]||{};const old=p[key][i]||{};const media=await uploadFileToStorage(file,'profiles');p[key][i]={...old,photo:media.url,photo_public_id:media.public_id,photo_resource_type:media.resource_type};localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile photo uploaded and saved successfully')}catch(e){console.error('Profile photo upload failed',e);toast('Profile photo upload failed: '+e.message)}finally{input.value=''}}
 async function editProfile(type,i){if(!adminAuthenticated||!isAdminUser())return;let p=profiles(),arr=type==='student'?(p.students=p.students||{}):(p.faculty=p.faculty||{}),base=type==='student'?students[i]:faculty[i][0],old=arr[i]||{};let name=prompt('Name',old.name||base);if(name===null)return;let qualification=prompt(type==='student'?'Qualification':'Designation',old.qualification||old.designation||(type==='student'?'B.Sc. (Hons.) Agriculture':faculty[i][1]));if(qualification===null)return;let role=prompt('Role / profile note',old.role||(type==='student'?'RAWE 2026 · AEX 401':faculty[i][2]));if(role===null)return;arr[i]={...old,name,role};if(type==='student')arr[i].qualification=qualification;else arr[i].designation=qualification;try{localStorage.setItem(PROFILE_KEY,JSON.stringify(p));await fbDb.collection('raweProfiles').doc('main').set({profiles:p,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});render();toast('Profile details saved successfully')}catch(e){console.error(e);toast('Profile save failed: '+e.message)}}
