@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://keeramangalam6gillies-oss.github.io/keeramangalam-rawe-/sitemap.xml
