@@ -256,7 +256,7 @@ async function addItem(key,k){
    if(file.size>100*1024*1024)throw Error('Maximum file size is 100 MB');
    const allowed=k==='Photos'?file.type.startsWith('image/'):
     k==='Videos'?file.type.startsWith('video/'):
-    /pdf|msword|officedocument|text\\//i.test(file.type)||/\\.(pdf|doc|docx|txt)$/i.test(file.name);
+    /pdf|msword|officedocument|text\//i.test(file.type)||/\.(pdf|doc|docx|txt)$/i.test(file.name);
    if(!allowed)throw Error('Choose a supported file type for '+k);
    item.url=await uploadFileToStorage(file,k.toLowerCase());
   }else if(k==='Reports'&&desc){
