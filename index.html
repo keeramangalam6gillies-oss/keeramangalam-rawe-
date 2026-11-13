@@ -101,7 +101,7 @@ if (fbReady) {
     if (authBox && state.page === "admin") render();
     document.body.classList.toggle("rawe-admin-authenticated", adminAuthenticated);
     if(adminAuthenticated){
-      syncSharedContent().catch(e=>console.error("Initial shared archive sync failed",e));
+      loadSharedContent().then(()=>syncSharedContent()).catch(e=>console.error("Initial shared archive sync failed",e));
       loadSharedProfiles().catch(e=>console.error("Initial profile sync failed",e));
     }
   });
@@ -245,18 +245,22 @@ async function syncSharedContent(){
  }
  localStorage.setItem('rawe26content',JSON.stringify(stored));
 }
-async function loadSharedContent(){
- if(!fbReady||!fbDb)return;
- try{
-  const snapshot=await fbDb.collection('raweContent').get();
-  snapshot.forEach(doc=>{
-   const data=doc.data()||{};
-   if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
-  });
-  localStorage.setItem('rawe26content',JSON.stringify(stored));
-  if(isAdminUser())await syncSharedContent();
-  if(['home','folders','folder','subfolder','content','gallery','videos','reports','registers','dashboard'].includes(state.page))render();
- }catch(e){console.error('Shared archive load failed',e);if(state.page==='admin')toast('Could not load shared archive: '+(e.message||e))}
+let raweSharedLoadPromise=null;
+function loadSharedContent(){
+ if(!fbReady||!fbDb)return Promise.resolve();
+ if(raweSharedLoadPromise)return raweSharedLoadPromise;
+ raweSharedLoadPromise=(async()=>{
+  try{
+   const snapshot=await fbDb.collection('raweContent').get();
+   snapshot.forEach(doc=>{
+    const data=doc.data()||{};
+    if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
+   });
+   localStorage.setItem('rawe26content',JSON.stringify(stored));
+   if(['home','folders','folder','subfolder','content','gallery','videos','reports','registers','dashboard'].includes(state.page))render();
+  }catch(e){console.error('Shared archive load failed',e);if(state.page==='admin')toast('Could not load shared archive: '+(e.message||e))}
+ })();
+ return raweSharedLoadPromise;
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
