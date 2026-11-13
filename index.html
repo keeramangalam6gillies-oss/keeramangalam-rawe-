@@ -100,6 +100,10 @@ if (fbReady) {
     const authBox = document.getElementById("adminAuthBox");
     if (authBox && state.page === "admin") render();
     document.body.classList.toggle("rawe-admin-authenticated", adminAuthenticated);
+    if(adminAuthenticated){
+      syncSharedContent().catch(e=>console.error("Initial shared archive sync failed",e));
+      loadSharedProfiles().catch(e=>console.error("Initial profile sync failed",e));
+    }
   });
 }
 
