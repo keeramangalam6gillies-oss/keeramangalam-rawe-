@@ -272,7 +272,7 @@ async function addItem(key,k){
 }
 function renderItems(items,k,path=''){
  return `<div class="${k==='Photos'?'media-grid':''}">${items.map((x,i)=>{
-  const actions=adminAuthenticated?`<div class="toolbar"><button onclick="editItem('${encodeURIComponent(path)}',${i})">Edit</button><button onclick="deleteItem('${encodeURIComponent(path)}',${i})">Delete</button></div>`:'';
+  const actions=adminAuthenticated&&path?`<div class="toolbar"><button onclick="editItem('${encodeURIComponent(path)}',${i})">Edit</button><button onclick="deleteItem('${encodeURIComponent(path)}',${i})">Delete</button></div>`:'';
   if(k==='Photos')return `<article class="media-card"><img loading="lazy" src="${esc(x.url)}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p>${actions}</div></article>`;
   if(k==='Videos')return `<article class="report"><h3>▶ ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${youtubeEmbed(x.url)?`<div style="aspect-ratio:16/9"><iframe title="${esc(x.title)}" src="${youtubeEmbed(x.url)}" allowfullscreen style="width:100%;height:100%;border:0"></iframe></div>`:x.url?.startsWith('http')?`<video controls preload="metadata" playsinline style="width:100%;max-height:360px" src="${esc(x.url)}"></video>`:''}<p>${esc(x.desc||'')}</p>${actions}</article>`;
   if(k==='Documents'||k==='Reports')return `<article class="report"><h3>${k==='Documents'?'📄':'📑'} ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p>${x.url?.startsWith('http')?`<p><a href="${esc(x.url)}" target="_blank" rel="noopener">Open ${k==='Reports'?'report':'document'}</a></p>`:''}<p>${esc(x.desc||(!x.url?'Report content has not been entered.':''))}</p>${actions}</article>`;
@@ -635,7 +635,7 @@ function raweGitHubMediaCard(x,k){
 function contentPage(g,s,k){
  const key=pathKey(g,s,k),local=stored[key]||[],remote=raweMediaInFolder(g,s,k);
  return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>GitHub files uploaded to this folder appear automatically. Existing administrator entries are retained.</p></div>${adminButton()}</div>
- ${local.length?renderItems(local,k):''}
+ ${local.length?renderItems(local,k,key):''}
  ${remote.length?(k==='Photos'?'<div class="media-grid">':'')+remote.map(x=>raweGitHubMediaCard(x,k)).join('')+(k==='Photos'?'</div>':''):''}
  ${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>No ${k.toLowerCase()} uploaded yet</h3><p>Upload files to <b>${esc(key)}/</b> in GitHub. They will appear here automatically after the media index updates.</p></div>`:''}
  ${adminForm(key,k)}</div>`;
