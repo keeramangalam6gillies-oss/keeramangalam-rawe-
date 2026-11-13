@@ -728,25 +728,25 @@ function registersPage(){
  ${items.length?`<div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Title / Name</th><th>Details / Notes</th>${canEdit?'<th>Actions</th>':''}</tr></thead><tbody>${items.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.date||'')}</td><td>${esc(x.title||'')}</td><td style="white-space:pre-wrap">${esc(x.details||'')}</td>${canEdit?`<td><button onclick="editRegisterEntry(${i})">Edit</button> <button onclick="deleteRegisterEntry(${i})">Delete</button></td>`:''}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><div class="empty-icon">📚</div><h3>No entries yet</h3><p>Register entries will appear here.</p></div>'}
  </div>`;
 }
-function addRegisterEntry(){
+async function addRegisterEntry(){
  if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
  const date=document.getElementById('regDate')?.value||'',title=document.getElementById('regTitle')?.value.trim()||'',details=document.getElementById('regDetails')?.value.trim()||'';
  if(!title&&!details){toast('Enter a title or details');return}
- const key='register:'+state.register;stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({date,title,details,createdAt:new Date().toISOString()});save();render();toast('Register entry added');
+ const key='register:'+state.register;stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({date,title,details,createdAt:new Date().toISOString()});const synced=await save();render();toast(synced?'Register entry added to shared archive':'Entry saved on this device only; shared sync failed');
 }
-function editRegisterEntry(i){
+async function editRegisterEntry(i){
  if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
  const key='register:'+state.register,items=stored[key]||[],x=items[i];if(!x)return;
  const date=prompt('Date (YYYY-MM-DD)',x.date||'');if(date===null)return;
  const title=prompt('Title / Name',x.title||'');if(title===null)return;
  const details=prompt('Details / Notes',x.details||'');if(details===null)return;
- items[i]={...x,date,title,details,updatedAt:new Date().toISOString()};stored[key]=items;save();render();toast('Register entry updated');
+ items[i]={...x,date,title,details,updatedAt:new Date().toISOString()};stored[key]=items;const synced=await save();render();toast(synced?'Register entry updated':'Update saved locally; shared sync failed');
 }
-function deleteRegisterEntry(i){
+async function deleteRegisterEntry(i){
  if(!adminAuthenticated||!isAdminUser())return;
  const key='register:'+state.register,items=stored[key]||[];if(!items[i])return;
  if(!confirm('Delete this register entry permanently?'))return;
- items.splice(i,1);stored[key]=items;save();render();toast('Register entry deleted');
+ const removed=items.splice(i,1)[0];stored[key]=items;const synced=await save();if(!synced){items.splice(i,0,removed);stored[key]=items;await save();toast('Delete could not be shared; entry restored');return}render();toast('Register entry deleted');
 }
 
 
