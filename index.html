@@ -168,7 +168,57 @@ const journey=[
 const photos=[]; // No stock or illustrative photographs are preloaded.
 let state={page:'home',group:null,sub:null,kind:null,register:'Attendance Register',month:9,year:2026,selectedDate:new Date().toISOString().slice(0,10),history:[]};
 let stored=JSON.parse(localStorage.getItem('rawe26content')||'{}');
-function save(){localStorage.setItem('rawe26content',JSON.stringify(stored))}
+let raweSyncQueue=Promise.resolve();
+function save(){
+ try{localStorage.setItem('rawe26content',JSON.stringify(stored))}
+ catch(e){console.error('Local backup save failed',e);toast('Browser storage is full. Files are being saved to the shared archive where possible.')}
+ if(isAdminUser()){
+  raweSyncQueue=raweSyncQueue.then(()=>syncSharedContent()).catch(e=>{console.error('Shared archive sync failed',e);toast('Shared archive save failed: '+(e.message||e))});
+ }
+ return raweSyncQueue;
+}
+async function uploadFileToStorage(file,folder='activity'){
+ if(!fbReady||!fbStorage||!isAdminUser())throw new Error('Verified administrator login is required for uploads.');
+ if(!file)throw new Error('Choose a file first.');
+ const safeName=String(file.name||'upload').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'_').replace(/^\.+/,'').slice(-100)||'upload';
+ const path='uploads/'+fbAuth.currentUser.uid+'/'+String(folder).replace(/[^a-zA-Z0-9_-]/g,'_')+'/'+Date.now()+'_'+safeName;
+ const ref=fbStorage.ref().child(path);
+ const snap=await ref.put(file,{contentType:file.type||'application/octet-stream'});
+ return await snap.ref.getDownloadURL();
+}
+async function dataUrlToFile(dataUrl,name='migrated-upload'){
+ const response=await fetch(dataUrl);const blob=await response.blob();
+ const mime=blob.type||'application/octet-stream';
+ const ext=({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','video/mp4':'mp4','video/webm':'webm','application/pdf':'pdf','text/plain':'txt' })[mime]||'bin';
+ return new File([blob],String(name).replace(/[^a-zA-Z0-9_-]/g,'_')+'.'+ext,{type:mime});
+}
+async function syncSharedContent(){
+ if(!fbReady||!fbDb||!isAdminUser())return;
+ for(const [key,items] of Object.entries(stored||{})){
+  if(!Array.isArray(items))continue;
+  for(const item of items){
+   if(item&&typeof item.url==='string'&&item.url.startsWith('data:')){
+    const file=await dataUrlToFile(item.url,item.title||'rawe-media');
+    item.url=await uploadFileToStorage(file,'activity');
+   }
+  }
+  await fbDb.collection('raweContent').doc(encodeURIComponent(key)).set({key,items,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ }
+ localStorage.setItem('rawe26content',JSON.stringify(stored));
+}
+async function loadSharedContent(){
+ if(!fbReady||!fbDb)return;
+ try{
+  const snapshot=await fbDb.collection('raweContent').get();
+  snapshot.forEach(doc=>{
+   const data=doc.data()||{};
+   if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
+  });
+  localStorage.setItem('rawe26content',JSON.stringify(stored));
+  if(isAdminUser())await syncSharedContent();
+  if(['home','folders','folder','subfolder','content','gallery','videos','reports','registers','dashboard'].includes(state.page))render();
+ }catch(e){console.error('Shared archive load failed',e);if(state.page==='admin')toast('Could not load shared archive: '+(e.message||e))}
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
 function toggleMenu(){document.getElementById('navlinks').classList.toggle('open')}
