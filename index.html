@@ -506,4 +506,39 @@ render(); // Run only after RAWE media state has been initialized.
 loadRaweGitHubMedia();
 /* ===== End RAWE automatic media integration ===== */
 
+
+/* ===== Digital register administrator editing and deletion ===== */
+const registerNames=['Attendance Register','Daily Movement Register','Radio Programme Register','Newspaper Register','Visitor Register','Daily Activity Register'];
+function registersPage(){
+ const name=state.register||registerNames[0];if(!registerNames.includes(name))state.register=registerNames[0];
+ const items=Array.isArray(stored['register:'+state.register])?stored['register:'+state.register]:[];
+ const canEdit=!!(adminAuthenticated&&isAdminUser());
+ return `${topPage('Digital Registers','Six RAWE registers. Administrator login enables adding, editing and deleting every entry.')}
+ <div class="panel"><div class="register-tabs">${registerNames.map(n=>`<button class="${n===state.register?'active':''}" onclick="state.register='${esc(n)}';render()">${esc(n.replace(' Register',''))}</button>`).join('')}</div>
+ ${canEdit?`<div class="panel" style="background:#f5f8f1;margin:12px 0"><h3 style="color:var(--forest)">Add register entry</h3><div class="form-grid"><label>Date<input id="regDate" type="date" value="${new Date().toISOString().slice(0,10)}"></label><label>Title / Name<input id="regTitle" type="text" placeholder="Enter title or name"></label><label style="grid-column:1/-1">Details / Notes<textarea id="regDetails" rows="3" placeholder="Enter register details"></textarea></label></div><button class="btn primary" onclick="addRegisterEntry()">＋ Add Entry</button></div>`: `<p class="muted">Sign in as administrator to add, edit or delete register entries.</p>`}
+ <div class="section-head"><div><h2>${esc(state.register)}</h2><p>${items.length} saved entries</p></div></div>
+ ${items.length?`<div class="table-wrap"><table><thead><tr><th>No.</th><th>Date</th><th>Title / Name</th><th>Details / Notes</th>${canEdit?'<th>Actions</th>':''}</tr></thead><tbody>${items.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.date||'')}</td><td>${esc(x.title||'')}</td><td style="white-space:pre-wrap">${esc(x.details||'')}</td>${canEdit?`<td><button onclick="editRegisterEntry(${i})">Edit</button> <button onclick="deleteRegisterEntry(${i})">Delete</button></td>`:''}</tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><div class="empty-icon">📚</div><h3>No entries yet</h3><p>Register entries will appear here.</p></div>'}
+ </div>`;
+}
+function addRegisterEntry(){
+ if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
+ const date=document.getElementById('regDate')?.value||'',title=document.getElementById('regTitle')?.value.trim()||'',details=document.getElementById('regDetails')?.value.trim()||'';
+ if(!title&&!details){toast('Enter a title or details');return}
+ const key='register:'+state.register;stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({date,title,details,createdAt:new Date().toISOString()});save();render();toast('Register entry added');
+}
+function editRegisterEntry(i){
+ if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}
+ const key='register:'+state.register,items=stored[key]||[],x=items[i];if(!x)return;
+ const date=prompt('Date (YYYY-MM-DD)',x.date||'');if(date===null)return;
+ const title=prompt('Title / Name',x.title||'');if(title===null)return;
+ const details=prompt('Details / Notes',x.details||'');if(details===null)return;
+ items[i]={...x,date,title,details,updatedAt:new Date().toISOString()};stored[key]=items;save();render();toast('Register entry updated');
+}
+function deleteRegisterEntry(i){
+ if(!adminAuthenticated||!isAdminUser())return;
+ const key='register:'+state.register,items=stored[key]||[];if(!items[i])return;
+ if(!confirm('Delete this register entry permanently?'))return;
+ items.splice(i,1);stored[key]=items;save();render();toast('Register entry deleted');
+}
+
 </script></body></html>
