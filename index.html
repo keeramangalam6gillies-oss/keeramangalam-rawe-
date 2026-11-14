@@ -470,17 +470,14 @@ function loadSharedContent(){
      const oldKey=oldPath+'/'+kind,newKey=newPath+'/'+kind,oldItems=stored[oldKey];
      if(!Array.isArray(oldItems)||!oldItems.length)continue;
      const target=Array.isArray(stored[newKey])?stored[newKey]:[];
-     const seen=new Set(target.map(x=>x&&x.id).filter(Boolean));
-     stored[newKey]=target.concat(oldItems.filter(x=>!x||!x.id||!seen.has(x.id)));
+     const fingerprint=x=>x&&[x.id||'',x.url||'',x.title||'',x.date||'',x.location||''].join('|');
+     const seen=new Set(target.map(fingerprint));
+     stored[newKey]=target.concat(oldItems.filter(x=>{const key=fingerprint(x);if(seen.has(key))return false;seen.add(key);return true;}));
      delete stored[oldKey];foldersMoved=true;
     }
    }
-   if(foldersMoved&&isAdminUser())await syncSharedContent();
-
-    const data=doc.data()||{};
-    if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
-   });
    localStorage.setItem('rawe26content',JSON.stringify(stored));
+   if(foldersMoved&&isAdminUser())await syncSharedContent();
    if(['home','folders','folder','subfolder','content','gallery','videos','reports','registers','dashboard'].includes(state.page))render();
   }catch(e){console.error('Shared archive load failed',e);if(state.page==='admin')toast('Could not load shared archive: '+(e.message||e))}
  })();
