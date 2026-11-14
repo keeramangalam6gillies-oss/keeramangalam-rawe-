@@ -1277,7 +1277,25 @@ function downloadAttendancePDF(){printAttendance()}
    });
    const data=await response.json();
    if(!response.ok)throw new Error(data.error||("Request failed ("+response.status+")"));
-   pending.textContent=data.answer||"I couldn't generate an answer. Please try again.";
+   if(!data.interactionId)throw new Error(data.error||"AI service did not return an interaction ID.");
+
+   const statusUrl=WORKER_URL.replace(/\\/chat$/,"/status")+"?id="+encodeURIComponent(data.interactionId);
+   let completed=false;
+   for(let attempt=0;attempt<60;attempt++){
+    await new Promise(resolve=>setTimeout(resolve,2000));
+    const statusResponse=await fetch(statusUrl,{method:"GET"});
+    const statusData=await statusResponse.json();
+    if(!statusResponse.ok)throw new Error(statusData.error||("Status check failed ("+statusResponse.status+")"));
+    if(statusData.status==="completed"){
+     pending.textContent=statusData.answer||"I couldn't generate an answer. Please try again.";
+     completed=true;
+     break;
+    }
+    if(statusData.status==="failed"||statusData.status==="cancelled"||statusData.status==="incomplete"){
+     throw new Error(statusData.error||("Gemini interaction "+statusData.status+"."));
+    }
+   }
+   if(!completed)throw new Error("Gemini is taking longer than expected. Please try again.");
   }catch(error){
    pending.textContent="Sorry, I couldn't connect to the AI service. Please try again. ("+String(error.message||error)+")";
   }finally{
