@@ -1279,7 +1279,7 @@ function downloadAttendancePDF(){printAttendance()}
    if(!response.ok)throw new Error(data.error||("Request failed ("+response.status+")"));
    if(!data.interactionId)throw new Error(data.error||"AI service did not return an interaction ID.");
 
-   const statusUrl=WORKER_URL.replace(/\\/chat$/,"/status")+"?id="+encodeURIComponent(data.interactionId);
+   const statusUrl="https://rawe-ai-assistant.keeramangalam6gillies.workers.dev/status?id="+encodeURIComponent(data.interactionId);
    let completed=false;
    for(let attempt=0;attempt<60;attempt++){
     await new Promise(resolve=>setTimeout(resolve,2000));
