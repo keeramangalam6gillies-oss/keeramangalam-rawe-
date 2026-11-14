@@ -41,6 +41,16 @@
 @media(max-width:700px){.brandbar{grid-template-columns:auto 1fr auto;gap:7px;padding:8px}.logo-placeholder{width:42px;height:42px;font-size:8px}.logo-note{display:none}.brand-title h1{font-size:18px}.brand-title p{font-size:9px}.nav-inner{flex-wrap:wrap}.hamburger{display:inline-block}.navlinks{display:none;order:3;width:100%;flex-wrap:wrap;overflow:visible}.navlinks.open{display:flex}.navlinks button{width:calc(50% - 3px);text-align:left}.nav-search{margin-left:auto}.nav-search input{width:105px}.hero{min-height:390px}.hero-inner{padding:35px 0}.stats{grid-template-columns:repeat(2,1fr)}.stat{padding:12px}.stat .num{font-size:24px}.tree-branches{grid-template-columns:1fr;gap:0}.tree-branches:before{left:14px;right:auto;top:0;bottom:0;width:3px;height:auto}.tree-column{padding:0 0 0 27px;gap:8px}.tree-node:before{left:-15px;top:50%;height:3px;width:15px}.tree-node{min-height:62px}.tree-frame{padding:12px}.folder-tree-page{grid-template-columns:1fr;gap:10px}.folder-tree-page:before{left:10px;transform:none}.folder-branch:nth-child(odd),.folder-branch:nth-child(even){padding:0 0 0 26px}.subfolder:after{left:-16px!important;right:auto!important;width:16px}.content-types{grid-template-columns:repeat(2,1fr)}.media-grid{grid-template-columns:repeat(2,1fr)}.student-grid{grid-template-columns:repeat(2,1fr)}.calendar-wrap{grid-template-columns:1fr}.road-line:before{left:17px;width:38px}.road-line:after{left:17px}.road-item,.road-item:nth-child(even){width:100%;margin:0;padding:8px 0 8px 54px;min-height:unset}.road-pin,.road-item:nth-child(even) .road-pin{left:5px;right:auto;top:19px}.road-card{padding:11px}.side-links{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}}
 @media(max-width:380px){.register-tabs{grid-template-columns:1fr 1fr}.register-tabs button{font-size:11px}.brand-title h1{font-size:15px}.nav-search input{width:88px}}@media(max-width:430px){.student-grid,.media-grid{grid-template-columns:1fr}.person-photo{height:280px}.footer-grid{grid-template-columns:1fr}.hero h2{font-size:36px}.memory-img{width:155px;height:105px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Uniformly larger student profile photos */
+.student-grid .person-photo {
+  height: 360px;
+}
+.student-grid .person-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style></head>
 <body>
 <header class="brandbar">
