@@ -132,9 +132,11 @@ const groups=[
 {name:'PRA Activities',icon:'🗺️',color:'#24704f',subs:['Resource Map','Social Map','Village Timeline','Seasonal Calendar','Problem Tree','Venn Diagram','Village Infrastructure','Community Resources','Village Problems and Solutions','General PRA Activities']},
 {name:'Farmer Visits',icon:'👨‍🌾',color:'#b17a27',subs:['Coconut Farmers','Jasmine Farmers','Other Farmers']},
 {name:'Institutional Visits',icon:'🏛️',color:'#28658a',subs:['Panchayat','Primary Health Centre (PHC)','VAO','AAO','ADA','Ration Shop','KVK Vamban','FPO','PACS','Cooperative Bank','Milk Society','Government Nursery – Nagaram']},
-{name:'Demonstrations',icon:'🧪',color:'#ad5b3c',subs:['Soil Sampling','Coconut Buttermilk Solution','Egg Amino Acid','Maida Solution','Cow Udder Swelling Management','Jasmine Air Layering','Lemon T-Budding','Calotropis and Coconut Boron Efficiency']},
-{name:'Training Programmes',icon:'🎓',color:'#8b5a9c',subs:['Mushroom Cultivation','Kitchen Garden','Organic Input Preparation','Kunapajalam','Insect Killer Preparation','Fish Amino Acid','Home Herbal Garden']},
-{name:'Awareness Programmes',icon:'📢',color:'#248a83',subs:['School Awareness','Soil Health','IFS and Government Schemes','El Niño']},
+{name:'Demonstrations',icon:'🧪',color:'#ad5b3c',subs:['Soil Sample','Coconut Buttermilk Solution','Use of Calotropis to Improve Boron-Use Efficiency','Root Feeding in Coconut','Nutriseed Pack','Microgreens','Zero Energy Cool Chamber','Hydroponics','Bucket Trap','Traps']},
+{name:'Individual Demonstrations',icon:'🔬',color:'#b56b43',subs:['Maida Solution','Egg Amino Acid Solution','Traditional Management of Udder Swelling','Air Layering in Jasmine','T-Budding in Lemon','Kunapajalam','Leaf Colour Chart','Pot Tray','Seed Treatment','Bird Perches','Fruit Fly Trap']},
+{name:'Awareness Programmes',icon:'📢',color:'#248a83',subs:['IFS','Central Government Schemes','El Niño','Programme on Weather Applications','Health, Hygiene and Nutrition','School Awareness']},
+{name:'Rallies',icon:'📣',color:'#367c91',subs:['Rally on Soil Health Awareness']},
+{name:'Training Programmes',icon:'🎓',color:'#8b5a9c',subs:['Oyster Mushroom Cultivation','Kitchen Gardening','Small Millet Flour Preparation','Moringa By-products','Sericulture','Organic Input Preparation','Insect Killer Preparation','Fish Amino Acid','Home Herbal Garden']},
 {name:'NGO Activities',icon:'🤝',color:'#7953a6',subs:['SELVA TRUST','Herbal Garden','Nursery','Tailoring Unit','Soap Manufacturing Unit','Community Activities']},
 {name:'Agro-Industries',icon:'🏭',color:'#a65d32',subs:['Fertilizer Shop','Cattle Feed Shop','Rotary Oil Mill','Traders','Weekly Market','Dairy Enterprise','Sri Rajalakshmi Coir Industries','Sri Krishna Rice & Oil & Flour Mill']},
 {name:'Digital Crop Survey',icon:'📍',color:'#25879a',subs:['07 October','10 October','11 October']},
@@ -143,7 +145,7 @@ const groups=[
 {name:'Charts',icon:'📊',color:'#367c91',subs:['General']},
 {name:'Models',icon:'🧩',color:'#8a6b3e',subs:['General']}
 ];
-groups[6].subs.splice(1,0,'26 October – Day 1','27 October – Day 2','28 October – Day 3','29 October – Day 4','30 October – Day 5');groups[6].subs=groups[6].subs.filter((x,i)=>x!=='SELVA TRUST'||i===0);
+groups.find(x=>x.name==='NGO Activities').subs.splice(1,0,'26 October – Day 1','27 October – Day 2','28 October – Day 3','29 October – Day 4','30 October – Day 5');groups.find(x=>x.name==='NGO Activities').subs=groups.find(x=>x.name==='NGO Activities').subs.filter((x,i)=>x!=='SELVA TRUST'||i===0);
 const journey=[
 ['2026-10-02','RAWE home arrival','Reached the RAWE home in Keeramangalam. Programme commencement and arrival day.','Village Survey'],
 ['2026-10-03','Panchayat Office visit','Visit to the Keeramangalam Panchayat Office.','Institutional Visits','Panchayat'],
@@ -162,7 +164,7 @@ const journey=[
 ['2026-10-18','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits','Other Farmers'],
 ['2026-10-19','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits','Other Farmers'],
 ['2026-10-20','Herbal garden and medicinal plant nursery','Visit to herbal garden and medicinal plant nursery.','NGO Activities','Herbal Garden'],
-['2026-10-21','School awareness, rally and training','School awareness, soil health rally, mushroom and kitchen garden training.','Training Programmes','Mushroom Cultivation'],
+['2026-10-21','School awareness, soil health rally and training','School awareness, soil health awareness rally, oyster mushroom cultivation and kitchen gardening training.','Rallies','Rally on Soil Health Awareness'],
 ['2026-10-22','KVK Vamban and FPO','Visit to KVK Vamban and Farmer Producer Organisation.','Institutional Visits','KVK Vamban'],
 ['2026-10-23','Farmer visit','Farmer visit.','Farmer Visits','Other Farmers'],
 ['2026-10-24','Organic input demonstrations','Coconut buttermilk solution, egg amino acid and maida solution demonstrations.','Demonstrations','Coconut Buttermilk Solution'],
@@ -445,6 +447,36 @@ function loadSharedContent(){
   try{
    const snapshot=await fbDb.collection('raweContent').get();
    snapshot.forEach(doc=>{
+    const data=doc.data()||{};
+    if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
+   });
+   const folderMoves={
+    'Demonstrations/Soil Sampling':'Demonstrations/Soil Sample',
+    'Demonstrations/Calotropis and Coconut Boron Efficiency':'Demonstrations/Use of Calotropis to Improve Boron-Use Efficiency',
+    'Demonstrations/Egg Amino Acid':'Individual Demonstrations/Egg Amino Acid Solution',
+    'Demonstrations/Maida Solution':'Individual Demonstrations/Maida Solution',
+    'Demonstrations/Cow Udder Swelling Management':'Individual Demonstrations/Traditional Management of Udder Swelling',
+    'Demonstrations/Jasmine Air Layering':'Individual Demonstrations/Air Layering in Jasmine',
+    'Demonstrations/Lemon T-Budding':'Individual Demonstrations/T-Budding in Lemon',
+    'Training Programmes/Mushroom Cultivation':'Training Programmes/Oyster Mushroom Cultivation',
+    'Training Programmes/Kitchen Garden':'Training Programmes/Kitchen Gardening',
+    'Training Programmes/Kunapajalam':'Individual Demonstrations/Kunapajalam',
+    'Awareness Programmes/IFS and Government Schemes':'Awareness Programmes/IFS',
+    'Awareness Programmes/Soil Health':'Rallies/Rally on Soil Health Awareness'
+   };
+   let foldersMoved=false;
+   for(const [oldPath,newPath] of Object.entries(folderMoves)){
+    for(const kind of ['Photos','Videos','Reports','Documents']){
+     const oldKey=oldPath+'/'+kind,newKey=newPath+'/'+kind,oldItems=stored[oldKey];
+     if(!Array.isArray(oldItems)||!oldItems.length)continue;
+     const target=Array.isArray(stored[newKey])?stored[newKey]:[];
+     const seen=new Set(target.map(x=>x&&x.id).filter(Boolean));
+     stored[newKey]=target.concat(oldItems.filter(x=>!x||!x.id||!seen.has(x.id)));
+     delete stored[oldKey];foldersMoved=true;
+    }
+   }
+   if(foldersMoved&&isAdminUser())await syncSharedContent();
+
     const data=doc.data()||{};
     if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
    });
