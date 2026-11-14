@@ -1191,4 +1191,101 @@ function printAttendance(){const el=document.getElementById('attendancePrintable
 function downloadAttendancePDF(){printAttendance()}
 
 
+</script>
+<style>
+#rawe-ai-launcher{position:fixed;right:22px;bottom:22px;z-index:9998;width:62px;height:62px;border:0;border-radius:50%;background:#125b45;color:#fff;box-shadow:0 5px 22px #0004;font-size:29px;cursor:pointer}
+#rawe-ai-launcher:hover{transform:translateY(-2px);background:#0c4938}
+#rawe-ai-panel{position:fixed;right:22px;bottom:96px;z-index:9999;width:min(380px,calc(100vw - 28px));height:min(540px,calc(100vh - 125px));background:#fff;border:1px solid #dce7e1;border-radius:18px;box-shadow:0 12px 42px #102b2340;display:none;overflow:hidden;font-family:Arial,sans-serif;color:#20342c}
+#rawe-ai-panel.rawe-ai-open{display:flex;flex-direction:column}
+#rawe-ai-head{background:#125b45;color:#fff;padding:14px 15px;display:flex;align-items:center;gap:10px}
+#rawe-ai-head .rawe-ai-title{font-weight:700;font-size:15px;flex:1}
+#rawe-ai-head .rawe-ai-sub{font-size:11px;opacity:.85;margin-top:3px}
+#rawe-ai-close{border:0;background:transparent;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
+#rawe-ai-messages{padding:14px;overflow-y:auto;flex:1;background:#f6faf7;display:flex;flex-direction:column;gap:10px}
+.rawe-ai-msg{max-width:88%;padding:10px 12px;border-radius:13px;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.rawe-ai-bot{align-self:flex-start;background:#fff;border:1px solid #e0e9e3;border-bottom-left-radius:4px}
+.rawe-ai-user{align-self:flex-end;background:#dff2e7;border-bottom-right-radius:4px}
+#rawe-ai-form{display:flex;gap:8px;padding:11px;border-top:1px solid #e4ece7;background:#fff}
+#rawe-ai-input{min-width:0;flex:1;border:1px solid #ccd9d1;border-radius:22px;padding:11px 13px;font-size:13px;outline:none}
+#rawe-ai-input:focus{border-color:#16815e}
+#rawe-ai-send{border:0;border-radius:22px;background:#125b45;color:#fff;padding:0 16px;font-weight:700;cursor:pointer}
+#rawe-ai-send:disabled{opacity:.55;cursor:wait}
+#rawe-ai-note{font-size:10px;color:#6d7d74;text-align:center;padding:0 10px 9px;background:#fff}
+@media(max-width:480px){#rawe-ai-launcher{right:15px;bottom:15px}#rawe-ai-panel{right:10px;bottom:86px;width:calc(100vw - 20px);height:min(560px,calc(100vh - 110px))}}
+</style>
+<button id="rawe-ai-launcher" type="button" aria-label="Open RAWE AI Assistant" title="Ask RAWE AI">🤖</button>
+<section id="rawe-ai-panel" role="dialog" aria-label="RAWE AI Assistant" aria-modal="false">
+ <div id="rawe-ai-head"><span style="font-size:25px">🤖</span><div style="flex:1"><div class="rawe-ai-title">RAWE AI Assistant</div><div class="rawe-ai-sub">Keeramangalam RAWE 2026 · English / தமிழ்</div></div><button id="rawe-ai-close" type="button" aria-label="Close chat">×</button></div>
+ <div id="rawe-ai-messages" aria-live="polite"><div class="rawe-ai-msg rawe-ai-bot">Vanakkam! 👋 I can help with RAWE 2026 activities, PRA, village studies, farmer visits, the student team, TNAU and agriculture. Ask me in English or Tamil.</div></div>
+ <form id="rawe-ai-form"><input id="rawe-ai-input" type="text" maxlength="2000" autocomplete="off" placeholder="Ask your question…" aria-label="Your question" required><button id="rawe-ai-send" type="submit">Send</button></form>
+ <div id="rawe-ai-note">AI-generated answers may need verification with an agriculture expert.</div>
+</section>
+<script>
+(function(){
+ const WORKER_URL="https://rawe-ai-assistant.keeramangalam6gillies.workers.dev/chat";
+ const SITE_CONTEXT=[
+  "Website: Keeramangalam RAWE 2026 student fieldwork archive.",
+  "Course: AEX 401 Rural Agricultural Work Experience (0+20), academic year 2026.",
+  "Field location: Keeramangalam, Pudukkottai district, Tamil Nadu.",
+  "Institution: Sethu Bhaskara Agricultural College and Research Foundation, Karaikudi; affiliated to Tamil Nadu Agricultural University (TNAU).",
+  "Programme period: 2 October to 3 December 2026.",
+  "Student team: SABEEN RAJ, ABU KUHAFA, CHOCKALINGAM, NAVEEN, SRI PRABHU, ARUN KUNAR. All are B.S. (Hons.) Agriculture students.",
+  "Course In-charge: Mr. G. Rathina Kumar, Assistant Professor, Plant Pathology.",
+  "Course Teacher: Dr. Aravindh, Assistant Professor, Agricultural Extension.",
+  "Website topics include PRA maps and village studies, farmer visits, crop observations, institutional visits, agro-industries, NGO activities, demonstrations, training programmes, attendance and fieldwork records.",
+  "Answer in the visitor's language, English or Tamil. Use only these facts as website-specific information. Do not invent missing details."
+ ].join("\n");
+ const panel=document.getElementById("rawe-ai-panel");
+ const launcher=document.getElementById("rawe-ai-launcher");
+ const close=document.getElementById("rawe-ai-close");
+ const form=document.getElementById("rawe-ai-form");
+ const input=document.getElementById("rawe-ai-input");
+ const send=document.getElementById("rawe-ai-send");
+ const messages=document.getElementById("rawe-ai-messages");
+ if(!panel||!launcher||!form)return;
+ function addMessage(text,kind){
+  const item=document.createElement("div");
+  item.className="rawe-ai-msg "+(kind==="user"?"rawe-ai-user":"rawe-ai-bot");
+  item.textContent=text;
+  messages.appendChild(item);
+  messages.scrollTop=messages.scrollHeight;
+  return item;
+ }
+ launcher.addEventListener("click",function(){
+  panel.classList.add("rawe-ai-open");
+  launcher.style.display="none";
+  input.focus();
+ });
+ close.addEventListener("click",function(){
+  panel.classList.remove("rawe-ai-open");
+  launcher.style.display="block";
+ });
+ form.addEventListener("submit",async function(event){
+  event.preventDefault();
+  const question=input.value.trim();
+  if(!question||send.disabled)return;
+  addMessage(question,"user");
+  input.value="";
+  send.disabled=true;
+  send.textContent="…";
+  const pending=addMessage("Thinking…","bot");
+  try{
+   const response=await fetch(WORKER_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({message:question,context:SITE_CONTEXT})
+   });
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||("Request failed ("+response.status+")"));
+   pending.textContent=data.answer||"I couldn't generate an answer. Please try again.";
+  }catch(error){
+   pending.textContent="Sorry, I couldn't connect to the AI service. Please try again. ("+String(error.message||error)+")";
+  }finally{
+   send.disabled=false;
+   send.textContent="Send";
+   input.focus();
+   messages.scrollTop=messages.scrollHeight;
+  }
+ });
+})();
 </script></body></html>
