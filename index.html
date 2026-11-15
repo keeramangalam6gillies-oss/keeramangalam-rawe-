@@ -472,6 +472,7 @@ function loadSharedContent(){
     if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
    });
    raweSharedAllLoaded=true;
+    maybeStartRawePhotoPreload();
    const folderMoves={
     'Demonstrations/Soil Sampling':'Demonstrations/Soil Sample',
     'Demonstrations/Calotropis and Coconut Boron Efficiency':'Demonstrations/Use of Calotropis to Improve Boron-Use Efficiency',
@@ -1075,6 +1076,7 @@ async function loadRaweGitHubMedia(){
   raweGitHubMedia=Array.isArray(data)?data:(Array.isArray(data.files)?data.files:[]);
   if(['home','gallery','videos','reports','content'].includes(state.page))render();
  }catch(error){console.info('RAWE media index will be available after the first GitHub media upload and workflow run.',error);}
+ finally{raweGitHubMediaReady=true;maybeStartRawePhotoPreload();}
 }
 function raweMediaTitle(x){
  if(x.title)return x.title;
@@ -1083,6 +1085,40 @@ function raweMediaTitle(x){
 }
 function raweAllGitHub(kind){return raweGitHubMedia.filter(x=>x.kind===kind);}
 function raweMediaInFolder(g,s,k){const key=g+'/'+s+'/'+k;return raweGitHubMedia.filter(x=>x.folderKey===key);}
+
+// Quietly warm all activity-folder photos in the browser cache after both indexes load.
+// The currently open Photos folder is prioritized; remaining photos load two at a time.
+let raweGitHubMediaReady=false;
+let rawePhotoPreloadStarted=false;
+function maybeStartRawePhotoPreload(){
+ if(rawePhotoPreloadStarted||!raweSharedAllLoaded||!raweGitHubMediaReady)return;
+ rawePhotoPreloadStarted=true;
+ const currentKey=state.page==='content'&&state.kind==='Photos'?pathKey(state.group,state.sub,'Photos'):'';
+ const entries=[],seen=new Set();
+ const addPhoto=(url,key)=>{
+  if(!url||typeof url!=='string'||url.startsWith('data:'))return;
+  const src=optimizedPhotoUrl(url,900);
+  if(!/^https?:\/\//i.test(src)||seen.has(src))return;
+  seen.add(src);entries.push({src,key:key||''});
+ };
+ for(const [key,items] of Object.entries(stored||{})){
+  if(key.endsWith('/Photos')&&Array.isArray(items))for(const item of items)addPhoto(item&&item.url,key);
+ }
+ for(const item of raweAllGitHub('Photos'))addPhoto(item.url||raweGitHubRawUrl(item.path||''),item.folderKey||'');
+ entries.sort((a,b)=>(b.key===currentKey?1:0)-(a.key===currentKey?1:0));
+ let next=0,active=0;
+ const pump=()=>{
+  while(active<2&&next<entries.length){
+   const entry=entries[next++],img=new Image();active++;
+   img.decoding='async';if('fetchPriority' in img)img.fetchPriority='low';
+   img.onload=img.onerror=()=>{active--;setTimeout(pump,120);};
+   img.src=entry.src;
+  }
+ };
+ const begin=()=>pump();
+ if('requestIdleCallback' in window)requestIdleCallback(begin,{timeout:2500});
+ else setTimeout(begin,900);
+}
 function raweGitHubMediaCard(x,k){
  const title=esc(raweMediaTitle(x)),url=esc(x.url||raweGitHubRawUrl(x.path||'')),path=esc(x.path||'');
  if(k==='Photos')return `<article class="media-card rawe-github-file"><img loading="lazy" src="${url}" alt="${title}" onclick="lightbox('${encodeURIComponent(x.url||raweGitHubRawUrl(x.path||''))}')"><div class="body"><h3>${title}</h3><p>${path}</p></div></article>`;
