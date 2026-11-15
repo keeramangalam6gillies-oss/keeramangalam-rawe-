@@ -42,6 +42,9 @@
 @media(max-width:380px){.register-tabs{grid-template-columns:1fr 1fr}.register-tabs button{font-size:11px}.brand-title h1{font-size:15px}.nav-search input{width:88px}}@media(max-width:430px){.student-grid,.media-grid{grid-template-columns:1fr}.person-photo{height:280px}.footer-grid{grid-template-columns:1fr}.hero h2{font-size:36px}.memory-img{width:155px;height:105px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
+/* Keep long activity pages responsive while off-screen cards are not being painted. */
+.media-card,.report{content-visibility:auto;contain-intrinsic-size:320px 360px}
+.media-card img{display:block;max-width:100%;height:auto;background:#f0f2ed}
 /* Uniformly larger student profile photos */
 .student-grid .person-photo {
   height: 360px;
@@ -445,6 +448,16 @@ async function syncSharedContent(onlyKey=null){
  localStorage.setItem('rawe26content',JSON.stringify(stored));
 }
 let raweSharedLoadPromise=null;
+let raweSharedAllLoaded=false;
+const raweSharedFolderLoads=new Map();
+function loadSharedFolder(key){
+ if(!fbReady||!fbDb||!key||raweSharedAllLoaded||raweSharedFolderLoads.has(key))return raweSharedFolderLoads.get(key)||Promise.resolve();
+ const request=fbDb.collection('raweContent').doc(encodeURIComponent(key)).get().then(doc=>{
+  if(doc.exists){const data=doc.data()||{};if(typeof data.key==='string'&&Array.isArray(data.items)){stored[data.key]=data.items;try{localStorage.setItem('rawe26content',JSON.stringify(stored))}catch(e){console.warn('Local photo cache is full',e)}}}
+ }).catch(e=>{console.error('Selected folder load failed:',key,e);});
+ raweSharedFolderLoads.set(key,request);
+ return request;
+}
 function loadSharedContent(){
  if(!fbReady||!fbDb)return Promise.resolve();
  if(raweSharedLoadPromise)return raweSharedLoadPromise;
@@ -455,6 +468,7 @@ function loadSharedContent(){
     const data=doc.data()||{};
     if(typeof data.key==='string'&&Array.isArray(data.items))stored[data.key]=data.items;
    });
+   raweSharedAllLoaded=true;
    const folderMoves={
     'Demonstrations/Soil Sampling':'Demonstrations/Soil Sample',
     'Demonstrations/Calotropis and Coconut Boron Efficiency':'Demonstrations/Use of Calotropis to Improve Boron-Use Efficiency',
@@ -524,7 +538,7 @@ function folderPage(name){let g=groups.find(x=>x.name===name);if(!g)return folde
 function subNode(g,s){return `<button class="subfolder" onclick="go('subfolder','${esc(g.name)}','${esc(s)}')"><span class="folder-symbol">📁</span><span><strong>${esc(s)}</strong><small>Photos · Videos · Reports · Documents</small></span><span style="margin-left:auto;color:var(--green)">›</span></button>`}
 function subfolderPage(g,s){return `${topPage(s,`${g} · Select one of the four separate content sections.`)}<div class="panel"><div class="center"><div style="font-size:44px">📂</div><h2 style="margin:4px;color:var(--forest)">${esc(s)}</h2><p class="muted">${esc(g)}</p></div><div class="content-types">${[['📷','Photos','Photos'],['▶️','Videos','Videos'],['📑','Reports','Reports'],['📄','Documents','Documents']].map(x=>`<button class="type-card" onclick="go('content','${esc(g)}','${esc(s)}','${x[1]}')"><span class="big">${x[0]}</span><strong>${x[1]}</strong><small>Open ${x[1].toLowerCase()}</small></button>`).join('')}</div></div>`}
 function pathKey(g,s,k){return `${g}/${s}/${k}`}
-function contentPage(g,s,k){let key=pathKey(g,s,k),items=stored[key]||[];return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Only content assigned to <b>${esc(key)}</b> is displayed here.</p></div>${adminButton()}</div>${items.length?renderItems(items,k):`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>Activity content will be updated.</h3><p>No ${k.toLowerCase()} have been added to this folder yet.</p></div>`}${adminForm(key,k)}</div>`}
+function contentPage(g,s,k){let key=pathKey(g,s,k);if(fbReady&&!raweSharedAllLoaded&&!raweSharedFolderLoads.has(key)){loadSharedFolder(key).then(()=>{if(state.page==='content'&&state.group===g&&state.sub===s&&state.kind===k)render()})}let items=stored[key]||[];return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Only content assigned to <b>${esc(key)}</b> is displayed here.</p></div>${adminButton()}</div>${items.length?renderItems(items,k):`<div class="empty-state"><div class="empty-icon">${k==='Photos'?'📷':k==='Videos'?'▶️':k==='Reports'?'📑':'📄'}</div><h3>Activity content will be updated.</h3><p>No ${k.toLowerCase()} have been added to this folder yet.</p></div>`}${adminForm(key,k)}</div>`}
 function adminButton(){return isAdminUser()?'<button class="btn small light" onclick="toggleAdmin()">⚙ Admin tools</button>':'<button class="btn small light" onclick="go(\'admin\')">🔐 Administrator login</button>'}
 function adminForm(key,k){if(!isAdminUser())return '';const accept=k==='Photos'?'image/*':k==='Videos'?'video/*,.mp4,.webm,.mov':'.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx';return `<div id="adminPanel" class="admin-panel hide"><h3>Administrator tools – add ${k}</h3><p class="muted">Select one or multiple files. Every file will be saved and displayed separately in this folder.</p><label>Title (optional for multiple files)<input id="itemTitle" placeholder="If blank, each filename becomes its title"></label><label>Date<input id="itemDate" type="date"></label><label>Location<input id="itemLocation" placeholder="Keeramangalam"></label><label>Caption / description<textarea id="itemDesc" rows="3"></textarea></label><label>${k==='Photos'?'Select image files':k==='Videos'?'Select video files':k==='Documents'?'Select document files':'Select report files (or enter report text below)'}<input id="itemFile" type="file" multiple accept="${accept}"></label>${k==='Reports'?'<label>Report text (optional)<textarea id="reportText" rows="4" placeholder="Enter report text if you are not uploading a file"></textarea></label>':''}${k==='Videos'?'<label>YouTube URL (optional, for one video)<input id="videoUrl" type="url" placeholder="https://www.youtube.com/watch?v=…"></label>':''}<button class="btn primary" onclick="addItem('${esc(key)}','${k}')">Upload to this folder</button></div>`}
 function toggleAdmin(){if(!isAdminUser()){toast('Administrator login required');go('admin');return}document.getElementById('adminPanel')?.classList.toggle('hide')}
@@ -594,8 +608,15 @@ function videoLightbox(url,title){previewItem('Videos',decodeURIComponent(url||'
 function optimizedPhotoUrl(url,width=1000){
  const value=String(url||'');
  if(!/^https?:\/\/res\.cloudinary\.com\//i.test(value)||!value.includes('/image/upload/'))return value;
- if(/\/image\/upload\/(?:[^/]+,)*f_auto/.test(value))return value;
- return value.replace('/image/upload/','/image/upload/f_auto,q_auto:good,w_'+width+',c_limit/');
+ const parts=value.split('/image/upload/');
+ if(parts.length!==2)return value;
+ const path=parts[1],segments=path.split('/');
+ const first=segments[0]||'';
+ const hasTransform=/^(?:f_auto|q_auto|w_\d+|c_limit|c_fill|dpr_auto|ar_)/.test(first);
+ const base=hasTransform?segments.shift():'';
+ const transforms=[base,'f_auto','q_auto:eco','w_'+Math.max(240,Math.min(1600,Number(width)||900)),'c_limit'].filter(Boolean);
+ const unique=[...new Set(transforms)];
+ return parts[0]+'/image/upload/'+unique.join(',')+'/'+segments.join('/');
 }
 function renderItems(items,k,key){
  const canManage=!!(isAdminUser()&&(key||items.some(x=>x&&x.path&&Number.isInteger(x.index))));
@@ -1009,6 +1030,7 @@ function mapsPage(){
  <div class="pra-map-grid">${praMaps.map(p=>`<a class="pra-map-card" href="${p[1]}" target="_blank" rel="noopener"><img loading="lazy" src="${p[1]}" alt="${esc(p[0])}"><span>${esc(p[0])}</span><small>Open full-size map ↗</small></a>`).join('')}</div>`;
 }
 function galleryPage(){
+ if(fbReady&&!raweSharedAllLoaded&&!raweSharedLoadPromise){loadSharedContent().then(()=>{if(state.page==='gallery')render()})}
  const all=Object.entries(stored||{}).flatMap(([path,items])=>Array.isArray(items)&&/\/Photos$/i.test(path)?items.filter(x=>x&&x.url).map(x=>({title:x.title||'Uploaded RAWE photo',url:x.url,category:path.split('/')[0],date:x.date||'Date not supplied',place:x.location||''})):[]);
  return `${topPage('Overall Photo Gallery','Only photographs uploaded by the administrator to RAWE activity folders are displayed here. No stock or illustrative images are included.')}<div class="toolbar"><input id="gallerySearch" placeholder="Search uploaded photos…" oninput="filterGallery()" style="padding:8px;border:1px solid var(--line);border-radius:7px"><select id="galleryCategory" onchange="filterGallery()"><option value="">All categories</option>${[...new Set(all.map(x=>x.category))].sort().map(x=>`<option>${esc(x)}</option>`).join('')}</select><input id="galleryDate" type="date" onchange="filterGallery()"><input id="galleryPlace" placeholder="Place filter" oninput="filterGallery()"></div><div id="galleryGrid" class="media-grid">${all.length?all.map((x,i)=>galleryCard(x,i)).join(''):`<div class="empty-state"><div class="empty-icon">📷</div><h3>No photos uploaded yet</h3><p>When the administrator uploads photographs in any activity folder’s Photos section, they will automatically appear here.</p></div>`}</div>`;
 }
@@ -1140,7 +1162,6 @@ document.head.appendChild(raweMapRegisterFix);
 
 render(); // Run only after RAWE media state has been initialized.
 loadRaweGitHubMedia();
-loadSharedContent();
 loadSharedProfiles();
 /* ===== End RAWE automatic media integration ===== */
 
