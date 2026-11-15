@@ -610,13 +610,15 @@ function optimizedPhotoUrl(url,width=1000){
  if(!/^https?:\/\/res\.cloudinary\.com\//i.test(value)||!value.includes('/image/upload/'))return value;
  const parts=value.split('/image/upload/');
  if(parts.length!==2)return value;
- const path=parts[1],segments=path.split('/');
- const first=segments[0]||'';
- const hasTransform=/^(?:f_auto|q_auto|w_\d+|c_limit|c_fill|dpr_auto|ar_)/.test(first);
- const base=hasTransform?segments.shift():'';
- const transforms=[base,'f_auto','q_auto:eco','w_'+Math.max(240,Math.min(1600,Number(width)||900)),'c_limit'].filter(Boolean);
- const unique=[...new Set(transforms)];
- return parts[0]+'/image/upload/'+unique.join(',')+'/'+segments.join('/');
+ const segments=parts[1].split('/'),first=segments[0]||'';
+ if(/^(?:f_auto|q_auto|w_\d+|c_limit|c_fill|dpr_auto|ar_)/.test(first)){
+  segments.shift();
+  const existing=first.split(',').filter(t=>!/^f_auto$|^q_auto(?::.*)?$|^w_\d+$|^c_limit$/.test(t));
+  segments.unshift([...existing,'f_auto','q_auto:eco','w_'+Math.max(240,Math.min(1600,Number(width)||900)),'c_limit'].join(','));
+ }else{
+  segments.unshift('f_auto,q_auto:eco,w_'+Math.max(240,Math.min(1600,Number(width)||900))+',c_limit');
+ }
+ return parts[0]+'/image/upload/'+segments.join('/');
 }
 function renderItems(items,k,key){
  const canManage=!!(isAdminUser()&&(key||items.some(x=>x&&x.path&&Number.isInteger(x.index))));
