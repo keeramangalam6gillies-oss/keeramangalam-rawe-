@@ -1090,10 +1090,11 @@ function raweMediaInFolder(g,s,k){const key=g+'/'+s+'/'+k;return raweGitHubMedia
 // The currently open Photos folder is prioritized; remaining photos load two at a time.
 let raweGitHubMediaReady=false;
 let rawePhotoPreloadStarted=false;
+let raweFirstPhotoFolderKey='';
 function maybeStartRawePhotoPreload(){
- if(rawePhotoPreloadStarted||!raweSharedAllLoaded||!raweGitHubMediaReady)return;
+ if(rawePhotoPreloadStarted||!raweFirstPhotoFolderKey||!raweSharedAllLoaded||!raweGitHubMediaReady)return;
  rawePhotoPreloadStarted=true;
- const currentKey=state.page==='content'&&state.kind==='Photos'?pathKey(state.group,state.sub,'Photos'):'';
+ const currentKey=raweFirstPhotoFolderKey;
  const entries=[],seen=new Set();
  const addPhoto=(url,key)=>{
   if(!url||typeof url!=='string'||url.startsWith('data:'))return;
@@ -1130,6 +1131,7 @@ function raweGitHubMediaCard(x,k){
 }
 function contentPage(g,s,k){
  const key=pathKey(g,s,k),local=stored[key]||[],remote=raweMediaInFolder(g,s,k);
+ if(k==='Photos'&&!raweFirstPhotoFolderKey){raweFirstPhotoFolderKey=key;maybeStartRawePhotoPreload();}
  return `${topPage(`${k} – ${s}`,`Folder path: ${key}`)}<div class="panel"><div class="section-head"><div><h2>${esc(k)}</h2><p>Administrator uploads are saved to the shared RAWE archive. Legacy GitHub media-index files may also appear here.</p></div>${adminButton()}</div>
  ${local.length?renderItems(local,k,key):''}
  ${remote.length?(k==='Photos'?'<div class="media-grid">':'')+remote.map(x=>raweGitHubMediaCard(x,k)).join('')+(k==='Photos'?'</div>':''):''}
