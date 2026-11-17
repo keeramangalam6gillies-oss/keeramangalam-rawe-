@@ -603,8 +603,20 @@ function renderItems(items,k){return `<div class="${k==='Photos'?'media-grid':''
 
 /* Full-screen preview for photos, videos, reports and documents. */
 function previewItem(kind,url,title,description){
- if(kind==='Documents'){const tab=window.open(url||'about:blank','_blank');if(!tab)toast('Please allow pop-ups to open the document in a new page');return}
- if(kind==='Reports'){const tab=window.open('about:blank','_blank');if(!tab){toast('Please allow pop-ups to open the report in a new page');return}tab.document.open();tab.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title||'Report')+'</title><style>body{font:16px/1.65 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 18px;color:#222}h2{font-size:22px;border-bottom:1px solid #ddd;padding-bottom:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body><h2>'+esc(title||'Report')+'</h2><pre>'+esc(description||'')+'</pre></body></html>');tab.document.close();return}
+ if(kind==='Documents'||kind==='Reports'){
+  const tab=window.open('about:blank','_blank');
+  if(!tab){toast('Please allow pop-ups to open this file in a new page');return}
+  const safeTitle=esc(title||'Report'),rawUrl=String(url||''),rawText=String(description||'');
+  let viewer='';
+  if(rawUrl){
+   if(/^https?:\/\/docs\.google\.com\/document\//i.test(rawUrl)) viewer=rawUrl.replace(/\/(edit|view)([?#].*)?$/i,'/preview');
+   else if(/^https?:\/\/drive\.google\.com\/file\/d\//i.test(rawUrl)) viewer=rawUrl.replace(/\/(view|edit)([?#].*)?$/i,'/preview');
+   else viewer='https://docs.google.com/gview?embedded=1&url='+encodeURIComponent(rawUrl);
+  }else if(rawText.startsWith('data:application/pdf')||rawText.startsWith('data:text/')) viewer=rawText;
+  const textOnly=!viewer,safeText=esc(rawText);
+  const page='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+safeTitle+'</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font:16px Arial,sans-serif;background:#f4f6f5;color:#20332d}.bar{height:54px;padding:0 16px;display:flex;align-items:center;background:#10483c;color:#fff;font-weight:600}iframe{display:block;width:100%;height:calc(100% - 54px);border:0;background:#fff}main{height:calc(100% - 54px);overflow:auto;max-width:950px;margin:auto;padding:24px;background:#fff}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:16px/1.7 Arial,sans-serif;margin:0}</style></head><body><header class="bar">'+safeTitle+'</header>'+(textOnly?'<main><pre>'+safeText+'</pre></main>':'<iframe title="'+safeTitle+'" src="'+esc(viewer)+'" referrerpolicy="no-referrer"></iframe>')+'</body></html>';
+  tab.document.open();tab.document.write(page);tab.document.close();return;
+ }
 
  const old=document.getElementById('rawePreviewOverlay');if(old)old.remove();
  const overlay=document.createElement('div');overlay.id='rawePreviewOverlay';
