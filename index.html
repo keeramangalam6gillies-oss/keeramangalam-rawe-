@@ -603,6 +603,9 @@ function renderItems(items,k){return `<div class="${k==='Photos'?'media-grid':''
 
 /* Full-screen preview for photos, videos, reports and documents. */
 function previewItem(kind,url,title,description){
+ if(kind==='Documents'){const tab=window.open(url||'about:blank','_blank');if(!tab)toast('Please allow pop-ups to open the document in a new page');return}
+ if(kind==='Reports'){const tab=window.open('about:blank','_blank');if(!tab){toast('Please allow pop-ups to open the report in a new page');return}tab.document.open();tab.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title||'Report')+'</title><style>body{font:16px/1.65 Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 18px;color:#222}h2{font-size:22px;border-bottom:1px solid #ddd;padding-bottom:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body><h2>'+esc(title||'Report')+'</h2><pre>'+esc(description||'')+'</pre></body></html>');tab.document.close();return}
+
  const old=document.getElementById('rawePreviewOverlay');if(old)old.remove();
  const overlay=document.createElement('div');overlay.id='rawePreviewOverlay';
  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto';
