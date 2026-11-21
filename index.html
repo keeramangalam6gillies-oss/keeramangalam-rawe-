@@ -943,7 +943,6 @@ function raweFinalUploadedPhotos(){
  const secondsPerPhoto=12,total=imgs.length*secondsPerPhoto,visible=90/imgs.length,next=100/imgs.length;
  const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="--memory-duration:${total}s;--memory-visible:${visible}%;--memory-next:${next}%;animation-delay:-${i*secondsPerPhoto}s"><img loading="lazy" decoding="async" fetchpriority="low" src="${esc(optimizedPhotoUrl(x.url,1000))}" alt="${esc(x.title)}" title="Tap to enlarge" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
  return `<div class="rawe-final-memory"><div class="rawe-final-memory-track">${slides}</div></div>`;
-}c(x.title)}" title="Tap to enlarge" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')">`).join('')}</div></div>`;
 }
 
 home=function(){
