@@ -936,18 +936,32 @@ raweFinalStyle.textContent=`
 `;
 document.head.appendChild(raweFinalStyle);
 function raweFinalUploadedPhotos(){
- const out=[];const seen=new Set();
- const add=(url,title)=>{
+ const buckets=new Map(),seen=new Set();
+ const add=(url,title,folder)=>{
   const value=String(url||'').trim();
   if(!value||seen.has(value)||(!/^https?:\/\//i.test(value)&&!/^data:image\//i.test(value)))return;
-  seen.add(value);out.push({url:value,title:title||'RAWE activity'});
+  seen.add(value);
+  const key=String(folder||'Other Photos');
+  if(!buckets.has(key))buckets.set(key,[]);
+  buckets.get(key).push({url:value,title:title||key.split('/')[0]||'RAWE activity'});
  };
  try{
   Object.entries(stored||{}).forEach(([key,items])=>{
-   if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x)add(x.url,x.title||key.split('/')[0])});
+   if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x)add(x.url,x.title||key.split('/')[0],key)});
   });
-  if(typeof raweAllGitHub==='function')raweAllGitHub('Photos').forEach(x=>add(x.url||(typeof raweGitHubRawUrl==='function'?raweGitHubRawUrl(x.path||''):''),x.title||raweMediaTitle(x)));
+  if(typeof raweAllGitHub==='function')raweAllGitHub('Photos').forEach(x=>{
+   const folder=x.folderKey||String(x.path||'').split('/').slice(0,-1).join('/')||'Other Photos';
+   add(x.url||(typeof raweGitHubRawUrl==='function'?raweGitHubRawUrl(x.path||''):''),x.title||raweMediaTitle(x),folder);
+  });
  }catch(e){console.warn('Could not collect Photo Gallery images for RAWE Memories:',e)}
+ // Interleave activity folders: one PRA photo, one NGO photo, then one from each
+ // remaining folder; repeat the round until every available photo is included.
+ const groups=Array.from(buckets.values()),out=[];
+ let remaining=true;
+ while(remaining){
+  remaining=false;
+  for(const group of groups){if(group.length){out.push(group.shift());remaining=true}}
+ }
  return out;
 }
 let raweMemoryTimer=null,raweMemoryRun=0;
