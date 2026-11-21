@@ -1083,9 +1083,31 @@ function galleryCard(x,i){return `<article class="media-card" data-title="${esc(
 function filterGallery(){let q=(document.getElementById('gallerySearch')?.value||'').toLowerCase(),c=document.getElementById('galleryCategory')?.value||'',p=(document.getElementById('galleryPlace')?.value||'').toLowerCase(),d=document.getElementById('galleryDate')?.value||'';document.querySelectorAll('#galleryGrid .media-card').forEach(el=>el.classList.toggle('hide',!(el.dataset.title.includes(q)&&(!c||el.dataset.cat===c)&&el.dataset.place.includes(p)&&(!d||el.dataset.date===d))))}
 function reportsPage(){
  if(fbReady&&!raweSharedAllLoaded&&!raweSharedLoadPromise){loadSharedContent().then(()=>{if(state.page==='reports')render()})}
- const groups=Object.entries(stored||{}).flatMap(([path,arr])=>{if(!Array.isArray(arr))return [];const items=arr.map((item,index)=>({item,index})).filter(x=>x.item&&['Reports','Documents'].includes(x.item.type));return items.length?[{path,items}]:[];});
- const preview=x=>{const url=String(x.url||''),title=esc(x.title||'Uploaded file'),ext=(url.split('?')[0].split('.').pop()||'').toLowerCase();if(/^data:image\//i.test(url)||/\.(jpg|jpeg|png|gif|webp|bmp|heic|heif|avif|svg)(\?|$)/i.test(url)||/\/image\/upload\//i.test(url))return '<img loading="lazy" src="'+esc(url)+'" alt="'+title+'" style="width:100%;height:180px;object-fit:cover;border-radius:10px">';if(url.startsWith('data:application/pdf')||ext==='pdf')return '<iframe title="'+title+'" src="'+esc(url)+'" style="width:100%;height:300px;border:1px solid var(--line)"></iframe>';if(/^https?:\/\//i.test(url))return '<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open / Download original ↗</a></p>';return '<div class="report-content">'+esc(url||x.desc||'No report text entered.')+'</div>';};
- return topPage('Reports & Documents','Reports and documents from every RAWE activity folder, grouped by activity.')+'<div class="panel">'+(groups.length?groups.map(group=>'<section class="report"><div class="section-head"><div><h2>'+esc(group.path.replace(/\//g,' · '))+'</h2><p>'+group.items.length+' uploaded item(s)</p></div></div><div class="media-grid">'+group.items.map(({item,index})=>'<article class="media-card"><div class="body"><h3>'+(item.type==='Reports'?'📑 ':'📄 ')+esc(item.title||'Untitled')+'</h3><p>'+esc(item.date||'Date not supplied')+(item.location?' · '+esc(item.location):'')+'</p></div>'+preview(item)+'<div class="toolbar"><button class="btn small primary" onclick="openRaweFullReport(\''+encodeURIComponent(group.path)+'\','+index+')">View Full '+(item.type==='Reports'?'Report':'Document')+' →</button></div></article>').join('')+'</div></section>').join(''):'<div class="empty-state"><h3>No reports or documents uploaded yet</h3><p>Uploads from activity folders appear here automatically.</p></div>')+'</div>';
+ // Folder uploads remain separate at <activity>/Reports and <activity>/Documents.
+ // This menu view combines those two sibling folders under one activity heading.
+ const grouped=new Map();
+ Object.entries(stored||{}).forEach(([path,arr])=>{
+  if(!Array.isArray(arr))return;
+  const match=path.match(/^(.*)\/(Reports|Documents)$/);
+  if(!match)return;
+  const activityPath=match[1],kind=match[2];
+  if(!grouped.has(activityPath))grouped.set(activityPath,{path:activityPath,reports:[],documents:[]});
+  arr.forEach((item,index)=>{
+   if(item)grouped.get(activityPath)[kind.toLowerCase()].push({item,index,sourcePath:path,kind});
+  });
+ });
+ const groups=[...grouped.values()].filter(g=>g.reports.length||g.documents.length).sort((a,b)=>a.path.localeCompare(b.path));
+ const preview=x=>{
+  const url=String(x.item.url||''),title=esc(x.item.title||'Uploaded file'),clean=url.split('?')[0].split('#')[0],ext=(clean.split('.').pop()||'').toLowerCase();
+  if(/^data:image\//i.test(url)||/\.(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|heic|heif|avif|svg)$/i.test(clean)||/\/image\/upload\//i.test(url))
+   return '<img loading="lazy" decoding="async" src="'+esc(url)+'" alt="'+title+'" style="display:block;width:100%;height:180px;object-fit:cover;border-radius:10px">';
+  if(url.startsWith('data:application/pdf')||ext==='pdf')
+   return '<div class="report-content" style="min-height:90px">📕 PDF document</div>';
+  if(/^https?:\/\//i.test(url))return '<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open / Download original ↗</a></p>';
+  return '<div class="report-content">'+esc(url||x.item.desc||'No report text entered.')+'</div>';
+ };
+ const renderItems=items=>items.map(x=>'<article class="media-card"><div class="body"><h3>'+(x.kind==='Reports'?'📑 ':'📄 ')+esc(x.item.title||'Untitled')+'</h3><p>'+esc(x.item.date||'Date not supplied')+(x.item.location?' · '+esc(x.item.location):'')+'</p>'+(x.item.desc?'<p>'+esc(x.item.desc)+'</p>':'')+'</div>'+preview(x)+'<div class="toolbar"><button class="btn small primary" onclick="openRaweFullReport(\''+encodeURIComponent(x.sourcePath)+'\','+x.index+')">View Full '+(x.kind==='Reports'?'Report':'Document')+' →</button></div></article>').join('');
+ return topPage('Reports & Documents','Reports and documents are uploaded separately inside each activity folder and displayed together here.')+'<div class="panel">'+(groups.length?groups.map(group=>'<section class="report"><div class="section-head"><div><h2>📁 '+esc(group.path.replace(/\//g,' · '))+'</h2><p>'+group.reports.length+' report(s) · '+group.documents.length+' document(s)</p></div></div>'+'<div class="media-grid">'+renderItems(group.reports)+renderItems(group.documents)+'</div></section>').join(''):'<div class="empty-state"><h3>No reports or documents uploaded yet</h3><p>Uploads from the separate Reports and Documents folders of each activity will appear together here.</p></div>')+'</div>';
 }
 function openRaweFullReport(encodedPath,index){
  const path=decodeURIComponent(encodedPath||''),item=(stored[path]||[])[index];if(!item){toast('Report not found. Refresh and try again.');return}
