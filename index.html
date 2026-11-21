@@ -911,7 +911,7 @@ raweFinalStyle.textContent=`
 .rawe-final-title p{font-size:14px;line-height:1.55;color:#30473b;margin:5px 0 0;font-weight:600}
 .rawe-final-memory{position:relative;overflow:hidden;border-radius:17px;padding:14px;background:#103d2d;border:1px solid #d5e4d8;box-shadow:0 8px 22px #173d2a20;height:clamp(230px,42vw,460px)}
 .rawe-final-memory-track{position:relative;width:100%;height:100%}
-.rawe-final-memory-slide{position:absolute;inset:0;opacity:0;animation:raweFinalMemoryShow var(--memory-duration) linear infinite}
+.rawe-final-memory-slide{position:absolute;inset:0;opacity:0;animation-name:raweFinalMemoryShow;animation-duration:var(--memory-duration,12s);animation-timing-function:linear;animation-iteration-count:infinite;animation-fill-mode:both;pointer-events:none}.rawe-final-memory-slide[style]{pointer-events:auto}.rawe-final-memory-slide img{user-select:none;-webkit-user-drag:none}
 .rawe-final-memory-slide img{width:100%;height:100%;object-fit:contain;border-radius:11px;display:block;cursor:zoom-in}
 @keyframes raweFinalMemoryShow{0%,var(--memory-visible){opacity:1}var(--memory-next),100%{opacity:0}}
 @keyframes raweFinalScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -957,7 +957,7 @@ function raweFinalMemory(){
  let keyframes=document.getElementById('raweFinalMemoryKeyframes');
  if(!keyframes){keyframes=document.createElement('style');keyframes.id='raweFinalMemoryKeyframes';document.head.appendChild(keyframes)}
  keyframes.textContent=`@keyframes raweFinalMemoryShow{0%,${visible}%{opacity:1}${next}%,100%{opacity:0}}`;
- const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="animation-duration:${total}s;animation-delay:-${i*secondsPerPhoto}s"><img loading="${i===0?'eager':'lazy'}" decoding="async" fetchpriority="${i===0?'high':'low'}" src="${esc(optimizedPhotoUrl(x.url,1200))}" alt="${esc(x.title)}" title="Tap to enlarge" onerror="this.style.display='none'" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
+ const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="--memory-duration:${total}s;animation-delay:-${i*secondsPerPhoto}s"><img loading="${i<4?'eager':'lazy'}" decoding="async" fetchpriority="${i===0?'high':'auto'}" src="${esc(optimizedPhotoUrl(x.url,1000))}" alt="${esc(x.title)}" title="Tap to enlarge" onerror="this.style.display='none'" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
  return `<div class="rawe-final-memory"><div class="rawe-final-memory-track">${slides}</div></div>`;
 }
 
