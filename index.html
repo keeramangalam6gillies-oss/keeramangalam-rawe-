@@ -607,7 +607,7 @@ function previewItem(kind,url,title,description){
   }else{
    content='<pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:white;color:#20332d;padding:20px;border-radius:8px;max-width:900px;max-height:75vh;overflow:auto">'+esc(rawUrl||rawText||'No preview available.')+'</pre>';
   }
-  overlay.innerHTML='<div style="max-width:96vw;max-height:90vh;display:flex;flex-direction:column;gap:12px;align-items:center"><button type="button" aria-label="Close preview" style="align-self:flex-end;border:0;border-radius:50%;width:42px;height:42px;font-size:26px;cursor:pointer;background:white;color:#111" onclick="document.getElementById(\\'rawePreviewOverlay\\')?.remove()">×</button><div style="background:white;padding:22px;border-radius:10px;max-width:94vw;overflow:auto;color:#20332d"><h3>'+safeTitle+'</h3>'+content+'</div></div>';
+  overlay.innerHTML='<div style="max-width:96vw;max-height:90vh;display:flex;flex-direction:column;gap:12px;align-items:center"><button type="button" aria-label="Close preview" style="align-self:flex-end;border:0;border-radius:50%;width:42px;height:42px;font-size:26px;cursor:pointer;background:white;color:#111" onclick="document.getElementById(\'rawePreviewOverlay\')?.remove()">×</button><div style="background:white;padding:22px;border-radius:10px;max-width:94vw;overflow:auto;color:#20332d"><h3>'+safeTitle+'</h3>'+content+'</div></div>';
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
   document.body.appendChild(overlay);return;
  }
