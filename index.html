@@ -561,7 +561,7 @@ async function addItem(key,k){
  const button=document.querySelector('#adminPanel button.btn.primary');
  const addRecord=async(itemTitle,media={url:''})=>{stored[key]=Array.isArray(stored[key])?stored[key]:[];stored[key].push({title:itemTitle,date,location,desc,...media,type:k,createdAt:new Date().toISOString()})};
  try{
-else if(k==='Reports'&&!files.length){
+ if(k==='Reports'&&!files.length){
    const body=document.getElementById('reportText')?.value.trim()||'';
    if(!body){toast('Choose report files or enter report text');return}
    await addRecord(title||'Report',{url:body});
