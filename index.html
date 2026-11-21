@@ -937,14 +937,27 @@ raweFinalStyle.textContent=`
 document.head.appendChild(raweFinalStyle);
 function raweFinalUploadedPhotos(){
  const out=[];const seen=new Set();
- try{Object.entries(stored||{}).forEach(([key,items])=>{if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x&&x.url&&String(x.url).startsWith('http')&&!seen.has(x.url)){seen.add(x.url);out.push({url:x.url,title:x.title||key.split('/')[0]})}})})}catch(e){}
+ const add=(url,title)=>{
+  const value=String(url||'').trim();
+  if(!/^https?:\/\//i.test(value)||seen.has(value))return;
+  seen.add(value);out.push({url:value,title:title||'RAWE activity'});
+ };
+ try{
+  Object.entries(stored||{}).forEach(([key,items])=>{
+   if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x)add(x.url,x.title||key.split('/')[0])});
+  });
+  if(typeof raweAllGitHub==='function')raweAllGitHub('Photos').forEach(x=>add(x.url||(typeof raweGitHubRawUrl==='function'?raweGitHubRawUrl(x.path||''):''),x.title||x.path));
+ }catch(e){console.warn('Could not collect RAWE Memories photos:',e)}
  return out;
 }
 function raweFinalMemory(){
  const imgs=raweFinalUploadedPhotos();
  if(!imgs.length)return `<div class="rawe-final-empty">Your uploaded RAWE photographs will appear here automatically. Upload photos in the Photos folders under PRA, NGO and other RAWE activities.</div>`;
  const secondsPerPhoto=12,total=imgs.length*secondsPerPhoto,visible=90/imgs.length,next=100/imgs.length;
- const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="--memory-duration:${total}s;--memory-visible:${visible}%;--memory-next:${next}%;animation-delay:-${i*secondsPerPhoto}s"><img loading="lazy" decoding="async" fetchpriority="low" src="${esc(optimizedPhotoUrl(x.url,1000))}" alt="${esc(x.title)}" title="Tap to enlarge" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
+ let keyframes=document.getElementById('raweFinalMemoryKeyframes');
+ if(!keyframes){keyframes=document.createElement('style');keyframes.id='raweFinalMemoryKeyframes';document.head.appendChild(keyframes)}
+ keyframes.textContent=`@keyframes raweFinalMemoryShow{0%,${visible}%{opacity:1}${next}%,100%{opacity:0}}`;
+ const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="animation-duration:${total}s;animation-delay:-${i*secondsPerPhoto}s"><img loading="${i===0?'eager':'lazy'}" decoding="async" fetchpriority="${i===0?'high':'low'}" src="${esc(optimizedPhotoUrl(x.url,1200))}" alt="${esc(x.title)}" title="Tap to enlarge" onerror="this.style.display='none'" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
  return `<div class="rawe-final-memory"><div class="rawe-final-memory-track">${slides}</div></div>`;
 }
 
