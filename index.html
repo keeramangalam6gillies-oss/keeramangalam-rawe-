@@ -174,11 +174,11 @@ const journey=[
 ['2026-10-15','PACS and Cooperative Bank','T365 PACS and Central Cooperative Society Bank visits.','Institutional Visits'],
 ['2026-10-16','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits'],
 ['2026-10-17','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits'],
-['2026-10-18','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits'],
-['2026-10-19','Farmer visits','Farmer visits (recorded period: 16–19 October).','Farmer Visits'],
-['2026-10-20','Herbal garden and medicinal plant nursery','Visit to herbal garden and medicinal plant nursery.','Herbal Garden','General'],
-['2026-10-21','School awareness, soil health rally and training','School awareness, soil health awareness rally, oyster mushroom cultivation and kitchen gardening training.','Rallies','Rally on Soil Health Awareness'],
-['2026-10-22','KVK Vamban and FPO','Visit to KVK Vamban and Farmer Producer Organisation.','Institutional Visits'],
+['2026-10-18','Farmers Visit','Farmers visit and interaction.','Farmer Visits'],
+['2026-10-19','Individual Demonstration','Individual demonstration conducted for farmers.','Individual Demonstrations'],
+['2026-10-20','Individual Demonstration','Individual demonstration conducted for farmers.','Individual Demonstrations'],
+['2026-10-21','Demonstration','Demonstration conducted for farmers.','Demonstrations'],
+['2026-10-22','Demonstration','Demonstration conducted for farmers.','Demonstrations'],
 ['2026-10-23','Farmer visit','Farmer visit.','Farmer Visits'],
 ['2026-10-24','Organic input demonstrations','Coconut buttermilk solution, egg amino acid and maida solution demonstrations.','Demonstrations','Coconut Buttermilk Solution'],
 ['2026-10-25','Cow udder swelling management','Traditional cow udder swelling management demonstration.','Individual Demonstrations','Traditional Management of Udder Swelling'],
@@ -937,7 +937,10 @@ raweFinalStyle.textContent=`
 document.head.appendChild(raweFinalStyle);
 function raweFinalUploadedPhotos(){
  const out=[];const seen=new Set();
- try{Object.entries(stored||{}).forEach(([key,items])=>{if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x&&x.url&&String(x.url).startsWfunction raweFinalMemory(){
+ try{Object.entries(stored||{}).forEach(([key,items])=>{if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x&&x.url&&String(x.url).startsWith('http')&&!seen.has(x.url)){seen.add(x.url);out.push({url:x.url,title:x.title||key.split('/')[0]})}})})}catch(e){}
+ return out;
+}
+function raweFinalMemory(){
  const imgs=raweFinalUploadedPhotos();
  if(!imgs.length)return `<div class="rawe-final-empty">Your uploaded RAWE photographs will appear here automatically. Upload photos in the Photos folders under PRA, NGO and other RAWE activities.</div>`;
  const secondsPerPhoto=12,total=imgs.length*secondsPerPhoto,visible=90/imgs.length,next=100/imgs.length;
