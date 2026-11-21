@@ -957,7 +957,7 @@ function raweStartMemorySlideshow(){
  if(raweMemoryTimer){clearTimeout(raweMemoryTimer);raweMemoryTimer=null}
  const run=++raweMemoryRun,photos=raweFinalUploadedPhotos();
  if(!photos.length){box.innerHTML='<div class="rawe-final-empty">Photos uploaded to the Photo Gallery will appear here automatically.</div>';return}
- box.innerHTML='<div class="rawe-final-memory-track"><img id="raweMemoryCurrentPhoto" alt="" title="Tap to enlarge" style="width:100%;height:100%;object-fit:contain;border-radius:11px;display:block;opacity:0;transition:opacity .45s ease;cursor:zoom-in"></div><div id="raweMemoryPhotoCaption" style="position:absolute;left:18px;right:18px;bottom:18px;text-align:center;color:white;font-weight:700;text-shadow:0 1px 5px #000;background:#0006;border-radius:8px;padding:7px 10px"></div>';
+ box.innerHTML='<div class="rawe-final-memory-track" style="width:100%;height:100%;overflow:hidden;border-radius:11px"><img id="raweMemoryCurrentPhoto" alt="" title="Tap to enlarge" style="width:100%;height:100%;object-fit:cover;object-position:center;border-radius:11px;display:block;opacity:0;transition:opacity .45s ease;cursor:zoom-in"></div><div id="raweMemoryPhotoCaption" style="position:absolute;left:18px;right:18px;bottom:18px;text-align:center;color:white;font-weight:700;text-shadow:0 1px 5px #000;background:#0006;border-radius:8px;padding:7px 10px"></div>';
  const image=box.querySelector('#raweMemoryCurrentPhoto'),caption=box.querySelector('#raweMemoryPhotoCaption');
  let index=0;
  const preloadNext=()=>{
@@ -974,7 +974,7 @@ function raweStartMemorySlideshow(){
    caption.textContent=item.title||'RAWE activity';
    requestAnimationFrame(()=>{image.style.opacity='1'});
    index=i;preloadNext();
-   raweMemoryTimer=setTimeout(()=>show((index+1)%photos.length),12000);
+   raweMemoryTimer=setTimeout(()=>show((index+1)%photos.length),6000);
   };
   if(image.dataset.loadedSrc===src){ready();return}
   const loader=new Image();loader.decoding='async';loader.onload=()=>{image.dataset.loadedSrc=src;ready()};loader.onerror=()=>{if(run===raweMemoryRun)raweMemoryTimer=setTimeout(()=>show((i+1)%photos.length),1200)};loader.src=src;
