@@ -814,7 +814,7 @@ async function adminLogout(){adminAuthenticated=false;if(fbReady)try{await fbAut
 function exportBackup(){let data={format:'Keeramangalam RAWE 2026 backup',version:1,exportedAt:new Date().toISOString(),content:stored,profiles:profiles()};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='keeramangalam-rawe-2026-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('Backup exported')}
 function restoreBackup(input){if(!adminAuthenticated||!isAdminUser()){toast('Administrator login required');return}let f=input.files[0];if(!f)return;let r=new FileReader();r.onload=async()=>{try{let d=JSON.parse(r.result);if(!d.content||typeof d.content!=='object')throw Error('Invalid backup');if(!confirm('Restore this backup? Current browser content will be replaced. Export a backup first if needed.'))return;stored=d.content;const synced=await save();if(d.profiles)await saveProfiles(d.profiles);render();toast(synced?'Backup restored to the shared archive':'Backup restored on this device only; shared sync failed')}catch(e){console.error(e);toast('Could not restore: '+(e.message||'invalid backup file'))}};r.readAsText(f)}
 function dashboardPage(){let s=stats(),count=(prefix)=>Object.entries(stored).filter(([k])=>k.startsWith(prefix)).reduce((a,[k,v])=>a+(Array.isArray(v)?v.length:0),0),all=count(''),photosN=Object.values(stored).filter(Array.isArray).flat().filter(x=>x.type==='Photos').length,reportsN=Object.values(stored).filter(Array.isArray).flat().filter(x=>x.type==='Reports').length,docsN=Object.values(stored).filter(Array.isArray).flat().filter(x=>x.type==='Documents').length;return `${topPage('RAWE Dashboard','Programme overview and archive statistics.')}<div class="stats">${statBox(s.total,'Total programme days')}${statBox(s.completed,'Elapsed calendar days')}${statBox(s.remaining,'Calendar days remaining')}${statBox('6','Students')}${statBox(journey.filter(x=>x[3]==='Institutional Visits').length,'Recorded institutional-visit dates')}${statBox(journey.filter(x=>x[3]==='Demonstrations').length,'Recorded demonstration dates')}</div><div class="spacer"></div><div class="stats">${statBox(photosN,'Uploaded photos')}${statBox(reportsN,'Reports')}${statBox(docsN,'Documents')}${statBox(registerNames.reduce((n,x)=>n+(stored['register:'+x]||[]).length,0),'Register entries')}${statBox(all,'All stored records')}</div><div class="panel" style="margin-top:16px"><h3>Administration</h3><p class="muted">Manage content, profiles, registers and backups from the administrator workspace.</p><button class="btn primary" onclick="go('admin')">Open Admin Login & Dashboard</button> <button class="btn light" onclick="go('registers')">Digital Registers</button></div>`}
-function render(){const el=document.getElementById('app');if(!el)return;try{let html='';switch(state.page){case'home':html=home();break;case'folders':html=foldersPage();break;case'folder':html=folderPage(state.group);break;case'subfolder':html=subfolderPage(state.group,state.sub);break;case'content':html=contentPage(state.group,state.sub,state.kind);break;case'journey':html=journeyPage();break;case'about':html=aboutPage();break;case'people':html=peoplePage();break;case'village':html=villagePage();break;case'maps':html=mapsPage();break;case'gallery':html=galleryPage();break;case'feedback':html=feedbackPage();break;case'reports':html=reportsPage();break;case'registers':html=registersPage();break;case'dashboard':html=dashboardPage();break;case'admin':html=adminPage();break;case'search':html=topPage('Search results');break;default:html=home()}el.innerHTML=html;el.focus({preventScroll:true})}catch(error){console.error('RAWE page rendering failed:',error);el.innerHTML=`<section class="panel" style="margin:24px auto;max-width:1000px"><h2 style="color:#a33">This page could not be displayed</h2><p>${esc(error&&error.message?error.message:String(error))}</p><p class="muted">Please refresh the page. The saved RAWE content has not been deleted.</p><button class="btn primary" onclick="go('home')">Return to Home</button></section>`;}}
+function render(){const el=document.getElementById('app');if(!el)return;try{let html='';switch(state.page){case'home':html=home();break;case'folders':html=foldersPage();break;case'folder':html=folderPage(state.group);break;case'subfolder':html=subfolderPage(state.group,state.sub);break;case'content':html=contentPage(state.group,state.sub,state.kind);break;case'journey':html=journeyPage();break;case'about':html=aboutPage();break;case'people':html=peoplePage();break;case'village':html=villagePage();break;case'maps':html=mapsPage();break;case'gallery':html=galleryPage();break;case'feedback':html=feedbackPage();break;case'reports':html=reportsPage();break;case'registers':html=registersPage();break;case'dashboard':html=dashboardPage();break;case'admin':html=adminPage();break;case'search':html=topPage('Search results');break;default:html=home()}el.innerHTML=html;el.focus({preventScroll:true});if(state.page==='home'&&typeof raweStartMemorySlideshow==='function')requestAnimationFrame(()=>raweStartMemorySlideshow());else if(typeof raweMemoryTimer!=='undefined'&&raweMemoryTimer){clearTimeout(raweMemoryTimer);raweMemoryTimer=null;raweMemoryRun++}}catch(error){console.error('RAWE page rendering failed:',error);el.innerHTML=`<section class="panel" style="margin:24px auto;max-width:1000px"><h2 style="color:#a33">This page could not be displayed</h2><p>${esc(error&&error.message?error.message:String(error))}</p><p class="muted">Please refresh the page. The saved RAWE content has not been deleted.</p><button class="btn primary" onclick="go('home')">Return to Home</button></section>`;}}
 /* Additional responsive styling and an always-visible administrator entry point. */
 document.querySelector('.navlinks').insertAdjacentHTML('beforeend','<button onclick="go(\'admin\')">Admin Login</button>');
 const extraStyle=document.createElement('style');extraStyle.textContent=`html,body{max-width:100%;overflow-x:hidden}#app,.panel,.page-head,.form-grid,.toolbar{min-width:0;max-width:100%}.form-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}.register-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}.register-tabs button{min-width:0;min-height:42px;white-space:normal;line-height:1.25}.table-wrap{width:100%;max-width:100%;-webkit-overflow-scrolling:touch}.attendance-evidence{margin:12px 0}.attendance-evidence img{display:block;width:min(100%,520px);max-height:340px;object-fit:contain;border:1px solid var(--line);border-radius:10px}.attendance-photo-box{margin:12px 0;padding:12px;background:#f5f8f1;border:1px dashed #b9c9b5;border-radius:9px}.toolbar{flex-wrap:wrap}.toolbar label{max-width:100%}.toolbar input{max-width:100%}.rawe-cover{min-height:180px;margin:0 0 15px;border-radius:14px;background:linear-gradient(120deg,#e9efe1,#f7f3e5);background-position:center;background-size:cover;display:flex;align-items:end;padding:20px;color:white;border:1px solid var(--line)}.rawe-cover:not([style*="background-image"]){color:var(--forest)}.rawe-cover span{font-size:10px;letter-spacing:.15em;font-weight:800}.rawe-cover h3{font-size:clamp(22px,4vw,34px);margin:3px 0 10px}.rawe-cover .btn{width:max-content}.admin-panel label{display:block;font-weight:650;font-size:13px}.admin-panel input[type=password]{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;margin:8px 0 14px}.admin-panel .quick-grid{margin:12px 0}.media-card .toolbar button,.table-wrap button{border:1px solid var(--line);border-radius:6px;background:#f7f8f3;padding:6px 9px;color:var(--forest)}.person-body .btn{margin-top:7px}@media(max-width:700px){.register-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.register-tabs button{font-size:12px;padding:9px 7px}.form-grid{grid-template-columns:1fr!important}.panel{padding:12px}.section-head{gap:8px;flex-wrap:wrap}.table-wrap th,.table-wrap td{padding:9px 10px}.attendance-photo-box label{display:inline-flex;max-width:100%}.rawe-cover{min-height:145px;padding:14px}.rawe-cover h3{font-size:23px}.content-types{gap:9px}.type-card{padding:14px 8px}.toolbar button{min-height:38px}.table-wrap{max-width:100%}.admin-panel{padding:12px}.navlinks button{min-height:40px}}`;extraStyle.textContent+=`.person-photo{height:190px;min-height:190px;overflow:hidden}.person-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 20%}`;
@@ -939,26 +939,50 @@ function raweFinalUploadedPhotos(){
  const out=[];const seen=new Set();
  const add=(url,title)=>{
   const value=String(url||'').trim();
-  if(!/^https?:\/\//i.test(value)||seen.has(value))return;
+  if(!value||seen.has(value)||(!/^https?:\/\//i.test(value)&&!/^data:image\//i.test(value)))return;
   seen.add(value);out.push({url:value,title:title||'RAWE activity'});
  };
  try{
   Object.entries(stored||{}).forEach(([key,items])=>{
    if(/\/Photos$/i.test(key)&&Array.isArray(items))items.forEach(x=>{if(x)add(x.url,x.title||key.split('/')[0])});
   });
-  if(typeof raweAllGitHub==='function')raweAllGitHub('Photos').forEach(x=>add(x.url||(typeof raweGitHubRawUrl==='function'?raweGitHubRawUrl(x.path||''):''),x.title||x.path));
- }catch(e){console.warn('Could not collect RAWE Memories photos:',e)}
+  if(typeof raweAllGitHub==='function')raweAllGitHub('Photos').forEach(x=>add(x.url||(typeof raweGitHubRawUrl==='function'?raweGitHubRawUrl(x.path||''):''),x.title||raweMediaTitle(x)));
+ }catch(e){console.warn('Could not collect Photo Gallery images for RAWE Memories:',e)}
  return out;
 }
+let raweMemoryTimer=null,raweMemoryRun=0;
+function raweStartMemorySlideshow(){
+ const box=document.querySelector('.rawe-final-memory');
+ if(!box)return;
+ if(raweMemoryTimer){clearTimeout(raweMemoryTimer);raweMemoryTimer=null}
+ const run=++raweMemoryRun,photos=raweFinalUploadedPhotos();
+ if(!photos.length){box.innerHTML='<div class="rawe-final-empty">Photos uploaded to the Photo Gallery will appear here automatically.</div>';return}
+ box.innerHTML='<div class="rawe-final-memory-track"><img id="raweMemoryCurrentPhoto" alt="" title="Tap to enlarge" style="width:100%;height:100%;object-fit:contain;border-radius:11px;display:block;opacity:0;transition:opacity .45s ease;cursor:zoom-in"></div><div id="raweMemoryPhotoCaption" style="position:absolute;left:18px;right:18px;bottom:18px;text-align:center;color:white;font-weight:700;text-shadow:0 1px 5px #000;background:#0006;border-radius:8px;padding:7px 10px"></div>';
+ const image=box.querySelector('#raweMemoryCurrentPhoto'),caption=box.querySelector('#raweMemoryPhotoCaption');
+ let index=0;
+ const preloadNext=()=>{
+  const next=photos[(index+1)%photos.length],preload=new Image();
+  preload.decoding='async';preload.src=optimizedPhotoUrl(next.url,1000);
+ };
+ const show=(i)=>{
+  if(run!==raweMemoryRun||!image.isConnected)return;
+  const item=photos[i],src=optimizedPhotoUrl(item.url,1000);
+  image.style.opacity='0';
+  const ready=()=>{
+   if(run!==raweMemoryRun||!image.isConnected)return;
+   image.src=src;image.alt=item.title;image.onclick=()=>lightbox(encodeURIComponent(item.url),item.title);
+   caption.textContent=item.title||'RAWE activity';
+   requestAnimationFrame(()=>{image.style.opacity='1'});
+   index=i;preloadNext();
+   raweMemoryTimer=setTimeout(()=>show((index+1)%photos.length),12000);
+  };
+  if(image.dataset.loadedSrc===src){ready();return}
+  const loader=new Image();loader.decoding='async';loader.onload=()=>{image.dataset.loadedSrc=src;ready()};loader.onerror=()=>{if(run===raweMemoryRun)raweMemoryTimer=setTimeout(()=>show((i+1)%photos.length),1200)};loader.src=src;
+ };
+ show(0);
+}
 function raweFinalMemory(){
- const imgs=raweFinalUploadedPhotos();
- if(!imgs.length)return `<div class="rawe-final-empty">Your uploaded RAWE photographs will appear here automatically. Upload photos in the Photos folders under PRA, NGO and other RAWE activities.</div>`;
- const secondsPerPhoto=12,total=imgs.length*secondsPerPhoto,visible=90/imgs.length,next=100/imgs.length;
- let keyframes=document.getElementById('raweFinalMemoryKeyframes');
- if(!keyframes){keyframes=document.createElement('style');keyframes.id='raweFinalMemoryKeyframes';document.head.appendChild(keyframes)}
- keyframes.textContent=`@keyframes raweFinalMemoryShow{0%,${visible}%{opacity:1}${next}%,100%{opacity:0}}`;
- const slides=imgs.map((x,i)=>`<div class="rawe-final-memory-slide" style="--memory-duration:${total}s;animation-delay:-${i*secondsPerPhoto}s"><img loading="${i<4?'eager':'lazy'}" decoding="async" fetchpriority="${i===0?'high':'auto'}" src="${esc(optimizedPhotoUrl(x.url,1000))}" alt="${esc(x.title)}" title="Tap to enlarge" onerror="this.style.display='none'" onclick="lightbox('${encodeURIComponent(x.url)}','${esc(x.title)}')"></div>`).join('');
- return `<div class="rawe-final-memory"><div class="rawe-final-memory-track">${slides}</div></div>`;
+ return `<div class="rawe-final-memory"><div class="rawe-final-memory-track"></div></div>`;
 }
 
 home=function(){
