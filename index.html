@@ -641,16 +641,34 @@ function optimizedPhotoUrl(url,width=1000){
  }
  return parts[0]+'/image/upload/'+segments.join('/');
 }
+function raweFileExtension(url,title){
+ const clean=String(url||'').split('?')[0].split('#')[0];
+ const tail=clean.split('/').pop()||String(title||'');
+ const match=tail.match(/\.([a-z0-9]{1,8})$/i);
+ return match?match[1].toLowerCase():'';
+}
+function raweFileDisplay(x,kind){
+ const url=String(x.url||''),title=esc(x.title||'Untitled file'),safeUrl=esc(url);
+ const ext=raweFileExtension(url,x.title),isHttp=/^https?:\/\//i.test(url);
+ if(isHttp){
+  const label=kind==='Reports'?'Open / Download report':'Open / Download document';
+  const note=/^(docs\.google\.com|drive\.google\.com)$/i.test((()=>{try{return new URL(url).hostname}catch(e){return ''}})())?'This opens the original Google file directly. The file owner must allow viewers to access it.':'This opens the original uploaded file directly; Google Docs embedding is not used.';
+  return '<p><a class="btn small primary" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">'+label+' ↗</a></p><p class="muted">'+note+'</p>';
+ }
+ if(url.startsWith('data:application/pdf'))return '<iframe title="'+title+'" src="'+safeUrl+'" style="width:100%;height:520px;border:1px solid var(--line);border-radius:8px"></iframe>';
+ if(url.startsWith('data:text/'))return '<pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(url.slice(url.indexOf(',')+1))+'</pre>';
+ return '<div class="report-content">'+esc(url||x.desc||'No details entered.')+'</div>';
+}
 function renderItems(items,k,key){
  const canManage=!!(isAdminUser()&&(key||items.some(x=>x&&x.path&&Number.isInteger(x.index))));
- return `<div class="${k==='Photos'?'media-grid':''}">${items.map((x,i)=>{
+ return '<div class="'+(k==='Photos'?'media-grid':'')+'">'+items.map((x,i)=>{
   const itemKey=key||x.path,itemIndex=Number.isInteger(x.index)?x.index:i;
   let body='';
-  if(k==='Photos') body=`<article class="media-card"><img loading="lazy" decoding="async" fetchpriority="low" src="${esc(optimizedPhotoUrl(x.url,900))}" alt="${esc(x.title)}" onclick="lightbox('${encodeURIComponent(x.url||'')}','${esc(x.title)}')"><div class="body"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'Location not supplied')}</p><p>${esc(x.desc||'')}</p></div>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
-  else if(x.type==='Documents'||k==='Documents') body=`<article class="report" style="cursor:pointer" onclick="previewItem('Documents',decodeURIComponent('${encodeURIComponent(x.url||'')}'),'${esc(x.title)}','')"><h3>📄 ${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'')}</p><p><button class="btn small light" onclick="previewItem('Documents',decodeURIComponent('${encodeURIComponent(x.url||'')}'),'${esc(x.title)}','')">View document</button></p><p>${esc(x.desc||'')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
-  else body=`<article class="report" style="cursor:pointer" onclick="${/^https?:\/\//i.test(x.url||'')? "previewItem('Documents',decodeURIComponent('"+encodeURIComponent(x.url||'')+"'),'"+esc(x.title)+"','')" : "previewItem('Reports','','"+esc(x.title)+"',decodeURIComponent('"+encodeURIComponent(x.url||x.desc||'No details entered.')+"'))"}"><h3>${esc(x.title)}</h3><p>${esc(x.date||'Date not supplied')} · ${esc(x.location||'')}</p><p style="white-space:pre-wrap">${/^https?:\/\//i.test(x.url||'')?'Open report preview':esc(x.url||x.desc||'No details entered.')}</p>${canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\',' +itemIndex+')">Delete</button></div>':''}</article>`;
+  if(k==='Photos') body='<article class="media-card"><img loading="lazy" decoding="async" fetchpriority="low" src="'+esc(optimizedPhotoUrl(x.url,900))+'" alt="'+esc(x.title)+'" onclick="lightbox(\''+encodeURIComponent(x.url||'')+'\',\''+esc(x.title)+'\')"><div class="body"><h3>'+esc(x.title)+'</h3><p>'+esc(x.date||'Date not supplied')+' · '+esc(x.location||'Location not supplied')+'</p><p>'+esc(x.desc||'')+'</p></div>'+(canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Delete</button></div>':'')+'</article>';
+  else if(x.type==='Documents'||k==='Documents') body='<article class="report"><h3>📄 '+esc(x.title)+'</h3><p>'+esc(x.date||'Date not supplied')+' · '+esc(x.location||'')+'</p>'+raweFileDisplay(x,'Documents')+'<p>'+esc(x.desc||'')+'</p>'+(canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Delete</button></div>':'')+'</article>';
+  else body='<article class="report"><h3>📑 '+esc(x.title)+'</h3><p>'+esc(x.date||'Date not supplied')+' · '+esc(x.location||'Location not supplied')+'</p>'+(/^https?:\/\//i.test(x.url||'')?raweFileDisplay(x,'Reports'):'<div class="report-content">'+esc(x.url||x.desc||'Report content has not been entered.')+'</div>')+(canManage?'<div class="toolbar"><button onclick="editFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Edit</button><button onclick="deleteFolderItem(\''+esc(itemKey)+'\','+itemIndex+')">Delete</button></div>':'')+'</article>';
   return body;
- }).join('')}</div>`;
+ }).join('')+'</div>';
 }
 async function editFolderItem(key,index){
  if(!isAdminUser()){toast('Administrator login required');return}
