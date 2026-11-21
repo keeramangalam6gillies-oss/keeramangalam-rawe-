@@ -596,18 +596,20 @@ function renderItems(items,k){return `<div class="${k==='Photos'?'media-grid':''
 /* Full-screen preview for photos, reports and documents. */
 function previewItem(kind,url,title,description){
  if(kind==='Documents'||kind==='Reports'){
-  const tab=window.open('about:blank','_blank');
-  if(!tab){toast('Please allow pop-ups to open this file in a new page');return}
-  const safeTitle=esc(title||'Report'),rawUrl=String(url||''),rawText=String(description||'');
-  let viewer='';
-  if(rawUrl){
-   if(/^https?:\/\/docs\.google\.com\/document\//i.test(rawUrl)) viewer=rawUrl.replace(/\/(edit|view)([?#].*)?$/i,'/preview');
-   else if(/^https?:\/\/drive\.google\.com\/file\/d\//i.test(rawUrl)) viewer=rawUrl.replace(/\/(view|edit)([?#].*)?$/i,'/preview');
-   else viewer='https://docs.google.com/gview?embedded=1&url='+encodeURIComponent(rawUrl);
-  }else if(rawText.startsWith('data:application/pdf')||rawText.startsWith('data:text/')) viewer=rawText;
-  const textOnly=!viewer,safeText=esc(rawText);
-  const page='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+safeTitle+'</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font:16px Arial,sans-serif;background:#f4f6f5;color:#20332d}.bar{height:54px;padding:0 16px;display:flex;align-items:center;background:#10483c;color:#fff;font-weight:600}iframe{display:block;width:100%;height:calc(100% - 54px);border:0;background:#fff}main{height:calc(100% - 54px);overflow:auto;max-width:950px;margin:auto;padding:24px;background:#fff}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:16px/1.7 Arial,sans-serif;margin:0}</style></head><body><header class="bar">'+safeTitle+'</header>'+(textOnly?'<main><pre>'+safeText+'</pre></main>':'<iframe title="'+safeTitle+'" src="'+esc(viewer)+'" referrerpolicy="no-referrer"></iframe>')+'</body></html>';
-  tab.document.open();tab.document.write(page);tab.document.close();return;
+  const rawUrl=String(url||''),rawText=String(description||''),safeTitle=esc(title||'Document');
+  const overlay=document.createElement('div');overlay.id='rawePreviewOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:16px';
+  let content='';
+  if(/^https?:\/\//i.test(rawUrl)){
+   content='<p>This file opens from its original location. Google Docs embedding and popup windows are not used.</p><a href="'+esc(rawUrl)+'" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 18px;background:#28658a;color:white;border-radius:8px;text-decoration:none">Open / Download original file ↗</a>';
+  }else if(rawUrl.startsWith('data:application/pdf')){
+   content='<iframe title="'+safeTitle+'" src="'+esc(rawUrl)+'" style="width:min(94vw,1100px);height:75vh;background:white;border:0"></iframe>';
+  }else{
+   content='<pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:white;color:#20332d;padding:20px;border-radius:8px;max-width:900px;max-height:75vh;overflow:auto">'+esc(rawUrl||rawText||'No preview available.')+'</pre>';
+  }
+  overlay.innerHTML='<div style="max-width:96vw;max-height:90vh;display:flex;flex-direction:column;gap:12px;align-items:center"><button type="button" aria-label="Close preview" style="align-self:flex-end;border:0;border-radius:50%;width:42px;height:42px;font-size:26px;cursor:pointer;background:white;color:#111" onclick="document.getElementById(\\'rawePreviewOverlay\\')?.remove()">×</button><div style="background:white;padding:22px;border-radius:10px;max-width:94vw;overflow:auto;color:#20332d"><h3>'+safeTitle+'</h3>'+content+'</div></div>';
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+  document.body.appendChild(overlay);return;
  }
 
  const old=document.getElementById('rawePreviewOverlay');if(old)old.remove();
