@@ -72,7 +72,7 @@
 <nav class="nav"><div class="nav-inner">
  <button class="iconbtn" onclick="go('home')" aria-label="Home">⌂</button><button class="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">☰</button>
  <div class="navlinks" id="navlinks">
- <button onclick="go('home')">Home</button><button onclick="go('about')">About RAWE</button><button onclick="go('people')">Students & Faculty</button><button onclick="go('village')">Village Profile</button><button onclick="go('journey')">Our Journey</button><button onclick="go('maps')">Maps</button><button onclick="go('folders')">All Folders</button><button onclick="go('gallery')">Photo Gallery</button><button onclick="go('feedback')">Feedback & Experiences</button><button onclick="go('reports')">Reports & Documents</button><button onclick="go('registers')">Digital Registers</button><button onclick="go('dashboard')">Dashboard</button>
+ <button onclick="go('home')">Home</button><button onclick="go('about')">About RAWE</button><button onclick="go('people')">Students & Faculty</button><button onclick="go('village')">Village Profile</button><button onclick="go('journey')">Our Journey</button><button onclick="go('maps')">Maps</button><button onclick="go('folders')">All Folders</button><button onclick="go('gallery')">Photo Gallery</button><button onclick="go('feedback')">Feedback & Experiences</button><button onclick="go('reports')">Reports</button><button onclick="go('reports')">Documents</button><button onclick="go('registers')">Digital Registers</button><button onclick="go('dashboard')">Dashboard</button>
  </div>
  <div class="nav-search"><input id="globalSearch" placeholder="Search folders…" aria-label="Search folders" onkeydown="if(event.key==='Enter')searchFolders()"><button class="iconbtn" onclick="searchFolders()" aria-label="Search">⌕</button></div>
  <button class="iconbtn" onclick="historyBack()" aria-label="Back">↶</button>
@@ -1083,31 +1083,14 @@ function galleryCard(x,i){return `<article class="media-card" data-title="${esc(
 function filterGallery(){let q=(document.getElementById('gallerySearch')?.value||'').toLowerCase(),c=document.getElementById('galleryCategory')?.value||'',p=(document.getElementById('galleryPlace')?.value||'').toLowerCase(),d=document.getElementById('galleryDate')?.value||'';document.querySelectorAll('#galleryGrid .media-card').forEach(el=>el.classList.toggle('hide',!(el.dataset.title.includes(q)&&(!c||el.dataset.cat===c)&&el.dataset.place.includes(p)&&(!d||el.dataset.date===d))))}
 function reportsPage(){
  if(fbReady&&!raweSharedAllLoaded&&!raweSharedLoadPromise){loadSharedContent().then(()=>{if(state.page==='reports')render()})}
- // Folder uploads remain separate at <activity>/Reports and <activity>/Documents.
- // This menu view combines those two sibling folders under one activity heading.
- const grouped=new Map();
- Object.entries(stored||{}).forEach(([path,arr])=>{
-  if(!Array.isArray(arr))return;
-  const match=path.match(/^(.*)\/(Reports|Documents)$/);
-  if(!match)return;
-  const activityPath=match[1],kind=match[2];
-  if(!grouped.has(activityPath))grouped.set(activityPath,{path:activityPath,reports:[],documents:[]});
-  arr.forEach((item,index)=>{
-   if(item)grouped.get(activityPath)[kind.toLowerCase()].push({item,index,sourcePath:path,kind});
-  });
- });
- const groups=[...grouped.values()].filter(g=>g.reports.length||g.documents.length).sort((a,b)=>a.path.localeCompare(b.path));
- const preview=x=>{
-  const url=String(x.item.url||''),title=esc(x.item.title||'Uploaded file'),clean=url.split('?')[0].split('#')[0],ext=(clean.split('.').pop()||'').toLowerCase();
-  if(/^data:image\//i.test(url)||/\.(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|heic|heif|avif|svg)$/i.test(clean)||/\/image\/upload\//i.test(url))
-   return '<img loading="lazy" decoding="async" src="'+esc(url)+'" alt="'+title+'" style="display:block;width:100%;height:180px;object-fit:cover;border-radius:10px">';
-  if(url.startsWith('data:application/pdf')||ext==='pdf')
-   return '<div class="report-content" style="min-height:90px">📕 PDF document</div>';
-  if(/^https?:\/\//i.test(url))return '<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open / Download original ↗</a></p>';
-  return '<div class="report-content">'+esc(url||x.item.desc||'No report text entered.')+'</div>';
- };
- const renderItems=items=>items.map(x=>'<article class="media-card"><div class="body"><h3>'+(x.kind==='Reports'?'📑 ':'📄 ')+esc(x.item.title||'Untitled')+'</h3><p>'+esc(x.item.date||'Date not supplied')+(x.item.location?' · '+esc(x.item.location):'')+'</p>'+(x.item.desc?'<p>'+esc(x.item.desc)+'</p>':'')+'</div>'+preview(x)+'<div class="toolbar"><button class="btn small primary" onclick="openRaweFullReport(\''+encodeURIComponent(x.sourcePath)+'\','+x.index+')">View Full '+(x.kind==='Reports'?'Report':'Document')+' →</button></div></article>').join('');
- return topPage('Reports & Documents','Reports and documents are uploaded separately inside each activity folder and displayed together here.')+'<div class="panel">'+(groups.length?groups.map(group=>'<section class="report"><div class="section-head"><div><h2>📁 '+esc(group.path.replace(/\//g,' · '))+'</h2><p>'+group.reports.length+' report(s) · '+group.documents.length+' document(s)</p></div></div>'+'<div class="media-grid">'+renderItems(group.reports)+renderItems(group.documents)+'</div></section>').join(''):'<div class="empty-state"><h3>No reports or documents uploaded yet</h3><p>Uploads from the separate Reports and Documents folders of each activity will appear together here.</p></div>')+'</div>';
+ const groups=new Map();
+ const ensure=path=>{if(!groups.has(path))groups.set(path,{path,reports:[],documents:[]});return groups.get(path)};
+ Object.entries(stored||{}).forEach(([path,items])=>{const m=path.match(/^(.*)\/(Reports|Documents)$/);if(!m||!Array.isArray(items))return;const g=ensure(m[1]);items.forEach((item,index)=>{if(item)g[m[2].toLowerCase()].push({item,index,sourcePath:path,kind:m[2]})})});
+ ['Reports','Documents'].forEach(kind=>raweAllGitHub(kind).forEach(x=>{const g=ensure(x.folderKey||'Other activity');g[kind.toLowerCase()].push({item:{title:raweMediaTitle(x),url:x.url||raweGitHubRawUrl(x.path||''),date:'',location:'',desc:''},kind,remote:true})}));
+ const isImage=x=>{const u=String(x.item.url||''),clean=u.split('?')[0].split('#')[0];return /^data:image\//i.test(u)||/\.(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|heic|heif|avif|svg)$/i.test(clean)||/\/image\/upload\//i.test(u)};
+ const all=[...groups.values()].filter(g=>g.reports.length||g.documents.length).sort((a,b)=>a.path.localeCompare(b.path));
+ const cards=all.map(g=>{const items=[...g.reports,...g.documents],first=items.find(x=>x.item.date||x.item.title)||items[0],m=first.item;const photos=items.filter(isImage).map(x=>'<img loading="lazy" src="'+esc(x.item.url)+'" alt="'+esc(x.item.title||'Activity photo')+'" onclick="lightbox(\''+encodeURIComponent(x.item.url)+'\')">').join('');const desc=[...new Set(items.map(x=>x.item.desc).filter(Boolean))].map(esc).join('<br>');const links=items.filter(x=>!isImage(x)).map(x=>{const t=esc(x.item.title||'Uploaded file');if(x.remote)return '<p>📎 '+t+' · <a href="'+esc(x.item.url)+'" target="_blank" rel="noopener">Open / Download</a></p>';return '<p>📎 '+t+' · <button class="btn small light" onclick="openRaweFullReport(\''+encodeURIComponent(x.sourcePath)+'\','+x.index+')">View Full '+(x.kind==='Reports'?'Report':'Document')+'</button></p>'}).join('');return '<article class="report activity-report-card"><h2>🗓️ '+esc(m.date||'RAWE Activity')+' · '+esc(m.title||g.path.split('/').pop())+'</h2>'+(m.location?'<p><b>📍 Location:</b> '+esc(m.location)+'</p>':'')+'<p><b>📁 Activity:</b> '+esc(g.path.replace(/\//g,' · '))+'</p>'+(desc?'<div class="activity-report-description">'+desc+'</div>':'')+(photos?'<div class="activity-report-photos">'+photos+'</div>':'')+links+'</article>'}).join('');
+ return topPage('Reports & Documents','Reports and documents are stored separately in each activity folder and displayed together here.')+'<style>.activity-report-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.activity-report-card{background:#fff;border-radius:12px;padding:22px;border-left:5px solid var(--green);box-shadow:0 4px 18px rgba(20,55,35,.10);min-width:0}.activity-report-card h2{font-size:1.15rem;color:var(--forest);margin:0 0 12px}.activity-report-description{line-height:1.65;margin:12px 0}.activity-report-photos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.activity-report-photos img{width:100%;height:180px;object-fit:cover;border-radius:9px;cursor:pointer}.activity-report-card p{overflow-wrap:anywhere}@media(max-width:760px){.activity-report-list{grid-template-columns:1fr}}</style><div class="activity-report-list">'+(cards||'<div class="empty-state"><h3>No reports or documents uploaded yet</h3><p>Uploads from the separate Reports and Documents folders will appear together here.</p></div>')+'</div>';
 }
 function openRaweFullReport(encodedPath,index){
  const path=decodeURIComponent(encodedPath||''),item=(stored[path]||[])[index];if(!item){toast('Report not found. Refresh and try again.');return}
@@ -1231,11 +1214,7 @@ function feedbackPage(){
  return topPage('Feedback & Experiences','Feedback and experiences from RAWE activities, collected and published by the website administrator.')+'<div class="toolbar"><input id="feedbackSearch" placeholder="Search feedback or activity…" oninput="filterFeedback()" style="padding:8px;border:1px solid var(--line);border-radius:7px"></div><div id="feedbackGrid">'+(cards||'<div class="empty-state"><div class="empty-icon">💬</div><h3>No feedback and experiences added yet</h3><p>Activity feedback will appear here when the administrator publishes it in the relevant activity folder.</p></div>')+'</div>';
 }
 function filterFeedback(){const q=(document.getElementById('feedbackSearch')?.value||'').toLowerCase();document.querySelectorAll('#feedbackGrid .feedback-entry').forEach(el=>el.classList.toggle('hide',!el.dataset.search.includes(q)))}
-function reportsPage(){
- const local=Object.entries(stored||{}).flatMap(([p,a])=>Array.isArray(a)?a.flatMap((x,index)=>x&&['Reports','Documents'].includes(x.type)?[{...x,path:p,index}]:[]):[]);
- const remote=[...raweAllGitHub('Reports'),...raweAllGitHub('Documents')];
- return `${topPage('Reports and Documents','Administrator-uploaded reports and documents from all RAWE activity folders appear here.')}<div class="panel">${local.length?renderItems(local,'Reports'):''}${remote.map(x=>raweGitHubMediaCard(x,x.kind==='Reports'?'Reports':'Documents')).join('')}${(!local.length&&!remote.length)?`<div class="empty-state"><div class="empty-icon">📄</div><h3>No reports or documents uploaded yet</h3><p>Upload files into the relevant activity folder's Reports or Documents subfolder in GitHub.</p></div>`:''}</div>`;
-}
+
 function raweFinalUploadedPhotos(){
  const local=[];
  try{Object.entries(stored||{}).forEach(([key,items])=>{if(key.endsWith('/Photos')&&Array.isArray(items))items.forEach(x=>{if(x&&x.url&&String(x.url).startsWith('http'))local.push({url:x.url,title:x.title||key.split('/')[0]})})})}catch(e){}
