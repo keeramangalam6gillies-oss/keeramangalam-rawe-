@@ -30,7 +30,6 @@ jobs:
           root = Path(".")
           allowed = {
               "Photos": {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"},
-              "Videos": {".mp4", ".m4v", ".mov", ".webm", ".ogv"},
               "Reports": {".pdf", ".doc", ".docx", ".txt", ".md", ".rtf"},
               "Documents": {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv", ".txt", ".md", ".rtf", ".odt", ".ods", ".odp"}
           }
