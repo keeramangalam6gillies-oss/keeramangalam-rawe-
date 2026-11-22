@@ -139,10 +139,10 @@ const faculty=[['Mr. G. Rathina Kumar','Assistant Professor, Plant Pathology','C
 const groups=[
 {name:'Group Discussion',icon:'👥',color:'#5b7294',subs:['Group Discussion']},
 {name:'PRA Activities',icon:'🗺️',color:'#24704f',subs:['Resource Map','Social Map','Village Timeline','Seasonal Calendar','Problem Tree','Venn Diagram','Population Map','Mobility Map','Donut Map','General PRA Activities']},
-{name:'Farmer Visits',icon:'👨‍🌾',color:'#b17a27',subs:['Coconut Farmers','Jasmine Farmers','Jackfruit Farmer','Lemon Farmer','Other Farmers','Farmer Gallery']},
+{name:'Farmer Visits',icon:'👨‍🌾',color:'#b17a27',subs:['Coconut Farmers','Jasmine Farmers','Jackfruit Farmer','Lemon Farmer','Other Farmers','Farmer Gallery','18.11.2026']},
 {name:'Institutional Visits',icon:'🏛️',color:'#28658a',subs:['Panchayat','Primary Health Centre (PHC)','VAO','AAO','ADA','Ration Shop','KVK Vamban','FPO','PACS','Cooperative Bank','Milk Society']},
-{name:'Demonstrations',icon:'🧪',color:'#ad5b3c',subs:['Soil Sample','Coconut Buttermilk Solution','Use of Calotropis to Improve Boron-Use Efficiency','Root Feeding in Coconut','Microgreens','Zero Energy Cool Chamber','Hydroponics','Bucket Trap','Fruit Fly Trap','Kunapajalam','IPM in Rice','Biofertilizer Application Methods','Biogas','Vermicompost','Paring and Pralinage in Banana','Banana Waste Compost','Propping in Banana']},
-{name:'Individual Demonstrations',icon:'🔬',color:'#b56b43',subs:['Maida Solution','Egg Amino Acid Solution','Traditional Management of Udder Swelling','Air Layering in Jasmine','T-Budding in Lemon','Leaf Colour Chart','Seed Treatment','Bird Perches','3G Karaisal','Seed Pelleting','Nutriseed Pack','Pro-tray','Thulasi Karaisal','Traps','Seed Floating Technique','PREVENTION AND MANAGEMENT OF FOOT-AND-MOUTH DISEASE (FMD) IN CATTLE','Clay Pot','Neem Leaf Extract']},
+{name:'Demonstrations',icon:'🧪',color:'#ad5b3c',subs:['Soil Sample','Coconut Buttermilk Solution','Use of Calotropis to Improve Boron-Use Efficiency','Root Feeding in Coconut','Microgreens','Zero Energy Cool Chamber','Hydroponics','Bucket Trap','Fruit Fly Trap','Kunapajalam','IPM in Rice','Biofertilizer Application Methods','Biogas','Vermicompost','Paring and Pralinage in Banana','Banana Waste Compost','Propping in Banana','21.11.2026','22.11.2026','23.11.2026']},
+{name:'Individual Demonstrations',icon:'🔬',color:'#b56b43',subs:['Maida Solution','Egg Amino Acid Solution','Traditional Management of Udder Swelling','Air Layering in Jasmine','T-Budding in Lemon','Leaf Colour Chart','Seed Treatment','Bird Perches','3G Karaisal','Seed Pelleting','Nutriseed Pack','Pro-tray','Thulasi Karaisal','Traps','Seed Floating Technique','PREVENTION AND MANAGEMENT OF FOOT-AND-MOUTH DISEASE (FMD) IN CATTLE','Clay Pot','Neem Leaf Extract','19.11.2026','20.11.2026']},
 {name:'Awareness Programmes',icon:'📢',color:'#248a83',subs:['IFS','Central Government Schemes','El Niño','Programme on Weather Applications','Health, Hygiene and Nutrition','School Awareness']},
 {name:'Rallies',icon:'📣',color:'#367c91',subs:['Rally on Soil Health Awareness']},
 {name:'Training Programmes',icon:'🎓',color:'#8b5a9c',subs:['Oyster Mushroom Cultivation','Kitchen Gardening','Small Millet Flour Preparation','Moringa By-products','Sericulture']},
@@ -204,7 +204,13 @@ const journey=[
  ['2026-11-14','Agro-Industries Tie-up – Day 3','Day 3 of the agro-industries tie-up at MKS Senthankudiyar Mills.','Agro-Industries Tie-up','14.11.2026'],
  ['2026-11-15','Agro-Industries Tie-up – Day 4','Day 4 of the agro-industries tie-up at MKS Senthankudiyar Mills.','Agro-Industries Tie-up','15.11.2026'],
  ['2026-11-16','ADA visit','Visit to the Assistant Director of Agriculture.','Institutional Visits'],
- ['2026-11-17','Agro-Industries Tie-up – Day 5','Day 5 of the agro-industries tie-up at MKS Senthankudiyar Mills.','Agro-Industries Tie-up','17.11.2026']
+ ['2026-11-17','Agro-Industries Tie-up – Day 5','Day 5 of the agro-industries tie-up at MKS Senthankudiyar Mills.','Agro-Industries Tie-up','17.11.2026'],
+['2026-11-18','Farmers Visit','Farmers visit and interaction.','Farmer Visits','18.11.2026'],
+['2026-11-19','Individual Demonstration','Individual demonstration conducted for farmers.','Individual Demonstrations','19.11.2026'],
+['2026-11-20','Individual Demonstration','Individual demonstration conducted for farmers.','Individual Demonstrations','20.11.2026'],
+['2026-11-21','Demonstration','Demonstration conducted for farmers.','Demonstrations','21.11.2026'],
+['2026-11-22','Demonstration','Demonstration conducted for farmers.','Demonstrations','22.11.2026'],
+['2026-11-23','Demonstration','Demonstration conducted for farmers.','Demonstrations','23.11.2026']
 ];
 const photos=[]; // No stock or illustrative photographs are preloaded.
 let state={page:'home',group:null,sub:null,kind:null,register:'Attendance Register',registerDateFilter:'',month:9,year:2026,selectedDate:(()=>{const t=new Date().toISOString().slice(0,10);return t<'2026-10-02'?'2026-10-02':t>'2026-12-03'?'2026-12-03':t})(),history:[]};
