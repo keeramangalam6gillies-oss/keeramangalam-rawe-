@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#123f32">
 <title>Keeramangalam RAWE 2026 | AEX 401 | Sethu Bhaskara College</title>
 <meta name="description" content="Keeramangalam RAWE 2026 (AEX 401): student fieldwork by Sethu Bhaskara Agricultural College, affiliated to TNAU, with PRA maps, farmer visits and village studies in Pudukkottai.">
@@ -941,9 +941,11 @@ function raweFinalUploadedPhotos(){
   const value=String(url||'').trim();
   if(!value||seen.has(value)||(!/^https?:\/\//i.test(value)&&!/^data:image\//i.test(value)))return;
   seen.add(value);
-  const key=String(folder||'Other Photos');
+  // Interleave by the main activity folder (PRA, NGO Activities, Farmer Visits, etc.),
+  // not by each individual subfolder.
+  const key=String(folder||'Other Photos').split('/')[0]||'Other Photos';
   if(!buckets.has(key))buckets.set(key,[]);
-  buckets.get(key).push({url:value,title:title||key.split('/')[0]||'RAWE activity'});
+  buckets.get(key).push({url:value,title:title||key||'RAWE activity'});
  };
  try{
   Object.entries(stored||{}).forEach(([key,items])=>{
@@ -1307,11 +1309,13 @@ raweMapRegisterFix.textContent=`
 `;
 document.head.appendChild(raweMapRegisterFix);
 
-render(); // Run only after RAWE media state has been initialized.
-loadRaweGitHubMedia();
+render(); // Show the page immediately while the latest shared media indexes load.
 loadSharedProfiles();
-// Preload the shared archive on site entry so every activity folder and both galleries have their media ready.
-loadSharedContent().then(()=>{if(['home','gallery','content'].includes(state.page))render()}).catch(e=>console.error('Initial shared media archive load failed',e));
+// Load both photo sources before the final homepage render so RAWE Memories never starts
+// with a partial, stale photo list. Both requests use fresh network data where available.
+Promise.all([loadRaweGitHubMedia(),loadSharedContent()]).then(()=>{
+ if(['home','gallery','content'].includes(state.page))render();
+}).catch(e=>console.error('Initial shared media archive load failed',e));
 /* ===== End RAWE automatic media integration ===== */
 
 
