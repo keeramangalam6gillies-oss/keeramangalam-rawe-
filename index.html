@@ -1176,10 +1176,10 @@ function reportsPage(){
  ['Reports','Documents'].forEach(kind=>raweAllGitHub(kind).forEach(x=>{const g=ensure(x.folderKey||'Other activity');g[kind.toLowerCase()].push({item:{title:raweMediaTitle(x),url:x.url||raweGitHubRawUrl(x.path||''),date:x.date||'',location:'',desc:''},kind,remote:true})}));
  const isImage=x=>{const u=String(x.item.url||''),clean=u.split('?')[0].split('#')[0];return /^data:image\//i.test(u)||/\.(jpg|jpeg|jpe|png|gif|webp|bmp|tif|tiff|heic|heif|avif|svg)$/i.test(clean)||/\/image\/upload\//i.test(u)};
  const all=[...groups.values()].filter(g=>g.reports.length||g.documents.length).map(g=>{
-  const items=[...g.reports,...g.documents].map(x=>({...x,parsedDate:raweReportDate(x.item)})).sort((a,b)=>(b.parsedDate.iso||'').localeCompare(a.parsedDate.iso||'')||(a.item.title||'').localeCompare(b.item.title||''));
+  const items=[...g.reports,...g.documents].map(x=>({...x,parsedDate:raweReportDate(x.item)})).sort((a,b)=>(a.parsedDate.iso||'9999-99-99').localeCompare(b.parsedDate.iso||'9999-99-99')||(a.item.title||'').localeCompare(b.item.title||''));
   const dated=items.filter(x=>x.parsedDate.iso),first=dated[0]||items[0];
   return {...g,items,first};
- }).sort((a,b)=>(b.first?.parsedDate.iso||'').localeCompare(a.first?.parsedDate.iso||'')||a.path.localeCompare(b.path));
+ }).sort((a,b)=>(a.first?.parsedDate.iso||'9999-99-99').localeCompare(b.first?.parsedDate.iso||'9999-99-99')||a.path.localeCompare(b.path));
  const cards=all.map(g=>{
   const items=g.items,first=g.first,m=first.item;
   const photos=items.filter(isImage).map(x=>'<img loading="lazy" src="'+esc(x.item.url)+'" alt="'+esc(x.item.title||'Activity photo')+'" onclick="lightbox(\''+encodeURIComponent(x.item.url)+'\')">').join('');
